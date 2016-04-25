@@ -75,7 +75,7 @@ public class MyStateActor extends AbstractActor {
         *  */
     @Override
     protected void loopBody(Message message) {
-        sleep(1000);
+        sleep(1);
         ActorTask task=(ActorTask)message.getData();// task 是一个null(init) 或者 actorTask
         // object 是q（State）、qName（String）、stack（Stack）、q'的返回结果（True/False）、q''的返回结果（String）
         if(task!=null){

@@ -87,7 +87,6 @@ public class StateT1 extends State implements Cloneable {
         WaitTask wtask;
         ActorTask atask;
         Stack currstack=curactor.getMyStack();
-
         int id=((ActorTask)currstack.peek()).getId(); // 当前栈顶 task 的 id
         String name=curactor.getName();
         List list=curactor.getTlist();
@@ -101,7 +100,7 @@ public class StateT1 extends State implements Cloneable {
                             curactor.output(wtask);
                         }else {//在stack中 && 作为T1-5的后续path
                             for(int j=0;j<i;j++){
-                                wtask = (WaitTask) curactor.tlist.get(j);
+                                wtask = (WaitTask) list.get(j);
                                 if(wtask.getId()==id){
                                     atask=new ActorTask(id,wtask.getPathR());
                                     dmessage=new DefaultMessage("paResult",atask);
@@ -111,7 +110,7 @@ public class StateT1 extends State implements Cloneable {
                         }
                     }else {//作为AD 轴后续path的一部分
                         for(int j=0;j<i;j++){
-                            wtask = (WaitTask) curactor.tlist.get(j);
+                            wtask = (WaitTask) list.get(j);
                             atask=new ActorTask(id,wtask.getPathR());
                             if(wtask.getId()==id){//不在stack中 && 作为T1-5的后续path
                                 dmessage=new DefaultMessage("paResult",atask);

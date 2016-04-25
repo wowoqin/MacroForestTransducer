@@ -49,11 +49,9 @@ public class WaitTask {   // 在 actor 的list 中添加的任务
 
 
     public boolean isWaitOutput(){
-        if(this.getPathR()!=null){
-            if((this.getPredR()) && (!this.getPathR().equals("true")))
-                return true;
-        }
-        return false;
+        if((!this.getPathR().equals("true"))||(!this.getPathR().equals("false")))
+            return true;
+        else return false;
     }
 
     public boolean isSatisfied() { // 检查当前 waitTask 是不是已经满足输出条件（可以进行输出操作了）
