@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a>
+    <b>
+        <c>
+            <f>
+                This is abcf result
+            </f>
+            <g>
+                This is abcg result
+            </g>
+        </c>
+        <d>
+            <f>
+                This abdf d/f
+            </f>
+        </d>
+    </b>
+    <b>
+        <e>
+
+        </e>
+        <c>
+            <f>
+                This is correct!
+            </f>
+            <h>
+                This is abch
+            </h>
+        </c>
+    </b>
+</a>

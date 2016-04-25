@@ -1,0 +1,89 @@
+package com.rules;
+
+import com.XPath.PathParser.ASTPath;
+import com.XPath.PathParser.ASTPreds;
+import com.ibm.actor.Actor;
+import com.ibm.actor.DefaultMessage;
+
+import java.util.Iterator;
+import java.util.List;
+import java.util.Queue;
+import java.util.Stack;
+
+/**
+ * Created by qin on 2015/10/10.
+ */
+public class StateT1_6 extends StateT1{
+    protected  State  _q3;//检查 preds
+    protected  State  _q1;//检查后续 path
+    protected StateT1_6(ASTPath path,State q3,State q1){
+        super(path);
+        _q3=q3;
+        _q1=q1;
+        _pathstack =new Stack();
+    }
+
+    public static State TranslateState(ASTPath path){//重新创建T1-6
+        State q3=StateT3.TranslateStateT3(path.getFirstStep().getPreds());
+        State q1=StateT1.TranslateStateT1(path.getRemainderPath());
+        return new StateT1_6(path,q3,q1);//然后压入栈
+    }
+    @Override
+    public void startElementDo(String tag,int layer,MyStateActor curactor) {// layer 是当前 tag 的层数
+        if((getLevel() == layer)  && (tag.equals(_test))){//应该匹配的层数 getLevel（）和 当前层数相等
+            WaitTask wtask;
+            ActorTask atask;
+            Stack currStack=curactor.getMyStack();
+            String name=((Integer)this._pathstack.hashCode()).toString().concat("T1-6.paActor");
+            Actor actor=(actors.get(name));// path的 actor
+            // 在 tlist 中添加需要等待匹配的任务模型
+            wtask=new WaitTask(layer,false,null);
+            curactor.addWTask(wtask);
+
+            _q3.setLevel(getLevel() + 1);
+            _q1.setLevel(getLevel() + 1);
+
+            if(actor == null){  // 若pathActor 还没有创建 --> _pathstack 一定为空
+                actor =actorManager.createAndStartActor(MyStateActor.class, name);
+                actors.put(actor.getName(), actor);
+
+                atask=new ActorTask(this._pathstack);
+                dmessage=new DefaultMessage("stack", atask);
+                actorManager.send(dmessage, curactor, actor);
+
+                atask=new ActorTask(layer,_q3);
+                currStack.push(atask);
+                //发送 q'' 给 paActor
+                atask=new ActorTask(layer,_q1);
+                dmessage=new DefaultMessage("pushTask", atask);
+                actorManager.send(dmessage,curactor,actor);
+            } else{  // 若path  actor 已经创建了,则发送 q'' 给 paActor即可
+                atask=new ActorTask(layer,_q3);
+                currStack.push(atask);
+                //发送 q'' 给 paActor
+                atask=new ActorTask(layer,_q1);
+                dmessage=new DefaultMessage("pushTask", atask);
+                actorManager.send(dmessage, curactor, actor);
+            }
+        }
+    }
+
+    public void endElementDo(String tag,int layer,MyStateActor curactor){
+        if (tag.equals(_test)) {// 遇到自己的结束标签，检查
+            this.processSelfEndTag(layer,curactor);
+        }else if (layer == getLevel() - 1) { // 遇到上层结束标签(肯定作为后续path)
+            // (能遇到上层结束标签，即T1-6作为一个后续的path（T1-5 的时候也会放在stackActor中），T1-6~T1-8会被放在paActor中)
+            // T1-5 的后续的path时，与T1-5 放在同一个栈，T1-6~T1-8 放在pathstack中
+            curactor.popFunction();   // T1-5弹栈
+            Stack currstack=curactor.getMyStack();
+            if(currstack.isEmpty()) {   // 弹完之后当前actor 所在的stack 为空了，则删除当前 actor
+                actorManager.detachActor(curactor);
+            }else{                      // T1-6 作为 T1-5 的后续 path
+                State state =(State)((ActorTask)(currstack.peek())).getObject();
+                if(state instanceof StateT1_5){
+                    state.endElementDo(tag,layer,curactor);
+                }
+            }
+        }
+    }
+}
