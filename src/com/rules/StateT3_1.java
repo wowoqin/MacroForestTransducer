@@ -46,9 +46,8 @@ public class StateT3_1 extends StateT3{
 
             if (tag .equals(_test)){
                 //要是test匹配，则直接检查preds'，preds' 的结果作为 T3-1 的结果
-                atask=new ActorTask(id,_q3);
                 curactor.popFunction();
-                stack.push(atask);
+                stack.push(new ActorTask(id,_q3));
             }
             else {// test不匹配，检查 q'' 和 q'''&& preds'.startElementDo(tag,layer)
                 // PC:
@@ -56,18 +55,14 @@ public class StateT3_1 extends StateT3{
                 if(!list.isEmpty()){
                     for(int i=(list.size()-1);i>=0;i--) {
                         wtask = (WaitTask) list.get(i);
-                        if (wtask.getId() == id) {//找到了-->T3-1约束 PC 轴的test
+                        if (wtask.getId() == id) {//找到了-->则T3-1约束 PC 轴的test
                             isFindInThis=true;
                             //1.(id,T3-1) 换为 (id,waitstate)
                             State waitState=new WaitState();
-                            waitState.setLevel(((State)atask.getObject()).getLevel());
-                            atask=new ActorTask(id,waitState);
+                            waitState.setLevel(((State) atask.getObject()).getLevel());
                             curactor.popFunction();
-                            curactor.pushFunction(atask);
-                            //2. add（layer,false,false）
-                            wtask=new WaitTask(layer,false,"false");
-                            curactor.addWTask(wtask);
-                            //3.push（layer,q'''）
+                            curactor.pushFunction(new ActorTask(id, waitState));
+                            //2.push（layer,q'''）
                             curactor.pushFunction(new ActorTask(layer,_q2));
                             //push(layer,q'')
                             if(actor==null){
@@ -85,28 +80,23 @@ public class StateT3_1 extends StateT3{
                             }else {
                                 State currQ=(State)_q3.copy();
                                 currQ.setLevel(layer + 1);
-                                atask=new ActorTask(layer,_q3);
-                                dmessage=new DefaultMessage("pushTask",atask);
+                                dmessage=new DefaultMessage("pushTask",new ActorTask(layer,currQ));
                                 actorManager.send(dmessage, curactor, actor);
                             }
-                            //q''.startElementDo(tag,layer)
-                            atask=new ActorTask(layer,tag);
-                            dmessage=new DefaultMessage("startE",atask);
-                            actorManager.send(dmessage, curactor, actor);
+                            //3. add（layer,false,false）
+                            curactor.addWTask(new WaitTask(layer,false,"false"));
+                            break;
                         }
                     }
                 }
-                if(!isFindInThis){
-                    //AD:
+                if(!isFindInThis){//AD:
                     //1.(id,T3-1) 换为 (id,waitstate)
                     State waitState=new WaitState();
                     waitState.setLevel(((State)atask.getObject()).getLevel());
-                    atask=new ActorTask(id,waitState);
                     curactor.popFunction();
-                    curactor.pushFunction(atask);
+                    curactor.pushFunction(new ActorTask(id,waitState));
                     //2. add（id,false,false）
-                    wtask=new WaitTask(id,false,"false");
-                    curactor.addWTask(wtask);
+                    curactor.addWTask(new WaitTask(id,false,"false"));
                     //3.push（id,q'''）
                     curactor.pushFunction(new ActorTask(layer,_q2));
                     //push(id,q'')
@@ -125,15 +115,13 @@ public class StateT3_1 extends StateT3{
                     }else {
                         State currQ=(State)_q3.copy();
                         currQ.setLevel(layer + 1);
-                        atask=new ActorTask(layer,_q3);
-                        dmessage=new DefaultMessage("pushTask",atask);
+                        dmessage=new DefaultMessage("pushTask",new ActorTask(layer,currQ));
                         actorManager.send(dmessage, curactor, actor);
                     }
-                    //q''.startElementDo(tag,layer)
-                    atask=new ActorTask(layer,tag);
-                    dmessage=new DefaultMessage("startE",atask);
-                    actorManager.send(dmessage, curactor, actor);
                 }
+                //q''.startElementDo(tag,layer)
+                dmessage=new DefaultMessage("startE",new ActorTask(layer,tag));
+                actorManager.send(dmessage, curactor, actor);
             }
         }
     }

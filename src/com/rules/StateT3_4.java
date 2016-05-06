@@ -39,11 +39,9 @@ public class StateT3_4 extends StateT3{
             _q32.setLevel(getLevel());
             _q31.setLevel(layer + 1);
 
-            ActorTask atask;
-            WaitTask wtask;
 
             Stack stack = curactor.getMyStack();
-            atask = (ActorTask) stack.peek();
+            ActorTask atask = (ActorTask) stack.peek();
             int id = atask.getId();//当前栈顶（T3-4）的 id
 
             String name = ((Integer) this._predstack.hashCode()).toString().concat("T3-4.prActor");
@@ -59,9 +57,8 @@ public class StateT3_4 extends StateT3{
                 //1. (id,T3-4) 换为（id,waitstate）
                 State waitState = new WaitState();
                 waitState.setLevel(((State) atask.getObject()).getLevel());
-                atask = new ActorTask(id, waitState);
                 curactor.popFunction();
-                stack.push(atask);
+                stack.push(new ActorTask(id, waitState));
                 //push(layer,q''')
                 stack.push(new ActorTask(layer, _q2));
                 //push(layer,q')--> 在T2-4 的谓词 actor 中
@@ -78,8 +75,7 @@ public class StateT3_4 extends StateT3{
                 } else {
                     State currQ = (State) _q31.copy();
                     currQ.setLevel(layer + 1);
-                    atask = new ActorTask(layer, _q31);
-                    dmessage = new DefaultMessage("pushTask", atask);
+                    dmessage = new DefaultMessage("pushTask", new ActorTask(layer,currQ));
                     actorManager.send(dmessage, curactor, actor1);
                 }
                 //2.push(layer,q'')
@@ -98,8 +94,7 @@ public class StateT3_4 extends StateT3{
                 } else {
                     State currQ = (State) _q32.copy();
                     currQ.setLevel(layer + 1);
-                    atask = new ActorTask(layer, _q32);
-                    dmessage = new DefaultMessage("pushTask", atask);
+                    dmessage = new DefaultMessage("pushTask", new ActorTask(layer,currQ));
                     actorManager.send(dmessage, curactor, actor);
                 }
                 //3.add(layer,false,false)
@@ -109,7 +104,7 @@ public class StateT3_4 extends StateT3{
                 List list = curactor.tlist;
                 if (!list.isEmpty()) {
                     for (int i = (list.size() - 1); i >= 0; i--) {
-                        wtask = (WaitTask) list.get(i);
+                        WaitTask wtask = (WaitTask) list.get(i);
                         if (wtask.getId() == id) {//找到了-->T3-3约束 PC 轴的test
                             isFindInThis = true;
                             //1. (id,T3-4) 换为（id,waitstate）&& push(layer,q''')
@@ -136,15 +131,12 @@ public class StateT3_4 extends StateT3{
                             } else {
                                 State currQ = (State) _q32.copy();
                                 currQ.setLevel(layer + 1);
-                                atask = new ActorTask(layer, _q32);
-                                dmessage = new DefaultMessage("pushTask", atask);
+                                dmessage = new DefaultMessage("pushTask", new ActorTask(layer, currQ));
                                 actorManager.send(dmessage, curactor, actor);
                             }
-                            atask = new ActorTask(layer, tag);
-                            dmessage = new DefaultMessage("startE", atask);
-                            actorManager.send(dmessage, curactor, actor);
                             //3.add(layer,false,false)
                             curactor.addWTask(new WaitTask(layer, false, "false"));
+                            break;
                         }
                     }
                 }
@@ -152,9 +144,8 @@ public class StateT3_4 extends StateT3{
                     //1. (id,T3-4) 换为（id,waitstate）
                     State waitState = new WaitState();
                     waitState.setLevel(((State) atask.getObject()).getLevel());
-                    atask = new ActorTask(id, waitState);
                     curactor.popFunction();
-                    curactor.pushFunction(atask);
+                    curactor.pushFunction(new ActorTask(id, waitState));
                     //push(id,q''')
                     curactor.pushFunction(new ActorTask(id, _q2));
                     //2.push(id,q'')
@@ -173,16 +164,14 @@ public class StateT3_4 extends StateT3{
                     } else {
                         State currQ = (State) _q32.copy();
                         currQ.setLevel(layer + 1);
-                        atask = new ActorTask(layer, _q32);
-                        dmessage = new DefaultMessage("pushTask", atask);
+                        dmessage = new DefaultMessage("pushTask", new ActorTask(layer, currQ));
                         actorManager.send(dmessage, curactor, actor);
                     }
-                    atask = new ActorTask(layer, tag);
-                    dmessage = new DefaultMessage("startE", atask);
-                    actorManager.send(dmessage, curactor, actor);
                     //3.add(id,false,false)
                     curactor.addWTask(new WaitTask(layer, false, "false"));
                 }
+                dmessage = new DefaultMessage("startE", new ActorTask(layer, tag));
+                actorManager.send(dmessage, curactor, actor);
             }
         }
     }

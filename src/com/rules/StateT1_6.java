@@ -29,16 +29,13 @@ public class StateT1_6 extends StateT1{
         return new StateT1_6(path,q3,q1);//然后压入栈
     }
     @Override
-    public void startElementDo(String tag,int layer,MyStateActor curactor) {// layer 是当前 tag 的层数
+    public void startElementDo(String tag,int layer,MyStateActor curactor) throws CloneNotSupportedException {// layer 是当前 tag 的层数
         if((getLevel() == layer)  && (tag.equals(_test))){//应该匹配的层数 getLevel（）和 当前层数相等
-            WaitTask wtask;
-            ActorTask atask;
             Stack currStack=curactor.getMyStack();
             String name=((Integer)this._pathstack.hashCode()).toString().concat("T1-6.paActor");
             Actor actor=(actors.get(name));// path的 actor
             // 在 tlist 中添加需要等待匹配的任务模型
-            wtask=new WaitTask(layer,false,null);
-            curactor.addWTask(wtask);
+            curactor.addWTask(new WaitTask(layer,false,null));
 
             _q3.setLevel(getLevel() + 1);
             _q1.setLevel(getLevel() + 1);
@@ -47,22 +44,19 @@ public class StateT1_6 extends StateT1{
                 actor =actorManager.createAndStartActor(MyStateActor.class, name);
                 actors.put(actor.getName(), actor);
 
-                atask=new ActorTask(this._pathstack);
-                dmessage=new DefaultMessage("stack", atask);
+                dmessage=new DefaultMessage("stack", new ActorTask(this._pathstack));
                 actorManager.send(dmessage, curactor, actor);
 
-                atask=new ActorTask(layer,_q3);
-                currStack.push(atask);
+                currStack.push(new ActorTask(layer,_q3));
                 //发送 q'' 给 paActor
-                atask=new ActorTask(layer,_q1);
-                dmessage=new DefaultMessage("pushTask", atask);
+                dmessage=new DefaultMessage("pushTask", new ActorTask(layer,_q1));
                 actorManager.send(dmessage,curactor,actor);
             } else{  // 若path  actor 已经创建了,则发送 q'' 给 paActor即可
-                atask=new ActorTask(layer,_q3);
-                currStack.push(atask);
+                currStack.push(new ActorTask(layer,_q3));
                 //发送 q'' 给 paActor
-                atask=new ActorTask(layer,_q1);
-                dmessage=new DefaultMessage("pushTask", atask);
+                State currQ=(State)_q1.copy();
+                currQ.setLevel(layer + 1);
+                dmessage=new DefaultMessage("pushTask", new ActorTask(layer,currQ));
                 actorManager.send(dmessage, curactor, actor);
             }
         }

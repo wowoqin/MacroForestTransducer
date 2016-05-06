@@ -21,7 +21,7 @@ public class WaitState extends State {
             curactor.FindAndRemoveFailedWTask(atask);
             //pop(qw)
             curactor.popFunction();
-            //当前栈不为空，栈顶进行endElementDo 操作（输出/弹栈等）
+            //当前栈不为空，若栈顶为stateT1，栈顶进行endElementDo 操作（输出/弹栈等）
             if (!ss.isEmpty()) {
                 ((State) (((ActorTask) ss.peek()).getObject())).endElementDo(tag, layer, curactor);
             } else {

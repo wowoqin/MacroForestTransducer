@@ -28,44 +28,38 @@ public class StateT3_3 extends StateT3{
     }
     public void startElementDo(String tag,int layer,MyStateActor curactor) throws CloneNotSupportedException {
         if (getLevel() >= layer) {//应该匹配的层数 getLayer（）和 当前标签 tag 的层数相等
-            ActorTask atask;
-            WaitTask wtask;
-
             _q2.setLevel(getLevel());//q2 检查【child::test】，应该匹配的标签的层数 不变
             _q3.setLevel(getLevel());// q3 检查preds'，应该匹配的标签的层数与当前 [test] 同一层
 
             Stack stack=curactor.getMyStack();
-            atask=(ActorTask)stack.peek();
+            ActorTask atask=(ActorTask)stack.peek();
             int id = atask.getId();//当前栈顶的 id
 
             String name=((Integer)this._predstack.hashCode()).toString().concat("T3-3.prActor");
             Actor actor=(actors.get(name));// preds'的 actor
 
-            boolean isFindInThis=false;
 
             if (tag.equals(_test)) {
                 //要是test匹配，则直接检查preds'，preds' 的结果作为 T3-3 的结果
                 //pop（id,T3-3）&& push（id,q''）
-                atask = new ActorTask(id, _q3);
                 curactor.popFunction();
-                stack.push(atask);
+                stack.push(new ActorTask(id, _q3));
             } else {// test不匹配，检查 q'' 和 q'''&& preds'.startElementDo(tag,layer)
                 // PC:
+                boolean isFindInThis=false;
                 List list=curactor.tlist;
                 if(!list.isEmpty()){
                     for(int i=(list.size()-1);i>=0;i--) {
-                        wtask = (WaitTask) list.get(i);
+                        WaitTask wtask = (WaitTask) list.get(i);
                         if (wtask.getId() == id) {//找到了-->T3-3约束 PC 轴的test
                             isFindInThis=true;
                             //1.(id,T3-3) 换为 (id,waitstate)
                             State waitState=new WaitState();
                             waitState.setLevel(((State)atask.getObject()).getLevel());
-                            atask=new ActorTask(id,waitState);
                             curactor.popFunction();
-                            curactor.pushFunction(atask);
+                            curactor.pushFunction(new ActorTask(id,waitState));
                             //2. add（layer,false,false）
-                            wtask=new WaitTask(layer,false,"false");
-                            curactor.addWTask(wtask);
+                            curactor.addWTask(new WaitTask(layer,false,"false"));
                             //3.push（layer,q'''）
                             curactor.pushFunction(new ActorTask(layer,_q2));
                             //push(layer,q'')
@@ -84,14 +78,10 @@ public class StateT3_3 extends StateT3{
                             }else {
                                 State currQ=(State)_q3.copy();
                                 currQ.setLevel(layer + 1);
-                                atask=new ActorTask(layer,_q3);
-                                dmessage=new DefaultMessage("pushTask",atask);
+                                dmessage=new DefaultMessage("pushTask",new ActorTask(layer,currQ));
                                 actorManager.send(dmessage, curactor, actor);
                             }
-                            //q''.startElementDo(tag,layer)
-                            atask=new ActorTask(layer,tag);
-                            dmessage=new DefaultMessage("startE",atask);
-                            actorManager.send(dmessage, curactor, actor);
+                            break;
                         }
                     }
                 }
@@ -100,12 +90,10 @@ public class StateT3_3 extends StateT3{
                     //1.(id,T3-3) 换为 (id,waitstate)
                     State waitState=new WaitState();
                     waitState.setLevel(((State)atask.getObject()).getLevel());
-                    atask=new ActorTask(id,waitState);
                     curactor.popFunction();
-                    curactor.pushFunction(atask);
+                    curactor.pushFunction(new ActorTask(id,waitState));
                     //2. add（id,false,false）
-                    wtask=new WaitTask(id,false,"false");
-                    curactor.addWTask(wtask);
+                    curactor.addWTask(new WaitTask(id,false,"false"));
                     //3.push（id,q'''）
                     curactor.pushFunction(new ActorTask(layer,_q2));
                     //push(id,q'')
@@ -124,15 +112,13 @@ public class StateT3_3 extends StateT3{
                     }else {
                         State currQ=(State)_q3.copy();
                         currQ.setLevel(layer + 1);
-                        atask=new ActorTask(layer,_q3);
-                        dmessage=new DefaultMessage("pushTask",atask);
+                        dmessage=new DefaultMessage("pushTask",new ActorTask(layer,currQ));
                         actorManager.send(dmessage, curactor, actor);
                     }
-                    //q''.startElementDo(tag,layer)
-                    atask=new ActorTask(layer,tag);
-                    dmessage=new DefaultMessage("startE",atask);
-                    actorManager.send(dmessage, curactor, actor);
                 }
+                //q''.startElementDo(tag,layer)
+                dmessage=new DefaultMessage("startE",new ActorTask(layer,tag));
+                actorManager.send(dmessage, curactor, actor);
             }
         }
     }

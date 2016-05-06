@@ -25,31 +25,25 @@ public class StateT1_7 extends StateT1 implements Cloneable{
 
     public void startElementDo(String tag, int layer,MyStateActor curactor) throws CloneNotSupportedException{
         if ((layer >= getLevel()) && (tag.equals(_test))) {
-            WaitTask wtask;
-            ActorTask atask;
             String name=((Integer)this._pathstack.hashCode()).toString().concat("T1-7.paActor");
             Actor actor=(actors.get(name));// path的 actor
             // 在 tlist 中添加需要等待匹配的任务模型
-            wtask=new WaitTask(layer,true,null);
-            curactor.addWTask(wtask);
+            curactor.addWTask(new WaitTask(layer,true,null));
 
             if(actor == null){  // 若pathActor 还没有创建 --> _pathstack 一定为空
                 actor =actorManager.createAndStartActor(MyStateActor.class, name);
                 actors.put(actor.getName(), actor);
 
-                atask=new ActorTask(this._pathstack);
-                dmessage=new DefaultMessage("stack", atask);
+                dmessage=new DefaultMessage("stack", new ActorTask(this._pathstack));
                 actorManager.send(dmessage, curactor, actor);
                 //发送 q'' 给 paActor
                 _q1.setLevel(layer + 1);
-                atask=new ActorTask(layer,_q1);
-                dmessage=new DefaultMessage("pushTask", atask);
+                dmessage=new DefaultMessage("pushTask", new ActorTask(layer,_q1));
                 actorManager.send(dmessage,curactor,actor);
             } else{  // 若path  actor 已经创建了,则发送 q'' 给 paActor即可
                 State currQ=(State)_q1.copy();
                 currQ.setLevel(layer + 1);
-                atask=new ActorTask(layer,_q1);
-                dmessage=new DefaultMessage("pushTask",atask);
+                dmessage=new DefaultMessage("pushTask",new ActorTask(layer,currQ));
                 actorManager.send(dmessage, curactor, actor);
 
             }

@@ -26,13 +26,11 @@ public class StateT2_2 extends StateT2{
 
     public void startElementDo(String tag,int layer,MyStateActor curactor) {
         if((getLevel()==layer) && (tag.equals(_test))){// T2-2 的test匹配
-            WaitTask wtask = new WaitTask(layer,false,"true");
-            curactor.addWTask(wtask);
+            curactor.addWTask(new WaitTask(layer,false,"true"));
 
             //检查的谓词的层数肯定是当前应该匹配层数所对应的标签的子孙的层数
             _q3.setLevel(getLevel() + 1);
-            ActorTask atask=new ActorTask(layer,_q3);
-            curactor.getMyStack().push(atask);// 对于当前栈的压栈操作，就可以直接压栈（不用发送消息）
+            curactor.getMyStack().push(new ActorTask(layer,_q3));// 对于当前栈的压栈操作，就可以直接压栈（不用发送消息）
 
         }
     }

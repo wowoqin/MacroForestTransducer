@@ -26,31 +26,25 @@ public class StateT2_4 extends StateT2 implements Cloneable{
     }
     public void startElementDo(String tag,int layer,MyStateActor curactor) throws CloneNotSupportedException{
         if ((layer >= getLevel()) && (tag.equals(_test))) {
-            ActorTask atask;
-
-            WaitTask wtask=new WaitTask(layer,false,"true");
-            curactor.addWTask(wtask);
+            curactor.addWTask(new WaitTask(layer,false,"true"));
 
             String name=((Integer)this._predstack.hashCode()).toString().concat("T2-4.prActor");
-            Actor actor=(actors.get(name));// preds'的 actor
+            Actor actor=(actors.get(name));// preds的 actor
 
             if(actor == null){// 若 prActor还没有创建 ，predstack 一定为空
                 actor =actorManager.createAndStartActor(MyStateActor.class, name);
                 actors.put(actor.getName(), actor);
 
-                atask=new ActorTask(this._predstack);
-                dmessage=new DefaultMessage("stack", atask);
+                dmessage=new DefaultMessage("stack", new ActorTask(this._predstack));
                 actorManager.send(dmessage, curactor, actor);
                 //发送 q'给 prActor
                 _q3.setLevel(layer + 1);
-                atask=new ActorTask(layer,_q3);
-                dmessage=new DefaultMessage("pushTask", atask);
+                dmessage=new DefaultMessage("pushTask", new ActorTask(layer,_q3));
                 actorManager.send(dmessage,curactor,actor);
             }else{
                 State currQ=(State)_q3.copy();
                 currQ.setLevel(layer + 1);
-                atask=new ActorTask(layer,_q3);
-                dmessage=new DefaultMessage("pushTask",atask);
+                dmessage=new DefaultMessage("pushTask",new ActorTask(layer,currQ));
                 actorManager.send(dmessage, curactor, actor);
             }
         }

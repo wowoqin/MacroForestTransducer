@@ -25,9 +25,8 @@ public class StateT2_3 extends StateT2{
         if((getLevel()>=layer) && (tag.equals(_test))){
             Stack ss=curactor.getMyStack();
             int id =((ActorTask) ss.peek()).getId(); // 当前栈顶 task 的 id
-            ActorTask task = new ActorTask(id, true);
             //发送谓词结果 && pop 当前栈顶
-            curactor.sendPredsResult(task);
+            curactor.sendPredsResult(new ActorTask(id, true));
             if(ss.isEmpty())
                 actorManager.detachActor(curactor);
         }

@@ -50,9 +50,8 @@ public class StateT3_2 extends StateT3{
 
             if(tag.equals(_test)){  //T3-2 的 test 匹配
                 //1. (id,T3-2) 换为（id,T2-2）&& push(layer,q')
-                atask=new ActorTask(id,_q2);
                 curactor.popFunction();
-                stack.push(atask);
+                stack.push(new ActorTask(id,_q2));
                 //push(layer,q')
                 stack.push(new ActorTask(layer, _q31));
                 //2.push(layer,q'')
@@ -71,8 +70,7 @@ public class StateT3_2 extends StateT3{
                 }else {
                     State currQ=(State)_q32.copy();
                     currQ.setLevel(layer + 1);
-                    atask=new ActorTask(layer,_q32);
-                    dmessage=new DefaultMessage("pushTask",atask);
+                    dmessage=new DefaultMessage("pushTask",new ActorTask(layer,currQ));
                     actorManager.send(dmessage, curactor, actor);
                 }
                 //3.add(layer,false,false)
@@ -88,9 +86,8 @@ public class StateT3_2 extends StateT3{
                             //1. (id,T3-2) 换为（id,waitstate）
                             State waitState=new WaitState();
                             waitState.setLevel(((State)atask.getObject()).getLevel());
-                            atask=new ActorTask(id,waitState);
                             curactor.popFunction();
-                            curactor.pushFunction(atask);
+                            curactor.pushFunction(new ActorTask(id,waitState));
                             //push(layer,q''')
                             curactor.pushFunction(new ActorTask(layer,_q2));
                             //2.push(layer,q'')
@@ -113,12 +110,9 @@ public class StateT3_2 extends StateT3{
                                 dmessage=new DefaultMessage("pushTask",atask);
                                 actorManager.send(dmessage, curactor, actor);
                             }
-                            //q''.startElementDo(tag,layer)
-                            atask=new ActorTask(layer,tag);
-                            dmessage=new DefaultMessage("startE",atask);
-                            actorManager.send(dmessage, curactor, actor);
                             //3.add(layer,false,false)
                             curactor.addWTask(new WaitTask(layer,false,"false"));
+                            break;
                         }
                     }
                 }
@@ -126,13 +120,11 @@ public class StateT3_2 extends StateT3{
                     // AD:
                     //1. (id,T3-2) 换为（id,waitstate）
                     State waitState=new WaitState();
-                    waitState.setLevel(((State)atask.getObject()).getLevel());
-                    atask=new ActorTask(id,waitState);
+                    waitState.setLevel(((State) atask.getObject()).getLevel());
                     curactor.popFunction();
-                    curactor.pushFunction(atask);
+                    curactor.pushFunction(new ActorTask(id,waitState));
                     //2.push（id,T2-2）
-                    atask=new ActorTask(id,_q2);
-                    curactor.pushFunction(atask);
+                    curactor.pushFunction(new ActorTask(id,_q2));
                     //2.push(id,q'')
                     if(actor==null){
                         actor=actorManager.createAndStartActor(MyStateActor.class, name);
@@ -149,17 +141,15 @@ public class StateT3_2 extends StateT3{
                     }else {
                         State currQ=(State)_q32.copy();
                         currQ.setLevel(layer + 1);
-                        atask=new ActorTask(id,_q32);
-                        dmessage=new DefaultMessage("pushTask",atask);
+                        dmessage=new DefaultMessage("pushTask",new ActorTask(id,currQ));
                         actorManager.send(dmessage, curactor, actor);
                     }
-                    //q''.startElementDo(tag,layer)
-                    atask=new ActorTask(layer,tag);
-                    dmessage=new DefaultMessage("startE",atask);
-                    actorManager.send(dmessage, curactor, actor);
                     //3.add(id,false,false)
                     curactor.addWTask(new WaitTask(id,false,"false"));
                 }
+                //q''.startElementDo(tag,layer)
+                dmessage=new DefaultMessage("startE",new ActorTask(layer,tag));
+                actorManager.send(dmessage, curactor, actor);
             }
         }
     }

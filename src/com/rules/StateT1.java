@@ -88,43 +88,55 @@ public class StateT1 extends State implements Cloneable {
         ActorTask atask;
         Stack currstack=curactor.getMyStack();
         int id=((ActorTask)currstack.peek()).getId(); // 当前栈顶 task 的 id
-        String name=curactor.getName();
-        List list=curactor.getTlist();
+        List list=curactor.getTlist();//当前actor的list
 
         for(int i=0;i<list.size();i++){
             wtask = (WaitTask)list.get(i);
-            if (wtask.getId()==layer) {
-                if (wtask.isSatisfied()) {
-                    if(name.equals("stackActor")){//在stack中-==>PC轴
+            if (wtask.getId()==layer) {//找到id==layer的 wt
+                if (wtask.isSatisfied()) {//当前 wt 满足输出条件
+                    if(curactor.getName().equals("stackActor")){//在stack中==>PC轴
                         if(currstack.size()==1){//输出
-                            curactor.output(wtask);
+                            curactor.output(wtask);//也许有多个输出，此时不return；
                         }else {//在stack中 && 作为T1-5的后续path
+                            //则把(wt.id，wt.getPathR())给自己这个list中id=wt.id的 wt1
                             for(int j=0;j<i;j++){
-                                wtask = (WaitTask) list.get(j);
-                                if(wtask.getId()==id){
+                                WaitTask wtask1 = (WaitTask) list.get(j);
+                                if(wtask1.getId()==id){//找到相同id的 wt，把结果传给 wt
                                     atask=new ActorTask(id,wtask.getPathR());
                                     dmessage=new DefaultMessage("paResult",atask);
                                     actorManager.send(dmessage,curactor,curactor);
+                                    //此时需要跳出循环，是因为也许会T1-5下面有多个符合的T1-1
+                                    // /a/b : 若a下面有多个b，找到最后一个时，前面已经有很多的相同id的(0,true,b)了，
+                                    //       它们的id都等于0，所以此时就不需要再把之前已经检查好的wt再次赋值pathResult了
+                                    curactor.removeWTask(wtask);
+                                    return;//跳出这个方法（即跳出了小循环j，又跳出了大循环i）
                                 }
                             }
                         }
-                    }else {//作为AD 轴后续path的一部分
-                        for(int j=0;j<i;j++){
-                            wtask = (WaitTask) list.get(j);
-                            atask=new ActorTask(id,wtask.getPathR());
-                            if(wtask.getId()==id){//不在stack中 && 作为T1-5的后续path
+                    }else { //作为AD 轴后续 path 的一部分
+                        boolean isFind=false;
+                        atask=new ActorTask(id,wtask.getPathR());
+                        for(int j=0;j<i;j++){//在自己的list中找相同id的wt
+                            WaitTask wtask1 = (WaitTask) list.get(j);
+                            if(wtask1.getId()==id){//找到了==>不在stack中 && 作为T1-5的后续path
                                 dmessage=new DefaultMessage("paResult",atask);
-                                actorManager.send(dmessage,curactor,curactor);
-                            }else{//在T1-6、T1-7、T1-8的path栈中
-                                dmessage=new DefaultMessage("paResult",atask);
-                                actorManager.send(dmessage,curactor,curactor.getResActor());
+                                actorManager.send(dmessage, curactor, curactor);
+                                isFind=true;
+                                break;
                             }
                         }
+                        if(!isFind){//在T1-6、T1-7、T1-8的path栈中
+                            dmessage=new DefaultMessage("paResult",atask);
+                            actorManager.send(dmessage,curactor,curactor.getResActor());
+                        }
+                        curactor.removeWTask(wtask);
+                        return;
                     }
                 }
                 //到自己的结束标签，不管当前wt是否满足，都要删除
                 curactor.removeWTask(wtask);
             }
+            //id!=layer,则下一次循环
         }
     }
 }

@@ -22,17 +22,13 @@ public class StateT1_1 extends StateT1 {
         return new StateT1_1(path);
     }
 
-    @Override
     public void startElementDo(String tag, int layer, MyStateActor curactor) {
-        WaitTask wtask;
         if ((getLevel() == layer) && (tag.equals(_test))) {//应该匹配的层数-->getLayer（）和 当前标签-->tag 的层数相等
             // 在 tlist 中添加需要等待匹配的任务模型
-            wtask=new WaitTask(layer,true,tag);
-            curactor.addWTask(wtask);
+            curactor.addWTask(new WaitTask(layer,true,tag));
         }
     }
 
-    @Override
     public void endElementDo(String tag,int layer,MyStateActor curactor){
         if(tag.equals(_test)) {// 遇到自己的结束标签，检查
             this.processSelfEndTag(layer,curactor);

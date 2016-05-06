@@ -92,13 +92,12 @@ public class MyStateActor extends AbstractActor {
             }else if("setCategory".equals(subject)){    // actorTask,并且 data 是一个 string
                 this.setCategory((String)object);
             }else if("predResult".equals(subject)){     // actorTask,并且 data 是一个q'的返回结果（True）
-                String messCategory=message.getSource().getCategory();//消息来源 actor 的类型
                 //此时，谓词的返回结果或者来自自己，或者是来自下一级的actor（T2的谓词actor或者是T3的preds'对应的actor）
                 // 收到谓词返回结果后，在list中找到相应的wt的ID，然后将谓词检查的结果重新赋值
                 for(int i=0;i<tlist.size()-1;i++) {
                     WaitTask wt = (WaitTask) (tlist.get(i));
                     if (wt.getId() == task.getId()) {
-                        if (messCategory.equals("T3PredsActor")) {  //谓词返回结果来自T3 preds'的actor
+                        if (message.getSource().getCategory().equals("T3PredsActor")) {  //谓词返回结果来自T3 preds'的actor
                             wt.setPathR((String) (task.getObject()));
                         } else {    //消息来自自己-->curactor 或者是消息来自T2 的后续谓词
                             wt.setPredR((Boolean) (task.getObject()));
@@ -255,7 +254,7 @@ public class MyStateActor extends AbstractActor {
     public void sendPredsResult(ActorTask actorTask){// 谓词检查成功，上传结果（id，true）给相应的 wt
         boolean isFindInThis=false;
         if(!this.tlist.isEmpty()){        //先在curactor.list中找是否有相同 id 的wt
-            for(int i=(tlist.size()-1);i>=0;i--){
+            for(int i=0;i<tlist.size();i++){
                 WaitTask wTask=(WaitTask)tlist.get(i);
                 if(wTask.getId()==actorTask.getId()){// 找到相同 id 的 wt
                     isFindInThis=true;
