@@ -33,9 +33,7 @@ public class MySaxParser<T> extends DefaultHandler {
         qp = new QueryParser();
         path = qp.parseXPath(path_str);
         State currentQ = StateT1.TranslateStateT1(path);//将XPath翻译为各个状态
-        stack=new Stack();
-
-
+        stack = new Stack();
 
         // SAX 接口处的引用
         myActors = State.actors;
@@ -46,12 +44,10 @@ public class MySaxParser<T> extends DefaultHandler {
         myActors.put(stackActor.getName(), stackActor);
 
         // 把 stack 与 stackActor 联系起来
-        ActorTask atask = new ActorTask(stack);
-        message = new DefaultMessage("stack",atask);
+        message = new DefaultMessage("stack", new ActorTask(stack));
         manager.send(message, null, stackActor);
 
-        atask = new ActorTask(layer,currentQ);
-        message = new DefaultMessage("pushTask",atask);
+        message = new DefaultMessage("pushTask",new ActorTask(layer,currentQ));
         manager.send(message, null, stackActor);
 
 
@@ -67,8 +63,7 @@ public class MySaxParser<T> extends DefaultHandler {
     @Override
     public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
         //把开始标签发给所有的 stateActor
-        ActorTask atask=new ActorTask(layer,qName);
-        message=new DefaultMessage("startE",atask);
+        message=new DefaultMessage("startE",new ActorTask(layer,qName));
         manager.broadcast(message, null);
         layer++; //layer 是表示在 XML 流中的标签的层数
     }
@@ -77,12 +72,10 @@ public class MySaxParser<T> extends DefaultHandler {
     public void endElement(String uri, String localName, String qName) throws SAXException {
         layer--;
         //把结束标签发给所有的 stateActor
-        ActorTask atask=new ActorTask(layer,qName);
-        message=new DefaultMessage("endE",atask);
+        message=new DefaultMessage("endE",new ActorTask(layer,qName));
         manager.broadcast(message,null);
         super.endElement(uri, localName, qName);
     }
-
 
 
     @Override

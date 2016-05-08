@@ -30,14 +30,13 @@ public class StateT3_1 extends StateT3{
         //进到 q3-1 中就应该对 preds' 同时进行检查
         if(getLevel() == layer) {//应该匹配的层数 getLayer（）和 当前标签 tag 的层数相等
             WaitTask wtask;
-            ActorTask atask;
             boolean isFindInThis = false;
 
             _q2.setLevel(getLevel());//q2 检查【child::test】，应该匹配的标签的层数 不变
             _q3.setLevel(getLevel());// q3 检查preds'，应该匹配的标签的层数与当前 [test] 同一层
 
             Stack stack=curactor.getMyStack();
-            atask=(ActorTask)stack.peek();
+            ActorTask atask=(ActorTask)stack.peek();
             int id=atask.getId();//当前栈顶的 id
 
             String name=((Integer)this._predstack.hashCode()).toString().concat("T3-1.prActor");
@@ -50,18 +49,18 @@ public class StateT3_1 extends StateT3{
                 stack.push(new ActorTask(id,_q3));
             }
             else {// test不匹配，检查 q'' 和 q'''&& preds'.startElementDo(tag,layer)
+                //1.(id,T3-1) 换为 (id,waitstate)
+                State waitState=new WaitState();
+                waitState.setLevel(((State) atask.getObject()).getLevel());
+                curactor.popFunction();
+                curactor.pushFunction(new ActorTask(id, waitState));
                 // PC:
                 List list=curactor.tlist;
                 if(!list.isEmpty()){
                     for(int i=(list.size()-1);i>=0;i--) {
                         wtask = (WaitTask) list.get(i);
-                        if (wtask.getId() == id) {//找到了-->则T3-1约束 PC 轴的test
+                        if (wtask.getId() == id) {//在自己的list中找到了id相同的wt-->则T3-1约束 PC 轴的test
                             isFindInThis=true;
-                            //1.(id,T3-1) 换为 (id,waitstate)
-                            State waitState=new WaitState();
-                            waitState.setLevel(((State) atask.getObject()).getLevel());
-                            curactor.popFunction();
-                            curactor.pushFunction(new ActorTask(id, waitState));
                             //2.push（layer,q'''）
                             curactor.pushFunction(new ActorTask(layer,_q2));
                             //push(layer,q'')
@@ -90,14 +89,7 @@ public class StateT3_1 extends StateT3{
                     }
                 }
                 if(!isFindInThis){//AD:
-                    //1.(id,T3-1) 换为 (id,waitstate)
-                    State waitState=new WaitState();
-                    waitState.setLevel(((State)atask.getObject()).getLevel());
-                    curactor.popFunction();
-                    curactor.pushFunction(new ActorTask(id,waitState));
-                    //2. add（id,false,false）
-                    curactor.addWTask(new WaitTask(id,false,"false"));
-                    //3.push（id,q'''）
+                    //2.push（id,q'''）
                     curactor.pushFunction(new ActorTask(layer,_q2));
                     //push(id,q'')
                     if(actor==null){
@@ -118,6 +110,8 @@ public class StateT3_1 extends StateT3{
                         dmessage=new DefaultMessage("pushTask",new ActorTask(layer,currQ));
                         actorManager.send(dmessage, curactor, actor);
                     }
+                    //3. add（id,false,false）
+                    curactor.addWTask(new WaitTask(id,false,"false"));
                 }
                 //q''.startElementDo(tag,layer)
                 dmessage=new DefaultMessage("startE",new ActorTask(layer,tag));

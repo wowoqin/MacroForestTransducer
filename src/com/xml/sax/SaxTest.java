@@ -23,7 +23,7 @@ public class SaxTest {
         //MySaxParser dh = new MySaxParser("/a/c[/b][/d]");
         //MySaxParser dh = new MySaxParser("/a/c/d[/a]");
         File f = new File("test8.xml");
-        MySaxParser dh = new MySaxParser("//a");
+        MySaxParser dh = new MySaxParser("/a");
         //MySaxParser dh = new MySaxParser("//a[/b]//d");
         //MySaxParser dh = new MySaxParser("/a[/b[/c]][/d]/c[/d]");
         //MySaxParser dh = new MySaxParser("//a[/d]/c[/b[//g]]");

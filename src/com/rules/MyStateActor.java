@@ -186,7 +186,7 @@ public class MyStateActor extends AbstractActor {
                     WaitTask wt = (WaitTask)(tlist.get(i));
                     if(wt.getId() == task.getId()){
                         if(wt.getPathR()!=null){// 已经有后续path检查成功的相同层级的结果
-                            tlist.add(wt);
+                            tlist.add(i+1,wt);
                         }else{
                             wt.setPathR((String) (task.getObject()));
                         }
@@ -225,6 +225,9 @@ public class MyStateActor extends AbstractActor {
                 currStack.push(at);
             }
         }
+        else{
+            currStack.push(actorTask);
+        }
     }
 
     public void popFunction(){
@@ -253,21 +256,22 @@ public class MyStateActor extends AbstractActor {
 
     public void sendPredsResult(ActorTask actorTask){// 谓词检查成功，上传结果（id，true）给相应的 wt
         boolean isFindInThis=false;
-        if(!this.tlist.isEmpty()){        //先在curactor.list中找是否有相同 id 的wt
+        if(!tlist.isEmpty()){        //先在curactor.list中找是否有相同 id 的wt
             for(int i=0;i<tlist.size();i++){
                 WaitTask wTask=(WaitTask)tlist.get(i);
                 if(wTask.getId()==actorTask.getId()){// 找到相同 id 的 wt
                     isFindInThis=true;
+                    this.popFunction(); //弹栈
                     Message message = new DefaultMessage("predResult",actorTask);
                     manager.send(message, this, this);
                 }
             }
         }
         if(!isFindInThis){  //curactor.list 中没有相同id的wt，则上传给resActor
+            this.popFunction(); //弹栈
             Message message = new DefaultMessage("predResult",actorTask);
             manager.send(message, this, this.getResActor());
         }
-        this.popFunction(); //弹栈
     }
 
     //没有检查成功弹栈时 remove 与actorTask.id相等的 wtask

@@ -41,10 +41,13 @@ public class StateT1_5 extends StateT1{
             // T1-5 的后续的path时，与T1-5 放在同一个栈，T1-6~T1-8 放在pathstack中
             curactor.popFunction();   // T1-5弹栈
             Stack ss=curactor.getMyStack();
-            if(ss.isEmpty()) {   // 弹完之后当前 T1-5 所在的stack 为空了，则删除当前 actor
-                actorManager.detachActor(curactor); // remove
+            if(ss.isEmpty()) {   // 弹完之后当前actor 所在的stack 为空了，则删除当前 actor
+                actorManager.detachActor(curactor);
             }else{                      // T1-5 作为 T1-5 的后续 path
-                ((State)((ActorTask)(ss.peek())).getObject()).endElementDo(tag, layer, curactor);
+                State state =(State)((ActorTask)(ss.peek())).getObject();
+                if(state instanceof StateT1_5){
+                    state.endElementDo(tag,layer,curactor);
+                }
             }
         }
     }

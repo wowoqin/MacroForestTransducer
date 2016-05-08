@@ -76,6 +76,11 @@ public class StateT3_2 extends StateT3{
                 //3.add(layer,false,false)
                 curactor.addWTask(new WaitTask(layer,false,"false"));
             }else{// T3-2 的 test 不匹配
+                //1. (id,T3-2) 换为（id,waitstate）
+                State waitState=new WaitState();
+                waitState.setLevel(((State) atask.getObject()).getLevel());
+                curactor.popFunction();
+                curactor.pushFunction(new ActorTask(id,waitState));
                 // PC:
                 List list=curactor.tlist;
                 if(!list.isEmpty()){
@@ -83,11 +88,6 @@ public class StateT3_2 extends StateT3{
                         wtask = (WaitTask) list.get(i);
                         if (wtask.getId() == id) {//找到了-->T3-2约束 PC 轴的test
                             isFindInThis=true;
-                            //1. (id,T3-2) 换为（id,waitstate）
-                            State waitState=new WaitState();
-                            waitState.setLevel(((State)atask.getObject()).getLevel());
-                            curactor.popFunction();
-                            curactor.pushFunction(new ActorTask(id,waitState));
                             //push(layer,q''')
                             curactor.pushFunction(new ActorTask(layer,_q2));
                             //2.push(layer,q'')
@@ -118,11 +118,6 @@ public class StateT3_2 extends StateT3{
                 }
                 if(!isFindInThis){
                     // AD:
-                    //1. (id,T3-2) 换为（id,waitstate）
-                    State waitState=new WaitState();
-                    waitState.setLevel(((State) atask.getObject()).getLevel());
-                    curactor.popFunction();
-                    curactor.pushFunction(new ActorTask(id,waitState));
                     //2.push（id,T2-2）
                     curactor.pushFunction(new ActorTask(id,_q2));
                     //2.push(id,q'')

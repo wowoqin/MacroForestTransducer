@@ -40,9 +40,6 @@ public class StateT2_2 extends StateT2{
         // 遇到上层结束标签，谓词检查失败，弹栈 && remove 等待当前栈顶T2-2结果的 wt
         if (layer == getLevel() - 1) {
             Stack ss = curactor.getMyStack();
-            ActorTask atask = (ActorTask) ss.peek();
-            //remove 等待当前栈顶T2-2结果的 wt-->与atask的id相等
-            curactor.FindAndRemoveFailedWTask(atask);
             //pop(T2-2)
             curactor.popFunction();
             //当前栈不为空，栈顶进行endElementDo 操作（输出/弹栈等）

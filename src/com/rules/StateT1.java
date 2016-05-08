@@ -122,7 +122,7 @@ public class StateT1 extends State implements Cloneable {
                                 dmessage=new DefaultMessage("paResult",atask);
                                 actorManager.send(dmessage, curactor, curactor);
                                 isFind=true;
-                                break;
+                                break;//结束小循环
                             }
                         }
                         if(!isFind){//在T1-6、T1-7、T1-8的path栈中
@@ -130,10 +130,10 @@ public class StateT1 extends State implements Cloneable {
                             actorManager.send(dmessage,curactor,curactor.getResActor());
                         }
                         curactor.removeWTask(wtask);
-                        return;
+                        return;//结束大循环
                     }
                 }
-                //到自己的结束标签，不管当前wt是否满足，都要删除
+                //到自己的结束标签，当前wt不满足输出条件，也要删除
                 curactor.removeWTask(wtask);
             }
             //id!=layer,则下一次循环

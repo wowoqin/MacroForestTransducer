@@ -10,12 +10,10 @@ import java.util.*;
  * Created by qin on 2015/10/10.
  */
 public  abstract class State  implements Cloneable {
-    public static List outlist=new ArrayList();            //用来存放要输出的标签
     protected int level=0;                                 //当前应该匹配的标签的层数
-
+    public DefaultMessage dmessage;                       // 中间生成的消息
     public static DefaultActorManager actorManager=DefaultActorManager.getDefaultInstance();
-    public static Map<String,Actor> actors=new HashMap<String, Actor>();                   // 所有的actor的 map < actorName,actor >
-    public DefaultMessage dmessage;                                            // 中间生成的消息
+    public static Map<String,Actor> actors=new HashMap<String, Actor>();// 所有的actor的 map < actorName,actor >
 
     public  abstract void startElementDo(String tag,int layer,MyStateActor curactor) throws CloneNotSupportedException;
     public  abstract void endElementDo(String tag,int layer,MyStateActor curactor);

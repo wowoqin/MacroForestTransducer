@@ -40,6 +40,8 @@ public class StateT1_6 extends StateT1{
             _q3.setLevel(getLevel() + 1);
             _q1.setLevel(getLevel() + 1);
 
+            currStack.push(new ActorTask(layer, _q3));
+
             if(actor == null){  // 若pathActor 还没有创建 --> _pathstack 一定为空
                 actor =actorManager.createAndStartActor(MyStateActor.class, name);
                 actors.put(actor.getName(), actor);
@@ -47,12 +49,10 @@ public class StateT1_6 extends StateT1{
                 dmessage=new DefaultMessage("stack", new ActorTask(this._pathstack));
                 actorManager.send(dmessage, curactor, actor);
 
-                currStack.push(new ActorTask(layer,_q3));
                 //发送 q'' 给 paActor
                 dmessage=new DefaultMessage("pushTask", new ActorTask(layer,_q1));
                 actorManager.send(dmessage,curactor,actor);
             } else{  // 若path  actor 已经创建了,则发送 q'' 给 paActor即可
-                currStack.push(new ActorTask(layer,_q3));
                 //发送 q'' 给 paActor
                 State currQ=(State)_q1.copy();
                 currQ.setLevel(layer + 1);
@@ -65,15 +65,15 @@ public class StateT1_6 extends StateT1{
     public void endElementDo(String tag,int layer,MyStateActor curactor){
         if (tag.equals(_test)) {// 遇到自己的结束标签，检查
             this.processSelfEndTag(layer,curactor);
-        }else if (layer == getLevel() - 1) { // 遇到上层结束标签(肯定作为后续path)
+        }else if (layer == getLevel() - 1) { // 遇到上层结束标签(肯定是作为后续path)
             // (能遇到上层结束标签，即T1-6作为一个后续的path（T1-5 的时候也会放在stackActor中），T1-6~T1-8会被放在paActor中)
             // T1-5 的后续的path时，与T1-5 放在同一个栈，T1-6~T1-8 放在pathstack中
-            curactor.popFunction();   // T1-5弹栈
-            Stack currstack=curactor.getMyStack();
-            if(currstack.isEmpty()) {   // 弹完之后当前actor 所在的stack 为空了，则删除当前 actor
+            curactor.popFunction();   // T1-6弹栈
+            Stack ss=curactor.getMyStack();
+            if(ss.isEmpty()) {   // 弹完之后当前actor 所在的stack 为空了，则删除当前 actor
                 actorManager.detachActor(curactor);
             }else{                      // T1-6 作为 T1-5 的后续 path
-                State state =(State)((ActorTask)(currstack.peek())).getObject();
+                State state =(State)((ActorTask)(ss.peek())).getObject();
                 if(state instanceof StateT1_5){
                     state.endElementDo(tag,layer,curactor);
                 }
