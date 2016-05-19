@@ -74,12 +74,16 @@ public class MySaxParser<T> extends DefaultHandler {
         //把结束标签发给所有的 stateActor
         message=new DefaultMessage("endE",new ActorTask(layer,qName));
         manager.broadcast(message,null);
-        super.endElement(uri, localName, qName);
     }
 
 
     @Override
     public void endDocument() throws SAXException{
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         System.out.println("----------- End  Document ----------");
         super.endDocument();
     }

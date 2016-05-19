@@ -94,13 +94,13 @@ public class MyStateActor extends AbstractActor {
             }else if("predResult".equals(subject)){     // actorTask,并且 data 是一个q'的返回结果（True）
                 //此时，谓词的返回结果或者来自自己，或者是来自下一级的actor（T2的谓词actor或者是T3的preds'对应的actor）
                 // 收到谓词返回结果后，在list中找到相应的wt的ID，然后将谓词检查的结果重新赋值
-                for(int i=0;i<tlist.size()-1;i++) {
+                for(int i=0;i<tlist.size();i++) {
                     WaitTask wt = (WaitTask) (tlist.get(i));
                     if (wt.getId() == task.getId()) {
                         if (message.getSource().getCategory().equals("T3PredsActor")) {  //谓词返回结果来自T3 preds'的actor
                             wt.setPathR((String) (task.getObject()));
                         } else {    //消息来自自己-->curactor 或者是消息来自T2 的后续谓词
-                            wt.setPredR((Boolean) (task.getObject()));
+                            wt.setPredR((Boolean)(task.getObject()));
                         }
                         //重新设置完成之后看当前设置完的wt是不是谓词满足的-->说明之前返回的谓词结果只是作为谓词的谓词
                         if (wt.isPredsSatisified()) {
@@ -190,6 +190,7 @@ public class MyStateActor extends AbstractActor {
                         }else{
                             wt.setPathR((String) (task.getObject()));
                         }
+                        break;
                     }
                 }
             }else{                              // actorTask,并且 data 是一个qName（String）
@@ -244,13 +245,13 @@ public class MyStateActor extends AbstractActor {
                 if(wTask.getId()==actorTask.getId()){// 找到相同 id 的 wt
                     isFindInThis=true;
                     Message message = new DefaultMessage("predResult",actorTask);
-                    manager.send(message, this, this);
+                    getManager().send(message, this, this);
                 }
             }
         }
         if(!isFindInThis){  //curactor.list 中没有相同id的wt，则上传给resActor
             Message message = new DefaultMessage("predResult",actorTask);
-            manager.send(message, this, this.getResActor());
+            getManager().send(message, this, this.getResActor());
         }
     }
 
@@ -261,16 +262,14 @@ public class MyStateActor extends AbstractActor {
                 WaitTask wTask=(WaitTask)tlist.get(i);
                 if(wTask.getId()==actorTask.getId()){// 找到相同 id 的 wt
                     isFindInThis=true;
-                    this.popFunction(); //弹栈
                     Message message = new DefaultMessage("predResult",actorTask);
-                    manager.send(message, this, this);
+                    getManager().send(message, this, this);
                 }
             }
         }
         if(!isFindInThis){  //curactor.list 中没有相同id的wt，则上传给resActor
-            this.popFunction(); //弹栈
             Message message = new DefaultMessage("predResult",actorTask);
-            manager.send(message, this, this.getResActor());
+            getManager().send(message, this, this.getResActor());
         }
     }
 

@@ -17,7 +17,7 @@ public  abstract class State  implements Cloneable {
 
     public  abstract void startElementDo(String tag,int layer,MyStateActor curactor) throws CloneNotSupportedException;
     public  abstract void endElementDo(String tag,int layer,MyStateActor curactor);
-    public  abstract String getNodeTest();
+    public abstract String getNodeTest();
 
     public int getLevel() { return level; }
     public void setLevel(int level) {

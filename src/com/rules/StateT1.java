@@ -97,13 +97,15 @@ public class StateT1 extends State implements Cloneable {
                     if(curactor.getName().equals("stackActor")){//在stack中==>PC轴
                         if(currstack.size()==1){//输出
                             curactor.output(wtask);//也许有多个输出，此时不return；
+                            curactor.removeWTask(wtask);
+                            break;
                         }else {//在stack中 && 作为T1-5的后续path
                             //则把(wt.id，wt.getPathR())给自己这个list中id=wt.id的 wt1
                             for(int j=0;j<i;j++){
                                 WaitTask wtask1 = (WaitTask) list.get(j);
                                 if(wtask1.getId()==id){//找到相同id的 wt，把结果传给 wt
                                     atask=new ActorTask(id,wtask.getPathR());
-                                    dmessage=new DefaultMessage("paResult",atask);
+                                    dmessage=new DefaultMessage("pathResult",atask);
                                     actorManager.send(dmessage,curactor,curactor);
                                     //此时需要跳出循环，是因为也许会T1-5下面有多个符合的T1-1
                                     // /a/b : 若a下面有多个b，找到最后一个时，前面已经有很多的相同id的(0,true,b)了，
@@ -119,7 +121,7 @@ public class StateT1 extends State implements Cloneable {
                         for(int j=0;j<i;j++){//在自己的list中找相同id的wt
                             WaitTask wtask1 = (WaitTask) list.get(j);
                             if(wtask1.getId()==id){//找到了==>不在stack中 && 作为T1-5的后续path
-                                dmessage=new DefaultMessage("paResult",atask);
+                                dmessage=new DefaultMessage("pathResult",atask);
                                 actorManager.send(dmessage, curactor, curactor);
                                 isFind=true;
                                 break;//结束小循环
