@@ -38,7 +38,6 @@ public class StateT1_8 extends StateT1 {
 
             if (actor == null) {  // 若predsActor 还没有创建 --> _predstack 一定为空
                 actor = actorManager.createAndStartActor(MyStateActor.class, "T1-8.prActor");
-                actors.put(actor.getName(), actor);
 
                 dmessage = new DefaultMessage("stack", new ActorTask(this._predstack));
                 actorManager.send(dmessage, curactor, actor);
@@ -57,7 +56,6 @@ public class StateT1_8 extends StateT1 {
             actor=(actors.get(name));// path的 actor
             if (actor == null) {  // 若 pathActor 还没有创建 --> _pathstack 一定为空
                 actor = actorManager.createAndStartActor(MyStateActor.class, name);
-                actors.put(actor.getName(), actor);
 
                 dmessage = new DefaultMessage("stack", new ActorTask(this._pathstack));
                 actorManager.send(dmessage, curactor, actor);

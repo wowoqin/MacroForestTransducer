@@ -34,7 +34,6 @@ public class StateT1_4 extends StateT1 implements Cloneable {
             if(actor == null){// 若谓词 actor 还没有创建 --> _predstack 一定为空
                 _q3.setLevel(layer + 1);
                 actor =actorManager.createAndStartActor(MyStateActor.class, name);
-                actors.put(actor.getName(), actor);
 
                 dmessage=new DefaultMessage("stack", new ActorTask(this._predstack));
                 actorManager.send(dmessage, curactor, actor);

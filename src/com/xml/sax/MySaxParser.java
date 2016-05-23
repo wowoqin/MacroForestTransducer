@@ -41,7 +41,6 @@ public class MySaxParser<T> extends DefaultHandler {
 
         // 创建 stack 对应的 actor--> stackActor
         stackActor = manager.createAndStartActor(MyStateActor.class, "stackActor");
-        myActors.put(stackActor.getName(), stackActor);
 
         // 把 stack 与 stackActor 联系起来
         message = new DefaultMessage("stack", new ActorTask(stack));

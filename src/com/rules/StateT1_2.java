@@ -24,10 +24,9 @@ public class StateT1_2 extends StateT1 {
 
     public void startElementDo(String tag, int layer,MyStateActor curactor) {// layer 表示当前标签 tag 的层数
         if((getLevel() == layer) && (tag.equals(_test))) {//应该匹配的层数 getLayer（）和 当前标签 tag 的层数相等
-            curactor.addWTask(new WaitTask(layer,false,tag));
-
-            _q3.setLevel(getLevel() + 1);//检查的谓词的层数肯定是当前应该匹配层数所对应的标签的子孙的层数
+            curactor.addWTask(new WaitTask(layer, false, tag));
             //当前actor直接进行push操作(不用pushFunction，也不用发消息)
+            _q3.setLevel(this.getLevel() + 1);//检查的谓词的层数肯定是当前应该匹配层数所对应的标签的子孙的层数
             curactor.getMyStack().push(new ActorTask(layer,_q3));
 
         }

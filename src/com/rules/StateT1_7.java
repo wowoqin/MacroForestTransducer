@@ -32,7 +32,6 @@ public class StateT1_7 extends StateT1 implements Cloneable{
 
             if(actor == null){  // 若pathActor 还没有创建 --> _pathstack 一定为空
                 actor =actorManager.createAndStartActor(MyStateActor.class, name);
-                actors.put(actor.getName(), actor);
 
                 dmessage=new DefaultMessage("stack", new ActorTask(this._pathstack));
                 actorManager.send(dmessage, curactor, actor);

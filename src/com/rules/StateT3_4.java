@@ -64,7 +64,6 @@ public class StateT3_4 extends StateT3{
                 //push(layer,q')--> ÔÚT2-4 µÄÎ½´Ê actor ÖÐ
                 if (actor1 == null) {
                     actor = actorManager.createAndStartActor(MyStateActor.class, name1);
-                    actors.put(actor.getName(), actor1);
 
                     dmessage = new DefaultMessage("stack", ((StateT2_4) (_q2))._predstack);
                     actorManager.send(dmessage, curactor, actor1);
@@ -81,7 +80,6 @@ public class StateT3_4 extends StateT3{
                 //2.push(layer,q'')
                 if (actor == null) {
                     actor = actorManager.createAndStartActor(MyStateActor.class, name);
-                    actors.put(actor.getName(), actor);
 
                     dmessage = new DefaultMessage("stack", this._predstack);
                     actorManager.send(dmessage, curactor, actor);
@@ -118,7 +116,6 @@ public class StateT3_4 extends StateT3{
                             //2.push(layer,q'')
                             if (actor == null) {
                                 actor = actorManager.createAndStartActor(MyStateActor.class, name);
-                                actors.put(actor.getName(), actor);
 
                                 dmessage = new DefaultMessage("stack", this._predstack);
                                 actorManager.send(dmessage, curactor, actor);
@@ -151,7 +148,6 @@ public class StateT3_4 extends StateT3{
                     //2.push(id,q'')
                     if (actor == null) {
                         actor = actorManager.createAndStartActor(MyStateActor.class, name);
-                        actors.put(actor.getName(), actor);
 
                         dmessage = new DefaultMessage("stack", this._predstack);
                         actorManager.send(dmessage, curactor, actor);

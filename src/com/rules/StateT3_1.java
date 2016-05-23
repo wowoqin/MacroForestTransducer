@@ -66,7 +66,6 @@ public class StateT3_1 extends StateT3{
                             //push(layer,q'')
                             if(actor==null){
                                 actor=actorManager.createAndStartActor(MyStateActor.class, name);
-                                actors.put(actor.getName(),actor);
 
                                 dmessage=new DefaultMessage("stack",this._predstack);
                                 actorManager.send(dmessage, curactor, actor);
@@ -94,7 +93,6 @@ public class StateT3_1 extends StateT3{
                     //push(id,q'')
                     if(actor==null){
                         actor=actorManager.createAndStartActor(MyStateActor.class, name);
-                        actors.put(actor.getName(),actor);
 
                         dmessage=new DefaultMessage("stack",this._predstack);
                         actorManager.send(dmessage, curactor, actor);

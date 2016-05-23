@@ -19,17 +19,13 @@ public class StateT1 extends State implements Cloneable {
 
     protected  ASTPath _path;
     protected  String  _test;
-
     protected Stack _predstack;
     protected Stack _pathstack;
-
-
 
     protected StateT1(ASTPath path) {
         _path = path;
         _test=_path.getFirstStep().getNodeTest().toString();
     }
-
 
     @Override
     public String getNodeTest() {//得到当前 XPath 的测试节点
@@ -78,7 +74,6 @@ public class StateT1 extends State implements Cloneable {
 
     @Override
     public void startElementDo(String tag, int layer,MyStateActor curactor) throws CloneNotSupportedException {}
-
 
     @Override
     public void endElementDo(String tag,int layer,MyStateActor curactor){}

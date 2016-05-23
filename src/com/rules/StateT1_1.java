@@ -24,7 +24,7 @@ public class StateT1_1 extends StateT1 {
 
     public void startElementDo(String tag, int layer, MyStateActor curactor) {
         if ((getLevel() == layer) && (tag.equals(_test))) {//应该匹配的层数-->getLayer（）和 当前标签-->tag 的层数相等
-            // 在 tlist 中添加需要等待匹配的任务模型
+            // 在 tlist 中添加需要检查成功的任务模型
             curactor.addWTask(new WaitTask(layer,true,tag));
         }
     }
