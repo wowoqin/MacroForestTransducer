@@ -21,6 +21,9 @@ public class StateT3_4 extends StateT3{
         _q31=q31;
         _q32=q32;
         _q2=q2;
+        _q2.setLevel(this.getLevel());
+        _q32.setLevel(this.getLevel());
+        _q31.setLevel(this.getLevel() + 1);
         _predstack=new Stack();
     }
 
@@ -35,11 +38,7 @@ public class StateT3_4 extends StateT3{
     
     public void startElementDo(String tag,int layer,MyStateActor curactor) throws CloneNotSupportedException {
         if (layer >= getLevel()) {
-            _q2.setLevel(getLevel());
-            _q32.setLevel(getLevel());
             _q31.setLevel(layer + 1);
-
-
             Stack stack = curactor.getMyStack();
             ActorTask atask = (ActorTask) stack.peek();
             int id = atask.getId();//当前栈顶（T3-4）的 id
@@ -63,14 +62,15 @@ public class StateT3_4 extends StateT3{
                 stack.push(new ActorTask(layer, _q2));
                 //push(layer,q')--> 在T2-4 的谓词 actor 中
                 if (actor1 == null) {
-                    actor = actorManager.createAndStartActor(MyStateActor.class, name1);
+                    stacklist.add(((StateT2_4)_q2)._predstack);
+                    actor1 = actorManager.createAndStartActor(MyStateActor.class, name1);
+                    actors.put(actor1.getName(),actor1);
 
-                    dmessage = new DefaultMessage("stack", ((StateT2_4) (_q2))._predstack);
+                    dmessage = new DefaultMessage("resActor", null);
                     actorManager.send(dmessage, curactor, actor1);
 
                     dmessage = new DefaultMessage("pushTask", new ActorTask(layer, _q31));
                     actorManager.send(dmessage, curactor, actor1);
-                    curactor.pushFunction(new ActorTask(layer, _q31));
                 } else {
                     State currQ = (State) _q31.copy();
                     currQ.setLevel(layer + 1);
@@ -79,9 +79,11 @@ public class StateT3_4 extends StateT3{
                 }
                 //2.push(layer,q'')
                 if (actor == null) {
+                    stacklist.add(this._predstack);
                     actor = actorManager.createAndStartActor(MyStateActor.class, name);
+                    actors.put(actor.getName(),actor);
 
-                    dmessage = new DefaultMessage("stack", this._predstack);
+                    dmessage = new DefaultMessage("resActor", null);
                     actorManager.send(dmessage, curactor, actor);
 
                     dmessage = new DefaultMessage("setCategory", "T3PredsActor");
@@ -115,9 +117,11 @@ public class StateT3_4 extends StateT3{
                             curactor.pushFunction(new ActorTask(layer, _q2));
                             //2.push(layer,q'')
                             if (actor == null) {
+                                stacklist.add(this._predstack);
                                 actor = actorManager.createAndStartActor(MyStateActor.class, name);
+                                actors.put(actor.getName(),actor);
 
-                                dmessage = new DefaultMessage("stack", this._predstack);
+                                dmessage = new DefaultMessage("resActor", null);
                                 actorManager.send(dmessage, curactor, actor);
 
                                 dmessage = new DefaultMessage("setCategory", "T3PredsActor");
@@ -147,9 +151,11 @@ public class StateT3_4 extends StateT3{
                     curactor.pushFunction(new ActorTask(id, _q2));
                     //2.push(id,q'')
                     if (actor == null) {
+                        stacklist.add(this._predstack);
                         actor = actorManager.createAndStartActor(MyStateActor.class, name);
+                        actors.put(actor.getName(),actor);
 
-                        dmessage = new DefaultMessage("stack", this._predstack);
+                        dmessage = new DefaultMessage("resActor", null);
                         actorManager.send(dmessage, curactor, actor);
 
                         dmessage = new DefaultMessage("setCategory", "T3PredsActor");
@@ -158,7 +164,7 @@ public class StateT3_4 extends StateT3{
                         dmessage = new DefaultMessage("pushTask", new ActorTask(layer, _q32));
                         actorManager.send(dmessage, curactor, actor);
                     } else {
-                        State currQ = (State) _q32.copy();
+                        State currQ = (State)_q32.copy();
                         currQ.setLevel(layer + 1);
                         dmessage = new DefaultMessage("pushTask", new ActorTask(layer, currQ));
                         actorManager.send(dmessage, curactor, actor);

@@ -21,6 +21,9 @@ public class StateT3_2 extends StateT3{
         _q31=q31;
         _q32=q32;
         _q2=q2;
+        _q2.setLevel(getLevel());//检查【child::test preds】
+        _q31.setLevel(getLevel()+1);//检查preds
+        _q32.setLevel(getLevel());//检查preds'
         _predstack=new Stack();
     }
 
@@ -32,9 +35,7 @@ public class StateT3_2 extends StateT3{
     }
     public void startElementDo(String tag,int layer,MyStateActor curactor) throws CloneNotSupportedException {
         if (getLevel() == layer) {
-            _q2.setLevel(getLevel());//检查【child::test preds】
-            _q31.setLevel(getLevel()+1);//检查preds
-            _q32.setLevel(getLevel());//检查preds'
+
 
             WaitTask wtask;
             ActorTask atask;
@@ -56,9 +57,11 @@ public class StateT3_2 extends StateT3{
                 stack.push(new ActorTask(layer, _q31));
                 //2.push(layer,q'')
                 if(actor==null){
+                    stacklist.add(this._predstack);
                     actor=actorManager.createAndStartActor(MyStateActor.class, name);
+                    actors.put(actor.getName(),actor);
 
-                    dmessage=new DefaultMessage("stack",this._predstack);
+                    dmessage=new DefaultMessage("resActor", null);
                     actorManager.send(dmessage, curactor, actor);
 
                     dmessage=new DefaultMessage("setCategory","T3PredsActor");
@@ -91,9 +94,11 @@ public class StateT3_2 extends StateT3{
                             curactor.pushFunction(new ActorTask(layer,_q2));
                             //2.push(layer,q'')
                             if(actor==null){
+                                stacklist.add(this._predstack);
                                 actor=actorManager.createAndStartActor(MyStateActor.class,name);
+                                actors.put(actor.getName(),actor);
 
-                                dmessage=new DefaultMessage("stack",this._predstack);
+                                dmessage=new DefaultMessage("resActor",null);
                                 actorManager.send(dmessage, curactor, actor);
 
                                 dmessage=new DefaultMessage("setCategory","T3PredsActor");
@@ -120,10 +125,11 @@ public class StateT3_2 extends StateT3{
                     curactor.pushFunction(new ActorTask(id,_q2));
                     //2.push(id,q'')
                     if(actor==null){
+                        stacklist.add(this._predstack);
                         actor=actorManager.createAndStartActor(MyStateActor.class, name);
                         actors.put(actor.getName(),actor);
 
-                        dmessage=new DefaultMessage("stack",this._predstack);
+                        dmessage=new DefaultMessage("resActor",null);
                         actorManager.send(dmessage, curactor, actor);
 
                         dmessage=new DefaultMessage("setCategory","T3PredsActor");

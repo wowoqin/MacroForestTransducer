@@ -18,6 +18,8 @@ public class StateT3_1 extends StateT3{
         super(preds);
         _q3=q3;
         _q2=q2;
+        _q2.setLevel(this.getLevel());//q2 检查【child::test】，应该匹配的标签的层数 不变
+        _q3.setLevel(this.getLevel());// q3 检查preds'，应该匹配的标签的层数与当前 [test] 同一层
         this._predstack=new Stack();
     }
 
@@ -31,9 +33,6 @@ public class StateT3_1 extends StateT3{
         if(getLevel() == layer) {//应该匹配的层数 getLayer（）和 当前标签 tag 的层数相等
             WaitTask wtask;
             boolean isFindInThis = false;
-
-            _q2.setLevel(getLevel());//q2 检查【child::test】，应该匹配的标签的层数 不变
-            _q3.setLevel(getLevel());// q3 检查preds'，应该匹配的标签的层数与当前 [test] 同一层
 
             Stack stack=curactor.getMyStack();
             ActorTask atask=(ActorTask)stack.peek();
@@ -65,9 +64,11 @@ public class StateT3_1 extends StateT3{
                             curactor.pushFunction(new ActorTask(layer,_q2));
                             //push(layer,q'')
                             if(actor==null){
+                                stacklist.add(this._predstack);
                                 actor=actorManager.createAndStartActor(MyStateActor.class, name);
+                                actors.put(actor.getName(),actor);
 
-                                dmessage=new DefaultMessage("stack",this._predstack);
+                                dmessage=new DefaultMessage("resActor", null);
                                 actorManager.send(dmessage, curactor, actor);
 
                                 dmessage=new DefaultMessage("setCategory","T3PredsActor");
@@ -92,7 +93,9 @@ public class StateT3_1 extends StateT3{
                     curactor.pushFunction(new ActorTask(layer,_q2));
                     //push(id,q'')
                     if(actor==null){
+                        stacklist.add(this._predstack);
                         actor=actorManager.createAndStartActor(MyStateActor.class, name);
+                        actors.put(actor.getName(),actor);
 
                         dmessage=new DefaultMessage("stack",this._predstack);
                         actorManager.send(dmessage, curactor, actor);

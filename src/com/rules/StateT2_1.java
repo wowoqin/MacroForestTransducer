@@ -24,7 +24,6 @@ public class StateT2_1 extends StateT2 {
     }
 
     public void startElementDo(String tag, int layer, MyStateActor curactor) { // layer 是当前 tag 的层数
-
         if ((getLevel() == layer) && (tag.equals(_test))) {// T2-1 检查成功
             Stack ss=curactor.getMyStack();
             //发送谓词结果 && pop 当前栈顶

@@ -19,8 +19,8 @@ public class StateT1 extends State implements Cloneable {
 
     protected  ASTPath _path;
     protected  String  _test;
-    protected Stack _predstack;
-    protected Stack _pathstack;
+    protected  Stack   _predstack;
+    protected  Stack   _pathstack;
 
     protected StateT1(ASTPath path) {
         _path = path;

@@ -20,6 +20,8 @@ public class StateT1_6 extends StateT1{
         super(path);
         _q3=q3;
         _q1=q1;
+        _q3.setLevel(getLevel() + 1);
+        _q1.setLevel(getLevel() + 1);
         _pathstack =new Stack();
     }
 
@@ -37,14 +39,14 @@ public class StateT1_6 extends StateT1{
             // 在 tlist 中添加需要等待匹配的任务模型
             curactor.addWTask(new WaitTask(layer,false,null));
 
-            _q3.setLevel(getLevel() + 1);
-            _q1.setLevel(getLevel() + 1);
             currStack.push(new ActorTask(layer, _q3));
 
             if(actor == null){  // 若pathActor 还没有创建 --> _pathstack 一定为空
+                stacklist.add(this._pathstack);
                 actor =actorManager.createAndStartActor(MyStateActor.class, name);
+                actors.put(actor.getName(),actor);
 
-                dmessage=new DefaultMessage("stack", new ActorTask(this._pathstack));
+                dmessage=new DefaultMessage("resActor", null);
                 actorManager.send(dmessage, curactor, actor);
 
                 //发送 q'' 给 paActor

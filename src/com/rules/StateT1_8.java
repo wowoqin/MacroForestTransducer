@@ -18,6 +18,9 @@ public class StateT1_8 extends StateT1 {
         super(path);
         _q3 = q3;
         _q1 = q1;
+        _q1.setLevel(this.getLevel()+1);
+        _q3.setLevel(this.getLevel()+1);
+
         this._predstack = new Stack();
         this._pathstack = new Stack();
     }
@@ -37,9 +40,11 @@ public class StateT1_8 extends StateT1 {
             Actor actor=(actors.get(name));// preds的 actor
 
             if (actor == null) {  // 若predsActor 还没有创建 --> _predstack 一定为空
+                stacklist.add(this._predstack);
                 actor = actorManager.createAndStartActor(MyStateActor.class, "T1-8.prActor");
+                actors.put(actor.getName(),actor);
 
-                dmessage = new DefaultMessage("stack", new ActorTask(this._predstack));
+                dmessage=new DefaultMessage("resActor", null);
                 actorManager.send(dmessage, curactor, actor);
                 //发送 q' 给 prActor
                 _q3.setLevel(layer + 1);
@@ -55,9 +60,11 @@ public class StateT1_8 extends StateT1 {
             name=((Integer)this._pathstack.hashCode()).toString().concat("T1-8.paActor");
             actor=(actors.get(name));// path的 actor
             if (actor == null) {  // 若 pathActor 还没有创建 --> _pathstack 一定为空
+                stacklist.add(this._pathstack);
                 actor = actorManager.createAndStartActor(MyStateActor.class, name);
+                actors.put(actor.getName(),actor);
 
-                dmessage = new DefaultMessage("stack", new ActorTask(this._pathstack));
+                dmessage=new DefaultMessage("resActor", null);
                 actorManager.send(dmessage, curactor, actor);
                 //发送 q'' 给 paActor
                 _q1.setLevel(layer + 1);

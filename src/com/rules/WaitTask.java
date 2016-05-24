@@ -9,7 +9,7 @@ public class WaitTask {   // 在 actor 的list 中添加的任务
     protected  String pathR;    // 后续 path 的返回结果或者是preds'的返回结果
 
     /*
-    * 在此：T1-1 ~ T1-4 ：pathR 中存放第一步的匹配结果 --> test
+    * 在此：T1-1 ~ T1-4 : pathR 中存放第一步的匹配结果 --> test
     *      T1-5 ~ T1-8 : pathR 中存放后续 path 的检查结果
     *      T2-1 ~ T2-4 : pathR 中直接存放“True”
     *      T3-1 ~ T3-4 : pathR 中存放 preds'的检查结果

@@ -2,6 +2,7 @@ package com.xml.sax;
 
 import com.XPath.PathParser.ASTPath;
 import com.XPath.PathParser.QueryParser;
+import com.rules.State;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -23,10 +24,20 @@ public class SaxTest {
         //MySaxParser dh = new MySaxParser("/a/c[/b][/d]");
         //MySaxParser dh = new MySaxParser("/a/c/d[/a]");
         File f = new File("test8.xml");
-        MySaxParser dh = new MySaxParser("/a[/b]/c");
+        MySaxParser dh = new MySaxParser("/a[/b]");
         //MySaxParser dh = new MySaxParser("//a[/b]//d");
         //MySaxParser dh = new MySaxParser("/a[/b[/c]][/d]/c[/d]");
         //MySaxParser dh = new MySaxParser("//a[/d]/c[/b[//g]]");
         parser.parse(f, dh);
+        //主线程等待所有子线程结束才结束
+        //System.out.println(State.actorManager.getActiveRunnableCount());
+        //if(State.actorManager.getActiveRunnableCount()>=1){
+            //把所有子线程join到main中--》得到子线程的名称
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        //}
     }
 }

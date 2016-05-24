@@ -20,33 +20,29 @@ public class MySaxParser<T> extends DefaultHandler {
     protected QueryParser qp ;
     protected ASTPath path;
     protected int layer;
-    protected Stack stack;
 
     protected DefaultActorManager manager;
     protected DefaultMessage message;
-    protected Actor stackActor;
-
-    protected Map<String,Actor> myActors;
 
     public MySaxParser(String path_str) {
         super();
         qp = new QueryParser();
         path = qp.parseXPath(path_str);
         State currentQ = StateT1.TranslateStateT1(path);//将XPath翻译为各个状态
-        stack = new Stack();
+        Stack stack = new Stack();
+        State.stacklist.add(stack);
 
         // SAX 接口处的引用
-        myActors = State.actors;
         manager  = State.actorManager;
 
         // 创建 stack 对应的 actor--> stackActor
-        stackActor = manager.createAndStartActor(MyStateActor.class, "stackActor");
+        Actor stackActor = manager.createAndStartActor(MyStateActor.class, "stackActor");
+        State.actors.put(stackActor.getName(),stackActor);
 
-        // 把 stack 与 stackActor 联系起来
-        message = new DefaultMessage("stack", new ActorTask(stack));
+        message = new DefaultMessage("resActor",null);
         manager.send(message, null, stackActor);
 
-        message = new DefaultMessage("pushTask",new ActorTask(layer,currentQ));
+        message = new DefaultMessage("pushTask",new ActorTask(0,currentQ));
         manager.send(message, null, stackActor);
 
 
@@ -78,11 +74,7 @@ public class MySaxParser<T> extends DefaultHandler {
 
     @Override
     public void endDocument() throws SAXException{
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        //State.actorManager.terminateAndWait();
         System.out.println("----------- End  Document ----------");
         super.endDocument();
     }

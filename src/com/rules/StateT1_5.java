@@ -16,6 +16,7 @@ public class StateT1_5 extends StateT1{
     protected StateT1_5(ASTPath path,State q1){
         super(path);
         _q1=q1;
+        _q1.setLevel(this.getLevel() + 1); //q1 检查后续 path，肯定是当前标签的子孙中检查
     }
 
     public static State TranslateState(ASTPath path){//重新创建T1-5
@@ -26,7 +27,6 @@ public class StateT1_5 extends StateT1{
     public void startElementDo(String tag,int layer,MyStateActor curactor) {
         if((getLevel() == layer) && (tag.equals(_test))) {//应该匹配的层数 getLevel（）和 当前层数相等
             curactor.addWTask(new WaitTask(layer,true,null));
-            _q1.setLevel(this.getLevel() + 1); //q1 检查后续 path，肯定是当前标签的子孙中检查
             curactor.getMyStack().push(new ActorTask(layer,_q1));
         }
     }

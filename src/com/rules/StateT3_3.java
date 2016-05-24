@@ -19,6 +19,9 @@ public class StateT3_3 extends StateT3{
         super(preds);
         _q3=q3;
         _q2=q2;
+        _q2.setLevel(this.getLevel());//q2 检查【child::test】，应该匹配的标签的层数 不变
+        _q3.setLevel(this.getLevel());// q3 检查preds'，应该匹配的标签的层数与当前 [test] 同一层
+        this._predstack=new Stack();
     }
 
     public static StateT3 TranslateState(ASTPreds preds){//重新创建T3-3
@@ -28,16 +31,12 @@ public class StateT3_3 extends StateT3{
     }
     public void startElementDo(String tag,int layer,MyStateActor curactor) throws CloneNotSupportedException {
         if (getLevel() >= layer) {//应该匹配的层数 getLayer（）和 当前标签 tag 的层数相等
-            _q2.setLevel(getLevel());//q2 检查【child::test】，应该匹配的标签的层数 不变
-            _q3.setLevel(getLevel());// q3 检查preds'，应该匹配的标签的层数与当前 [test] 同一层
-
             Stack stack=curactor.getMyStack();
             ActorTask atask=(ActorTask)stack.peek();
             int id = atask.getId();//当前栈顶的 id
 
             String name=((Integer)this._predstack.hashCode()).toString().concat("T3-3.prActor");
             Actor actor=(actors.get(name));// preds'的 actor
-
 
             if (tag.equals(_test)) {
                 //要是test匹配，则直接检查preds'，preds' 的结果作为 T3-3 的结果
@@ -64,9 +63,11 @@ public class StateT3_3 extends StateT3{
                             curactor.pushFunction(new ActorTask(layer,_q2));
                             //push(layer,q'')
                             if(actor==null){
+                                stacklist.add(this._predstack);
                                 actor=actorManager.createAndStartActor(MyStateActor.class, name);
+                                actors.put(actor.getName(),actor);
 
-                                dmessage=new DefaultMessage("stack",this._predstack);
+                                dmessage=new DefaultMessage("resActor",null);
                                 actorManager.send(dmessage, curactor, actor);
 
                                 dmessage=new DefaultMessage("setCategory","T3PredsActor");
@@ -97,9 +98,11 @@ public class StateT3_3 extends StateT3{
                     curactor.pushFunction(new ActorTask(layer,_q2));
                     //push(id,q'')
                     if(actor==null){
+                        stacklist.add(this._predstack);
                         actor=actorManager.createAndStartActor(MyStateActor.class, name);
+                        actors.put(actor.getName(),actor);
 
-                        dmessage=new DefaultMessage("stack",this._predstack);
+                        dmessage=new DefaultMessage("resActor",null);
                         actorManager.send(dmessage, curactor, actor);
 
                         dmessage=new DefaultMessage("setCategory","T3PredsActor");

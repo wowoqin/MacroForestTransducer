@@ -16,6 +16,7 @@ public class StateT1_4 extends StateT1 implements Cloneable {
     protected StateT1_4(ASTPath path, State q3) {
         super(path);
         _q3 = q3;
+        _q3.setLevel(this.getLevel() + 1);
         this._predstack = new Stack();
     }
 
@@ -32,12 +33,14 @@ public class StateT1_4 extends StateT1 implements Cloneable {
             curactor.addWTask(new WaitTask(layer,false,tag));
 
             if(actor == null){// 若谓词 actor 还没有创建 --> _predstack 一定为空
-                _q3.setLevel(layer + 1);
+                stacklist.add(this._predstack);
                 actor =actorManager.createAndStartActor(MyStateActor.class, name);
+                actors.put(actor.getName(),actor);
 
-                dmessage=new DefaultMessage("stack", new ActorTask(this._predstack));
+                dmessage=new DefaultMessage("resActor", null);
                 actorManager.send(dmessage, curactor, actor);
                 //发送 q' 给 prActor
+                _q3.setLevel(layer + 1);
                 dmessage=new DefaultMessage("pushTask", new ActorTask(layer,_q3));
                 actorManager.send(dmessage,curactor,actor);
             }
