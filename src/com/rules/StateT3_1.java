@@ -31,15 +31,9 @@ public class StateT3_1 extends StateT3{
     public void startElementDo(String tag,int layer,MyStateActor curactor) throws CloneNotSupportedException {
         //进到 q3-1 中就应该对 preds' 同时进行检查
         if(getLevel() == layer) {//应该匹配的层数 getLayer（）和 当前标签 tag 的层数相等
-            WaitTask wtask;
-            boolean isFindInThis = false;
-
             Stack stack=curactor.getMyStack();
             ActorTask atask=(ActorTask)stack.peek();
             int id=atask.getId();//当前栈顶的 id
-
-            String name=((Integer)this._predstack.hashCode()).toString().concat("T3-1.prActor");
-            Actor actor=(actors.get(name));// preds'的 actor
 
 
             if (tag .equals(_test)){
@@ -48,15 +42,19 @@ public class StateT3_1 extends StateT3{
                 stack.push(new ActorTask(id,_q3));
             }
             else {// test不匹配，检查 q'' 和 q'''&& preds'.startElementDo(tag,layer)
-                //1.(id,T3-1) 换为 (id,waitstate)
+                WaitTask wtask;
+                List list=curactor.tlist;
+                boolean isFindInThis = false;
+                String name=((Integer)this._predstack.hashCode()).toString().concat("T3-1.prActor");
+                Actor actor=(actors.get(name));// preds'的 actor
+                //1.(id,T3-1) 替换为 (id,waitstate)
                 State waitState=new WaitState();
                 waitState.setLevel(((State) atask.getObject()).getLevel());
                 curactor.popFunction();
                 curactor.pushFunction(new ActorTask(id, waitState));
                 // PC:
-                List list=curactor.tlist;
                 if(!list.isEmpty()){
-                    for(int i=(list.size()-1);i>=0;i--) {
+                    for(int i=(list.size()-1);i>=0 && !isFindInThis;i--) {
                         wtask = (WaitTask) list.get(i);
                         if (wtask.getId() == id) {//在自己的list中找到了id相同的wt-->则T3-1约束 PC 轴的test
                             isFindInThis=true;
@@ -74,7 +72,7 @@ public class StateT3_1 extends StateT3{
                                 dmessage=new DefaultMessage("setCategory","T3PredsActor");
                                 actorManager.send(dmessage,curactor,actor);
 
-                                dmessage=new DefaultMessage("pushTask",new ActorTask(layer,_q3));
+                                dmessage=new DefaultMessage("push",new ActorTask(layer,_q3));
                                 actorManager.send(dmessage,curactor,actor);
                             }else {
                                 State currQ=(State)_q3.copy();
@@ -84,7 +82,6 @@ public class StateT3_1 extends StateT3{
                             }
                             //3. add（layer,false,false）
                             curactor.addWTask(new WaitTask(layer,false,"false"));
-                            break;
                         }
                     }
                 }
@@ -103,7 +100,7 @@ public class StateT3_1 extends StateT3{
                         dmessage=new DefaultMessage("setCategory","T3PredsActor");
                         actorManager.send(dmessage,curactor,actor);
 
-                        dmessage=new DefaultMessage("pushTask",new ActorTask(layer,_q3));
+                        dmessage=new DefaultMessage("push",new ActorTask(layer,_q3));
                         actorManager.send(dmessage,curactor,actor);
                     }else {
                         State currQ=(State)_q3.copy();

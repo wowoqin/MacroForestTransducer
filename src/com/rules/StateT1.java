@@ -85,18 +85,17 @@ public class StateT1 extends State implements Cloneable {
         int id=((ActorTask)currstack.peek()).getId(); // 当前栈顶 task 的 id
         List list=curactor.getTlist();//当前actor的list
 
-        for(int i=0;i<list.size();i++){
+        for(int i=list.size();i>=0;i--){
             wtask = (WaitTask)list.get(i);
             if (wtask.getId()==layer) {//找到id==layer的 wt
                 if (wtask.isSatisfied()) {//当前 wt 满足输出条件
-                    if(curactor.getName().equals("stackActor")){//在stack中==>PC轴
+                    if(curactor.getName().equals("stackActor")){//在stack中
                         if(currstack.size()==1){//输出
                             curactor.output(wtask);//也许有多个输出，此时不return；
-                            curactor.removeWTask(wtask);
                             break;
                         }else {//在stack中 && 作为T1-5的后续path
                             //则把(wt.id，wt.getPathR())给自己这个list中id=wt.id的 wt1
-                            for(int j=0;j<i;j++){
+                            for(int j=i-1;j>=0;j--){
                                 WaitTask wtask1 = (WaitTask) list.get(j);
                                 if(wtask1.getId()==id){//找到相同id的 wt，把结果传给 wt
                                     atask=new ActorTask(id,wtask.getPathR());
@@ -111,18 +110,17 @@ public class StateT1 extends State implements Cloneable {
                             }
                         }
                     }else { //作为AD 轴后续 path 的一部分
-                        boolean isFind=false;
+                        boolean isInThis=false;
                         atask=new ActorTask(id,wtask.getPathR());
-                        for(int j=0;j<i;j++){//在自己的list中找相同id的wt
+                        for(int j=i-1;j>=0 && !isInThis;j--){//在自己的list中找相同id的wt
                             WaitTask wtask1 = (WaitTask) list.get(j);
                             if(wtask1.getId()==id){//找到了==>不在stack中 && 作为T1-5的后续path
+                                isInThis=true;
                                 dmessage=new DefaultMessage("pathResult",atask);
                                 actorManager.send(dmessage, curactor, curactor);
-                                isFind=true;
-                                break;//结束小循环
                             }
                         }
-                        if(!isFind){//在T1-6、T1-7、T1-8的path栈中
+                        if(!isInThis){//在T1-6、T1-7、T1-8的path栈中
                             dmessage=new DefaultMessage("paResult",atask);
                             actorManager.send(dmessage,curactor,curactor.getResActor());
                         }
@@ -130,10 +128,15 @@ public class StateT1 extends State implements Cloneable {
                         return;//结束大循环
                     }
                 }
-                //到自己的结束标签，当前wt不满足输出条件，也要删除
+                //到自己的结束标签，当前wt不满足输出条件-->应该检查后面的谓词所对应的Actor是否做完了工作，
+                // 若做完了，则删除不满足的wt；
+                // 若还没做完，则当前actro应该等谓词actor做完再判断；
                 curactor.removeWTask(wtask);
+
+
             }
             //id!=layer,则下一次循环
         }
     }
+
 }

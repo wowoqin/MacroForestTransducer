@@ -41,7 +41,7 @@ public class StateT2_4 extends StateT2 implements Cloneable{
                 actorManager.send(dmessage, curactor, actor);
                 //·¢ËÍ q'¸ø prActor
                 _q3.setLevel(layer + 1);
-                dmessage=new DefaultMessage("pushTask", new ActorTask(layer,_q3));
+                dmessage=new DefaultMessage("push", new ActorTask(layer,_q3));
                 actorManager.send(dmessage,curactor,actor);
             }else{
                 State currQ=(State)_q3.copy();

@@ -61,6 +61,7 @@ public class MySaxParser<T> extends DefaultHandler {
         message=new DefaultMessage("startE",new ActorTask(layer,qName));
         manager.broadcast(message, null);
         layer++; //layer 是表示在 XML 流中的标签的层数
+        //System.out.println(State.actorManager.getActiveRunnableCount());
     }
 
     @Override
@@ -74,7 +75,7 @@ public class MySaxParser<T> extends DefaultHandler {
 
     @Override
     public void endDocument() throws SAXException{
-        //State.actorManager.terminateAndWait();
+        //manager.terminateAndWait();
         System.out.println("----------- End  Document ----------");
         super.endDocument();
     }

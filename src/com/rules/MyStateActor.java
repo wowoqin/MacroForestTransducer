@@ -65,7 +65,6 @@ public class MyStateActor extends AbstractActor {
 
     @Override
     protected void runBody() {
-        super.runBody();
         List list=State.stacklist;
         this.setMyStack((Stack) list.get(list.size() - 1));
     }
@@ -87,18 +86,20 @@ public class MyStateActor extends AbstractActor {
         if("resActor".equals(subject)){ // actorTask,并且 data 是null
             this.setResActor(message.getSource());
         }else{
-            ActorTask task=(ActorTask)data;// task 是一个null(init) 或者 actorTask
+            ActorTask task=(ActorTask)data;// task 是一个actorTask
             if(task!=null){
-                // object 是q（State）、qName（String）、stack（Stack）、q'的返回结果（True/False）、q''的返回结果（String）
+                // object 是q（State）、qName（String）、q'的返回结果（True/False）、q''的返回结果（String）
                 Object object = task.getObject();
                 Stack  ss = this.getMyStack();
                 State  currQ;
 
-               if("pushTask".equals(subject)){       // actorTask,并且 data 是一个 q
+               if("push".equals(subject)){//单纯的push
+                   this.getMyStack().push(task);
+               }else if("pushTask".equals(subject)){       // actorTask,并且 data 是一个 q3
                     this.pushFunction(task);
-                }else if("setCategory".equals(subject)){    // actorTask,并且 data 是一个 string
+               }else if("setCategory".equals(subject)){    // actorTask,并且 data 是一个 string
                     this.setCategory((String)object);
-                }else if("predResult".equals(subject)){     // actorTask,并且 data 是一个q'的返回结果（True）
+               }else if("predResult".equals(subject)){     // actorTask,并且 data 是一个q'的返回结果（True）
                     //此时，谓词的返回结果或者来自自己，或者是来自下一级的actor（T2的谓词actor或者是T3的preds'对应的actor）
                     // 收到谓词返回结果后，在list中找到相应的wt的ID，然后将谓词检查的结果重新赋值
                     for(int i=0;i<tlist.size();i++) {
@@ -187,7 +188,7 @@ public class MyStateActor extends AbstractActor {
                             }
                         }
                     }
-                }else if("pathResult".equals(subject)){ // actorTask,并且 data 是一个q''的返回结果（String）
+               }else if("pathResult".equals(subject)){ // actorTask,并且 data 是一个q''的返回结果（String）
                     // 在 waitTask 中找到相应的ID，然后将后续 path 检查的结果 重新赋值
                     for(int i=0;i<tlist.size();i++){
                         WaitTask wt = (WaitTask)(tlist.get(i));
@@ -200,7 +201,7 @@ public class MyStateActor extends AbstractActor {
                             break;
                         }
                     }
-                }else{                              // actorTask,并且 data 是一个qName（String）
+               }else{                              // actorTask,并且 data 是一个qName（String）
                     if (!ss.isEmpty()) {
                         // 找到当前 actor 的当前栈顶的当前 state
                         currQ = (State) (((ActorTask) (ss.peek())).getObject());
@@ -285,7 +286,6 @@ public class MyStateActor extends AbstractActor {
 
     //没有检查成功弹栈时 remove 与actorTask.id相等的 wtask
     public void FindAndRemoveFailedWTask(ActorTask actorTask){
-        //自己的 list 中找有无相同 id 的 wt(或许会有多个)
         boolean isFindInThis = false;
         WaitTask wtask;
         List list=this.getTlist();
@@ -317,6 +317,7 @@ public class MyStateActor extends AbstractActor {
 
     public void output(WaitTask wt){
         wt.output();
+        this.removeWTask(wt);
     }
 
     public void addWTask(WaitTask wt){

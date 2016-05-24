@@ -40,12 +40,12 @@ public class StateT1_7 extends StateT1 implements Cloneable{
                 actorManager.send(dmessage, curactor, actor);
                 //发送 q'' 给 paActor
                 _q1.setLevel(layer + 1);
-                dmessage=new DefaultMessage("pushTask", new ActorTask(layer,_q1));
+                dmessage=new DefaultMessage("push", new ActorTask(layer,_q1));
                 actorManager.send(dmessage,curactor,actor);
             } else{  // 若path  actor 已经创建了,则发送 q'' 给 paActor即可
                 State currQ=(State)_q1.copy();
                 currQ.setLevel(layer + 1);
-                dmessage=new DefaultMessage("pushTask",new ActorTask(layer,currQ));
+                dmessage=new DefaultMessage("push",new ActorTask(layer,currQ));
                 actorManager.send(dmessage, curactor, actor);
 
             }
@@ -66,61 +66,62 @@ public class StateT1_7 extends StateT1 implements Cloneable{
             String name=curactor.getName();
             List list=curactor.getTlist();
 
-            for(int i=0;i<list.size();i++){
+            for(int i=list.size()-1;i>=0;i--){
                 wtask = (WaitTask)list.get(i);
                 if (wtask.getId()==layer) {
                     if (wtask.isSatisfied()) {
-                        if(name.equals("stackActor")){//在stack中-==>PC轴
+                        if(name.equals("stackActor")){//在stack中-==>输出/传结果
                             if(currstack.size()==1){//输出
                                 curactor.output(wtask);
                                 // 若 T1-7.pathStack 中弹栈之后还有 AD 轴的后续 path 的检查，
                                 // 则需要把当前满足的 wt.paResult复制到之前的等待的 wt.paResult
+                                //直接在T1-7所在的list中把wt.pathR设置为wtask.pathR.并且不用弹栈
                                 if(list.size()>1){
-                                    name=((Integer)this._pathstack.hashCode()).toString().concat("T1-7.paActor");
-                                    Actor actor=(actors.get(name));// path的 actor
-                                    currstack=((MyStateActor)actor).getMyStack(); //T1-7.pathStack
-                                    if(!currstack.isEmpty()){
-                                        atask = ((ActorTask)(currstack.peek()));  // 当前栈顶 的task
-                                        State state =(State) atask.getObject();
-                                        if(state instanceof StateT1_3|| state instanceof StateT1_4
-                                                ||state instanceof StateT1_7|| state instanceof StateT1_8){
-                                            for(int j=0;j<i;j++){
-                                                if(((WaitTask) list.get(j)).isWaitOutput()){
-                                                    dmessage=new DefaultMessage("pathResult",wtask.getPathR());
-                                                    actorManager.send(dmessage,curactor,curactor);
-                                                }
-                                            }
-
+                                    if (this._q1 instanceof StateT1_3 || this._q1 instanceof StateT1_4
+                                            || this._q1 instanceof StateT1_7 || this._q1 instanceof StateT1_8){
+                                        for(int j=i-1;j>=0;j--){
+                                            ((WaitTask)list.get(j)).setPathR(wtask.pathR);
                                         }
-
                                     }
                                 }
+                                curactor.removeWTask(wtask);
                             }else {//在stack中 && 作为T1-5的后续path
-                                for(int j=0;j<i;j++){
-                                    wtask = (WaitTask) curactor.tlist.get(j);
-                                    if(wtask.getId()==id){
+                                for(int j = i-1; j >=0; j--){
+                                    WaitTask wtask1 = (WaitTask) curactor.tlist.get(j);
+                                    if(wtask1.getId()==id){
                                         atask=new ActorTask(id,wtask.getPathR());
                                         dmessage=new DefaultMessage("pathResult",atask);
                                         actorManager.send(dmessage,curactor,curactor);
+                                        curactor.removeWTask(wtask);
+                                        return;//跳出这个方法（即跳出了小循环j，又跳出了大循环i）
                                     }
                                 }
                             }
                         }else {//作为AD 轴后续path的一部分-->在paActor中
-                            for(int j=0;j<i;j++){
-                                wtask = (WaitTask) curactor.tlist.get(j);
-                                atask=new ActorTask(id,wtask.getPathR());
-                                if(wtask.getId()==id){//在paActor中 && 作为T1-5的后续path
-                                    dmessage=new DefaultMessage("pathResult",atask);
-                                    actorManager.send(dmessage,curactor,curactor);
-                                }else{//在T1-6、T1-7、T1-8的 paActor 中
-                                    dmessage=new DefaultMessage("pathResult",atask);
-                                    actorManager.send(dmessage,curactor,curactor.getResActor());
+                            boolean inInThis=false;
+                            atask = new ActorTask(id, wtask.getPathR());
+                            for (int j = i-1; j >=0 && !inInThis; j--) {
+                                WaitTask wtask1 = (WaitTask) curactor.tlist.get(j);
+                                if (wtask1.getId() == id) {//在paActor中 && 作为T1-5的后续path
+                                    inInThis=true;
+                                    dmessage = new DefaultMessage("pathResult", atask);
+                                    actorManager.send(dmessage, curactor, curactor);
                                 }
                             }
+                            if(!inInThis){
+                                //在T1-6、T1-7、T1-8的 paActor 中
+                                dmessage = new DefaultMessage("pathResult", atask);
+                                actorManager.send(dmessage, curactor, curactor.getResActor());
+                            }
+                            curactor.removeWTask(wtask);
+                            return;//跳出这个方法（即跳出了小循环j，又跳出了大循环i）
                         }
                     }
-                    //到自己的结束标签，不管当前wt是否满足，都要删除
-                    curactor.removeWTask(wtask);
+                    //到自己的结束标签，当前wt不满足输出条件-->应该检查后面的谓词所对应的Actor是否做完了工作，
+                    // 若做完了，则删除不满足的wt；
+                    // 若还没做完，则当前actro应该等谓词actor做完再判断；
+
+
                 }
             }
         }else if (layer == getLevel() - 1) { // 遇到上层结束标签(T1-7作为一个后续的path)

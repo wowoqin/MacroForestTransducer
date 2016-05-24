@@ -30,7 +30,6 @@ public class StateT2_2 extends StateT2{
             curactor.addWTask(new WaitTask(layer,false,"true"));
             //检查的谓词的层数肯定是当前应该匹配层数所对应的标签的子孙的层数
             curactor.getMyStack().push(new ActorTask(layer,_q3));// 对于当前栈的压栈操作，就可以直接压栈（不用发送消息）
-
         }
     }
 

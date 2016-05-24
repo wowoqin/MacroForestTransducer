@@ -11,7 +11,7 @@ public class ActorTask {// actor 之间交互的数据
 
     protected int id;//id
     // 发送给 actor的数据，
-    // 如：q（State）、qName（String）、stack（Stack）、q'的返回结果（True/False）、q''的返回结果（String）
+    // 如：q（State）、qName（String）、null(当设置其resActor时)、q'的返回结果（True/False）、q''的返回结果（String）
     protected Object object;
 
 
