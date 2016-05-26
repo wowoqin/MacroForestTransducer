@@ -50,9 +50,6 @@ public class StateT1_4 extends StateT1 implements Cloneable {
                 dmessage=new DefaultMessage("pushTask",new ActorTask(layer,currQ));
                 actorManager.send(dmessage, curactor, actor);
             }
-            // 还要设置一下谓词actor接收消息的subject
-            //actor.willReceive("startE");
-            //actor.peekNext("startE",isX1(getLevel()+1));// 谓词actor接受的标签应该是当前标签的 child
         }
     }
 
@@ -74,29 +71,32 @@ public class StateT1_4 extends StateT1 implements Cloneable {
                         if (name.equals("stackActor")) {
                             if (currstack.size() == 1) {//q0==T1-4-->输出
                                 curactor.output(wtask);
+                                curactor.removeWTask(wtask);
                                 //此时需要判断T1-4 的谓词是否是AD轴，若是：把T1-4.predstack中相应的task对应的wt.predR设为True
                                 if (list.size() > 1) {
-                                    if (this._q3 instanceof StateT2_3 || this._q3 instanceof StateT2_4
-                                            || this._q3 instanceof StateT3_3 || this._q3 instanceof StateT3_4) {
-                                        //T1-4 本来的谓词 _q3 就是 AD 轴谓词
-                                        // 在 list 中找到相关等待的可以输出的 wt，将 predResult 给 wt
-                                        // && pop(所有AD轴谓词) && remove (这些谓词相关的等待 wt)
-                                        name = ((Integer) this._predstack.hashCode()).toString().concat("T1-4.paActor");
-                                        Actor actor = (actors.get(name));// path的 actor
-                                        if (actor != null) {//T1-4 的 prActor存在-->则其predstack不为空，还有谓词等待
-                                            currstack = ((MyStateActor) actor).getMyStack(); //T1-4.predStack
-                                            if (!currstack.isEmpty()) {
-                                                for (int j = 0; j < i; j++) {
-                                                    if (((WaitTask) list.get(j)).isWaitOutput()) {
-                                                        dmessage = new DefaultMessage("predResult", wtask.getPredR());
-                                                        actorManager.send(dmessage, curactor, curactor);
-                                                    }
-                                                    atask = ((ActorTask) (currstack.peek()));  // 当前栈顶 的task
-                                                    State state = (State) atask.getObject();
-
-                                                }
-                                            }
+                                    name = ((Integer) this._predstack.hashCode()).toString().concat("T1-4.prActor");
+                                    Actor actor = (actors.get(name));// preds的 actor
+                                    if (this._q3 instanceof StateT2_3){
+                                        for(int j=i-1;j>=0;j--){
+                                            ((WaitTask) list.get(j)).setPredR(true);
                                         }
+                                        ((MyStateActor)actor).getMyStack().clear();
+                                        actorManager.detachActor(actor);
+                                    }else if (this._q3 instanceof StateT2_4) {
+                                        for(int j=i-1;j>=0;j--){
+                                            ((WaitTask) list.get(j)).setPredR(true);
+                                        }
+                                        ((MyStateActor)actor).getMyStack().clear();
+                                        if(!((MyStateActor)actor).getTlist().isEmpty())
+                                            ((MyStateActor)actor).getTlist().clear();
+                                        actorManager.detachActor(actor);
+                                    }else if(this._q3 instanceof StateT3_3){
+                                        //设置q3所在的actor的list.wt.predR=true
+
+                                        //查看preds'的性质
+
+                                    }else if(this._q3 instanceof StateT3_4){
+
                                     }
                                 } else {//在stack中 && T1-4作为T1-5的后续path-->上传结果-->只传一遍，相同id的不管了
                                     atask = new ActorTask(id, wtask.getPathR());

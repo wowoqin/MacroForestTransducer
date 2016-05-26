@@ -85,7 +85,7 @@ public class StateT1 extends State implements Cloneable {
         int id=((ActorTask)currstack.peek()).getId(); // 当前栈顶 task 的 id
         List list=curactor.getTlist();//当前actor的list
 
-        for(int i=list.size();i>=0;i--){
+        for(int i=list.size()-1;i>=0;i--){
             wtask = (WaitTask)list.get(i);
             if (wtask.getId()==layer) {//找到id==layer的 wt
                 if (wtask.isSatisfied()) {//当前 wt 满足输出条件
@@ -132,7 +132,6 @@ public class StateT1 extends State implements Cloneable {
                 // 若做完了，则删除不满足的wt；
                 // 若还没做完，则当前actro应该等谓词actor做完再判断；
                 curactor.removeWTask(wtask);
-
 
             }
             //id!=layer,则下一次循环

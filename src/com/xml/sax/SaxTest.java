@@ -17,6 +17,7 @@ import java.io.InputStream;
  */
 public class SaxTest {
     public static void main(String[] args) throws ParserConfigurationException, SAXException, IOException {
+        System.out.println(Thread.currentThread().getName()+"主线程开始运行");
         SAXParserFactory factory = SAXParserFactory.newInstance();
         SAXParser parser = factory.newSAXParser();
         //File f = new File("test3.xml");
@@ -24,17 +25,18 @@ public class SaxTest {
         //MySaxParser dh = new MySaxParser("/a/c[/b][/d]");
         //MySaxParser dh = new MySaxParser("/a/c/d[/a]");
         File f = new File("test8.xml");
-        MySaxParser dh = new MySaxParser("//a[/b]");
+        MySaxParser dh = new MySaxParser("/a[/b]");
         //MySaxParser dh = new MySaxParser("//a[/b]//d");
         //MySaxParser dh = new MySaxParser("/a[/b[/c]][/d]/c[/d]");
         //MySaxParser dh = new MySaxParser("//a[/d]/c[/b[//g]]");
         parser.parse(f, dh);
+        System.out.println(Thread.currentThread().getName() + "主线程结束运行");
         //主线程等待所有子线程结束才结束
-        System.out.println(State.actorManager.getActiveRunnableCount());
+        //System.out.println(State.actorManager.getActiveRunnableCount());
         //if(State.actorManager.getActiveRunnableCount()>=1){
             //把所有子线程join到main中--》得到子线程的名称
             try {
-                Thread.sleep(100);
+                Thread.sleep(10000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

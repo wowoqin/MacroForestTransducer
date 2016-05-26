@@ -17,7 +17,7 @@ public class MyStateActor extends AbstractActor {
     protected Stack myStack;//每个actor 中应该有一个 stack ，也就是一个 stack 对应于一个 actor
     protected Actor resActor;//上级 Actor
 
-    protected List tlist;// 等待匹配的任务 list
+    protected List tlist;// 存放等待匹配的任务 list
 
     public MyStateActor(){
         tlist=new ArrayList();
@@ -83,7 +83,7 @@ public class MyStateActor extends AbstractActor {
         sleep(1);
         Object data=message.getData();
         String subject = message.getSubject();
-        if("resActor".equals(subject)){ // actorTask,并且 data 是null
+        if("resActor".equals(subject)){ // actorTask,并且 data 是 null
             this.setResActor(message.getSource());
         }else{
             ActorTask task=(ActorTask)data;// task 是一个actorTask
@@ -220,6 +220,8 @@ public class MyStateActor extends AbstractActor {
                 }
             }
         }
+        //删除发送的消息-->每个Actor接收的最大消息数量=100
+        //this.remove(message);
     }
 
     public void pushFunction(ActorTask actorTask){
@@ -310,6 +312,31 @@ public class MyStateActor extends AbstractActor {
             }
         }
     }
+
+//    public void checkPreds(State state){
+//        name = ((Integer) this._predstack.hashCode()).toString().concat("T1-4.prActor");
+//        Actor actor = (actors.get(name));// preds的 actor
+//        if (this._q3 instanceof StateT2_3){
+//            for(int j=i-1;j>=0;j--){
+//                ((WaitTask) list.get(j)).setPredR(true);
+//            }
+//            ((MyStateActor)actor).getMyStack().clear();
+//            actorManager.detachActor(actor);
+//        }else if (this._q3 instanceof StateT2_4) {
+//            for(int j=i-1;j>=0;j--){
+//                ((WaitTask) list.get(j)).setPredR(true);
+//            }
+//            ((MyStateActor)actor).getMyStack().clear();
+//            if(!((MyStateActor)actor).getTlist().isEmpty())
+//                ((MyStateActor)actor).getTlist().clear();
+//            actorManager.detachActor(actor);
+//        }else if(this._q3 instanceof StateT3_3 || this._q3 instanceof StateT3_4){
+//
+//
+//
+//
+//        }
+//    }
 
     public void removeWTask(WaitTask wt){
         this.tlist.remove(wt);
