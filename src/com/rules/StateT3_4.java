@@ -75,7 +75,7 @@ public class StateT3_4 extends StateT3{
                     dmessage = new DefaultMessage("pushTask", new ActorTask(layer,currQ));
                     actorManager.send(dmessage, curactor, actor1);
                 }
-                //2.push(layer,q'')
+                //2.p(layer,q'')
                 if (actor == null) {
                     stacklist.add(this._predstack);
                     actor = actorManager.createAndStartActor(MyStateActor.class, name);
