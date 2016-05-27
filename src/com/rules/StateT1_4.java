@@ -71,71 +71,97 @@ public class StateT1_4 extends StateT1 implements Cloneable {
                         if (name.equals("stackActor")) {
                             if (currstack.size() == 1) {//q0==T1-4-->输出
                                 curactor.output(wtask);
-                                curactor.removeWTask(wtask);
                                 //此时需要判断T1-4 的谓词是否是AD轴，若是：把T1-4.predstack中相应的task对应的wt.predR设为True
                                 if (list.size() > 1) {
                                     name = ((Integer) this._predstack.hashCode()).toString().concat("T1-4.prActor");
                                     Actor actor = (actors.get(name));// preds的 actor
-                                    if (this._q3 instanceof StateT2_3){
-                                        for(int j=i-1;j>=0;j--){
+                                    if (this._q3 instanceof StateT2_3) {
+                                        for (int j = i - 1; j >= 0; j--) {
                                             ((WaitTask) list.get(j)).setPredR(true);
                                         }
-                                        ((MyStateActor)actor).getMyStack().clear();
+                                        ((MyStateActor) actor).getMyStack().clear();
                                         actorManager.detachActor(actor);
-                                    }else if (this._q3 instanceof StateT2_4) {
-                                        for(int j=i-1;j>=0;j--){
+                                    } else if (this._q3 instanceof StateT2_4) {
+                                        for (int j = i - 1; j >= 0; j--) {
                                             ((WaitTask) list.get(j)).setPredR(true);
                                         }
-                                        ((MyStateActor)actor).getMyStack().clear();
-                                        if(!((MyStateActor)actor).getTlist().isEmpty())
-                                            ((MyStateActor)actor).getTlist().clear();
+                                        ((MyStateActor) actor).getMyStack().clear();
+                                        if (!((MyStateActor) actor).getTlist().isEmpty())
+                                            ((MyStateActor) actor).getTlist().clear();
                                         actorManager.detachActor(actor);
-                                    }else if(this._q3 instanceof StateT3_3){
+                                    } else if (this._q3 instanceof StateT3_3) {
+                                        if (((StateT3_3) this._q3)._q3 instanceof StateT2_2 ||
+                                                ((StateT3_3) this._q3)._q3 instanceof StateT2_4) {
+                                            //T3-3整个都检查成功
+                                            list=((MyStateActor)actor).getTlist();
+                                            for(int j=0;j<list.size();j++){
+
+                                            }
+
+                                        } else{
+                                            name = ((Integer) ((StateT3_3) this._q3)._predstack.hashCode()).toString().concat("T3-3.prActor");
+                                            actor = (actors.get(name));// preds'的 actor
+                                            if (((StateT3_3) this._q3)._q3 instanceof StateT3_3) {
+                                            //
+                                             } else if (((StateT3_3) this._q3)._q3 instanceof StateT3_4) {
+                                            //
+                                             } else {
+                                            //T3-3 的preds'是个 PC 轴，则只发消息设置T3-3.list.wt.predR=true
+                                             }
+                                        }
+                                    }else if (this._q3 instanceof StateT3_4) {
                                         //设置q3所在的actor的list.wt.predR=true
+                                        if (((StateT3_4) this._q3)._q32 instanceof StateT2_2 ||
+                                                ((StateT3_4) this._q3)._q32 instanceof StateT2_4) {
+                                            //T3-4整个都检查成功
 
-                                        //查看preds'的性质
-
-                                    }else if(this._q3 instanceof StateT3_4){
-
-                                    }
-                                } else {//在stack中 && T1-4作为T1-5的后续path-->上传结果-->只传一遍，相同id的不管了
-                                    atask = new ActorTask(id, wtask.getPathR());
-                                    for (int j = i-1; j >=0; j--) {
-                                        WaitTask wtask1 = (WaitTask) curactor.tlist.get(j);
-                                        if (wtask1.getId() == id) {
-                                            dmessage = new DefaultMessage("pathResult", atask);
-                                            actorManager.send(dmessage, curactor, curactor);
-                                            curactor.removeWTask(wtask);
-                                            return;//跳出这个方法（即跳出了小循环j，又跳出了大循环i）
+                                        } else if (((StateT3_4) this._q3)._q32 instanceof StateT3_3) {
+                                            //
+                                        } else if (((StateT3_4) this._q3)._q32 instanceof StateT3_4) {
+                                            //
+                                        } else {
+                                            //T3-4 的preds'是个 PC 轴，则只发消息设置T3-4.list.wt.predR=true
                                         }
                                     }
+                                    curactor.removeWTask(wtask);
                                 }
-                            } else {//作为AD 轴后续path的一部分-->在paActor中
-                                boolean inInThis=false;
+                            } else {//在stack中 && T1-4作为T1-5的后续path-->上传结果-->只传一遍，相同id的不管了
                                 atask = new ActorTask(id, wtask.getPathR());
-                                for (int j = i-1; j >=0 && !inInThis; j--) {
+                                for (int j = i - 1; j >= 0; j--) {
                                     WaitTask wtask1 = (WaitTask) curactor.tlist.get(j);
-                                    if (wtask1.getId() == id) {//在paActor中 && 作为T1-5的后续path
-                                        inInThis=true;
+                                    if (wtask1.getId() == id) {
                                         dmessage = new DefaultMessage("pathResult", atask);
                                         actorManager.send(dmessage, curactor, curactor);
+                                        curactor.removeWTask(wtask);
+                                        return;//跳出这个方法（即跳出了小循环j，又跳出了大循环i）
                                     }
                                 }
-                                if(!inInThis){
-                                    //在T1-6、T1-7、T1-8的 paActor 中
-                                    dmessage = new DefaultMessage("pathResult", atask);
-                                    actorManager.send(dmessage, curactor, curactor.getResActor());
-                                }
-                                curactor.removeWTask(wtask);
-                                return;//跳出这个方法（即跳出了小循环j，又跳出了大循环i）
                             }
+                        }else {//作为AD 轴后续path的一部分-->在paActor中
+                            boolean inInThis=false;
+                            atask = new ActorTask(id, wtask.getPathR());
+                            for (int j = i-1; j >=0 && !inInThis; j--) {
+                                WaitTask wtask1 = (WaitTask) curactor.tlist.get(j);
+                                if (wtask1.getId() == id) {//在paActor中 && 作为T1-5的后续path
+                                    inInThis=true;
+                                    dmessage = new DefaultMessage("pathResult", atask);
+                                    actorManager.send(dmessage, curactor, curactor);
+                                }
+                            }
+                            if(!inInThis){
+                                //在T1-6、T1-7、T1-8的 paActor 中
+                                dmessage = new DefaultMessage("pathResult", atask);
+                                actorManager.send(dmessage, curactor, curactor.getResActor());
+                            }
+                            curactor.removeWTask(wtask);
+                            return;//跳出这个方法（即跳出了小循环j，又跳出了大循环i）
                         }
                     }
-                    //到自己的结束标签，当前wt不满足输出条件-->应该检查后面的谓词所对应的Actor是否做完了工作，
-                    // 若做完了，则删除不满足的wt；
-                    // 若还没做完，则当前actro应该等谓词actor做完再判断；
-
                 }
+                //到自己的结束标签，当前wt不满足输出条件-->应该检查后面的谓词所对应的Actor是否做完了工作，
+                // 1. 若做完了，则删除不满足的wt；
+                // 2. 若还没做完，则当前actro应该等谓词actor做完再判断；
+
             }
         } else if (layer == getLevel() - 1) { // 遇到上层结束标签(T1-7作为一个后续的path)
             // (能遇到上层结束标签，即T1-7作为一个后续的path

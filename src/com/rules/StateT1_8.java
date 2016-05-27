@@ -100,18 +100,38 @@ public class StateT1_8 extends StateT1 {
                                 // 若 T1-8.pathStack 中弹栈之后还有 AD 轴的后续 path 的检查，
                                 // 则需要把当前满足的 wt.paResult复制到之前的等待的 wt.paResult
                                 if(list.size()>1){
-                                    if (this._q3 instanceof StateT2_3 || this._q3 instanceof StateT2_4
-                                            || this._q3 instanceof StateT3_3 || this._q3 instanceof StateT3_4){
+                                    name = ((Integer) this._predstack.hashCode()).toString().concat("T1-8.prActor");
+                                    Actor actor = (actors.get(name));// preds的 actor
+                                    if (this._q3 instanceof StateT2_3){
+                                        for(int j=i-1;j>=0;j--){
+                                            ((WaitTask) list.get(j)).setPredR(true);
+                                        }
+                                        ((MyStateActor)actor).getMyStack().clear();
+                                        actorManager.detachActor(actor);
+                                    }else if (this._q3 instanceof StateT2_4) {
+                                        for(int j=i-1;j>=0;j--){
+                                            ((WaitTask) list.get(j)).setPredR(true);
+                                        }
+                                        ((MyStateActor)actor).getMyStack().clear();
+                                        if(!((MyStateActor)actor).getTlist().isEmpty())
+                                            ((MyStateActor)actor).getTlist().clear();
+                                        actorManager.detachActor(actor);
+                                    }else if(this._q3 instanceof StateT3_3){
+                                        //设置q3所在的actor的list.wt.predR=true
 
+                                        //查看preds'的性质
 
+                                    }else if(this._q3 instanceof StateT3_4){
 
                                     }
+                                    //后续path若是AD轴，则直接把检查结果
                                     if (this._q1 instanceof StateT1_3 || this._q1 instanceof StateT1_4
                                             || this._q1 instanceof StateT1_7 || this._q1 instanceof StateT1_8){
                                         for(int j=i-1;j>=0;j--){
                                             ((WaitTask)list.get(j)).setPathR(wtask.pathR);
                                         }
                                     }
+                                    curactor.removeWTask(wtask);
                                 }
                             }else {//T1-8 在 stack中 && 作为T1-5的后续path
                                 for(int j = i-1; j >=0; j--){
