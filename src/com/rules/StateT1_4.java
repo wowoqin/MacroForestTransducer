@@ -3,6 +3,8 @@ package com.rules;
 import com.XPath.PathParser.ASTPath;
 import com.ibm.actor.Actor;
 import com.ibm.actor.DefaultMessage;
+import com.taskmodel.ActorTask;
+import com.taskmodel.WaitTask;
 
 import java.util.List;
 import java.util.Stack;
@@ -41,13 +43,13 @@ public class StateT1_4 extends StateT1 implements Cloneable {
                 actorManager.send(dmessage, curactor, actor);
                 //发送 q' 给 prActor
                 _q3.setLevel(layer + 1);
-                dmessage=new DefaultMessage("push", new ActorTask(layer,_q3));
+                dmessage=new DefaultMessage("push", new ActorTask(layer,_q3,false));
                 actorManager.send(dmessage,curactor,actor);
             }
             else{  // 若谓词 actor 已经创建了,则发送 q' 给 prActor即可
                 State currQ=(State)_q3.copy();
                 currQ.setLevel(layer + 1);
-                dmessage=new DefaultMessage("pushTask",new ActorTask(layer,currQ));
+                dmessage=new DefaultMessage("pushTask",new ActorTask(layer,currQ,false));
                 actorManager.send(dmessage, curactor, actor);
             }
         }
@@ -60,14 +62,14 @@ public class StateT1_4 extends StateT1 implements Cloneable {
         Stack currstack = curactor.getMyStack();
 
         if (tag.equals(_test)) {  // 遇到自己的结束标签，检查
-            int id = ((ActorTask) currstack.peek()).getId(); // 当前栈顶 task 的 id
+            int id = ((ActorTask) currstack.peek()).getId(); // 当前栈顶 taskmodel 的 id
             String name = curactor.getName();
             List list = curactor.getTlist();
 
             for (int i =list.size()-1; i >=0; i--) {
                 wtask = (WaitTask) list.get(i);
                 if (wtask.getId() == layer) {
-                    if (wtask.isSatisfied()) {
+                    if (wtask.isSatisfiedOut()) {
                         if (name.equals("stackActor")) {
                             if (currstack.size() == 1) {//q0==T1-4-->输出
                                 curactor.output(wtask);

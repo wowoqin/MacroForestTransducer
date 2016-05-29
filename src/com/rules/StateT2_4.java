@@ -3,9 +3,10 @@ package com.rules;
 import com.XPath.PathParser.ASTPreds;
 import com.ibm.actor.Actor;
 import com.ibm.actor.DefaultMessage;
+import com.taskmodel.ActorTask;
+import com.taskmodel.WaitTask;
 
 import java.util.List;
-import java.util.Queue;
 import java.util.Stack;
 
 /**
@@ -41,12 +42,12 @@ public class StateT2_4 extends StateT2 implements Cloneable{
                 actorManager.send(dmessage, curactor, actor);
                 //·¢ËÍ q'¸ø prActor
                 _q3.setLevel(layer + 1);
-                dmessage=new DefaultMessage("push", new ActorTask(layer,_q3));
+                dmessage=new DefaultMessage("push", new ActorTask(layer,_q3,false));
                 actorManager.send(dmessage,curactor,actor);
             }else{
                 State currQ=(State)_q3.copy();
                 currQ.setLevel(layer + 1);
-                dmessage=new DefaultMessage("pushTask",new ActorTask(layer,currQ));
+                dmessage=new DefaultMessage("pushTask",new ActorTask(layer,currQ,false));
                 actorManager.send(dmessage, curactor, actor);
             }
         }

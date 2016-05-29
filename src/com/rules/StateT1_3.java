@@ -1,9 +1,9 @@
 package com.rules;
 
 import com.XPath.PathParser.ASTPath;
-import com.ibm.actor.DefaultMessage;
+import com.taskmodel.ActorTask;
+import com.taskmodel.WaitTask;
 
-import java.util.List;
 import java.util.Stack;
 
 /**

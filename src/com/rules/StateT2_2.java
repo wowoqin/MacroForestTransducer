@@ -1,11 +1,9 @@
 package com.rules;
 
 import com.XPath.PathParser.ASTPreds;
-import com.ibm.actor.Actor;
-import com.ibm.actor.DefaultMessage;
+import com.taskmodel.ActorTask;
+import com.taskmodel.WaitTask;
 
-import java.util.List;
-import java.util.Queue;
 import java.util.Stack;
 
 /**
@@ -29,7 +27,7 @@ public class StateT2_2 extends StateT2{
         if((getLevel()==layer) && (tag.equals(_test))){// T2-2 的test匹配
             curactor.addWTask(new WaitTask(layer,false,"true"));
             //检查的谓词的层数肯定是当前应该匹配层数所对应的标签的子孙的层数
-            curactor.getMyStack().push(new ActorTask(layer,_q3));// 对于当前栈的压栈操作，就可以直接压栈（不用发送消息）
+            curactor.getMyStack().push(new ActorTask(layer,_q3,true));// 对于当前栈的压栈操作，就可以直接压栈（不用发送消息）
         }
     }
 

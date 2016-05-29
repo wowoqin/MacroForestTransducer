@@ -2,14 +2,11 @@ package com.rules;
 
 import com.XPath.PathParser.ASTPath;
 import com.XPath.PathParser.AxisType;
-import com.ibm.actor.AbstractActor;
-import com.ibm.actor.Actor;
 import com.ibm.actor.DefaultMessage;
-import com.ibm.actor.Message;
+import com.taskmodel.ActorTask;
+import com.taskmodel.WaitTask;
 
-import java.util.Iterator;
 import java.util.List;
-import java.util.Queue;
 import java.util.Stack;
 
 /**
@@ -82,13 +79,13 @@ public class StateT1 extends State implements Cloneable {
         WaitTask wtask;
         ActorTask atask;
         Stack currstack=curactor.getMyStack();
-        int id=((ActorTask)currstack.peek()).getId(); // 当前栈顶 task 的 id
+        int id=((ActorTask)currstack.peek()).getId(); // 当前栈顶 taskmodel 的 id
         List list=curactor.getTlist();//当前actor的list
 
         for(int i=list.size()-1;i>=0;i--){
             wtask = (WaitTask)list.get(i);
             if (wtask.getId()==layer) {//找到id==layer的 wt
-                if (wtask.isSatisfied()) {//当前 wt 满足输出条件
+                if (wtask.isSatisfiedOut()) {//当前 wt 满足输出条件
                     if(curactor.getName().equals("stackActor")){//在stack中
                         if(currstack.size()==1){//输出
                             curactor.output(wtask);//也许有多个输出，此时不return；

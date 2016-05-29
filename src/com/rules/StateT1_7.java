@@ -3,6 +3,8 @@ package com.rules;
 import com.XPath.PathParser.ASTPath;
 import com.ibm.actor.Actor;
 import com.ibm.actor.DefaultMessage;
+import com.taskmodel.ActorTask;
+import com.taskmodel.WaitTask;
 
 import java.util.*;
 
@@ -40,12 +42,12 @@ public class StateT1_7 extends StateT1 implements Cloneable{
                 actorManager.send(dmessage, curactor, actor);
                 //发送 q'' 给 paActor
                 _q1.setLevel(layer + 1);
-                dmessage=new DefaultMessage("push", new ActorTask(layer,_q1));
+                dmessage=new DefaultMessage("push", new ActorTask(layer,_q1,false));
                 actorManager.send(dmessage,curactor,actor);
             } else{  // 若path  actor 已经创建了,则发送 q'' 给 paActor即可
                 State currQ=(State)_q1.copy();
                 currQ.setLevel(layer + 1);
-                dmessage=new DefaultMessage("push",new ActorTask(layer,currQ));
+                dmessage=new DefaultMessage("push",new ActorTask(layer,currQ,false));
                 actorManager.send(dmessage, curactor, actor);
 
             }
@@ -62,14 +64,14 @@ public class StateT1_7 extends StateT1 implements Cloneable{
         Stack currstack=curactor.getMyStack();
 
         if (tag.equals(_test)) {  // 遇到自己的结束标签，检查
-            int id=((ActorTask)currstack.peek()).getId(); // 当前栈顶 task 的 id
+            int id=((ActorTask)currstack.peek()).getId(); // 当前栈顶 taskmodel 的 id
             String name=curactor.getName();
             List list=curactor.getTlist();
 
             for(int i=list.size()-1;i>=0;i--){
                 wtask = (WaitTask)list.get(i);
                 if (wtask.getId()==layer) {
-                    if (wtask.isSatisfied()) {
+                    if (wtask.isSatisfiedOut()) {
                         if(name.equals("stackActor")){//在stack中-==>输出/传结果
                             if(currstack.size()==1){//输出
                                 curactor.output(wtask);
@@ -80,7 +82,7 @@ public class StateT1_7 extends StateT1 implements Cloneable{
                                     if (this._q1 instanceof StateT1_3 || this._q1 instanceof StateT1_4
                                             || this._q1 instanceof StateT1_7 || this._q1 instanceof StateT1_8){
                                         for(int j=i-1;j>=0;j--){
-                                            ((WaitTask)list.get(j)).setPathR(wtask.pathR);
+                                            ((WaitTask)list.get(j)).setPathR(wtask.getPathR());
                                         }
                                     }
                                 }

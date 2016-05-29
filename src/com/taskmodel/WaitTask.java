@@ -1,11 +1,11 @@
-package com.rules;
+package com.taskmodel;
 
 /**
  * Created by qin on 2016/3/28.
  */
 public class WaitTask {   // 在 actor 的list 中添加的任务
     protected  int id;          // id
-    protected  boolean predR;   // 谓词的返回结果
+    protected  Boolean predR;   // 谓词的返回结果
     protected  String pathR;    // 后续 path 的返回结果或者是preds'的返回结果
 
     /*
@@ -17,7 +17,7 @@ public class WaitTask {   // 在 actor 的list 中添加的任务
     *      返回的检查结果（ActorTask）的 id 与 tlist 中的等待任务模型（WaitTask）的id 相匹配
     * */
 
-    public WaitTask(int id, boolean predR, String pathR) {
+    public WaitTask(int id, Boolean predR, String pathR) {
         this.id = id;
         this.predR = predR;
         this.pathR = pathR;
@@ -48,13 +48,7 @@ public class WaitTask {   // 在 actor 的list 中添加的任务
     }
 
 
-    public boolean isWaitOutput(){
-        if((!this.getPathR().equals("true"))||(!this.getPathR().equals("false")))
-            return true;
-        return false;
-    }
-
-    public boolean isSatisfied() { // 检查当前 waitTask 是不是已经满足输出条件（可以进行输出操作了）
+    public boolean isSatisfiedOut() { // 检查当前 waitTask 是不是已经满足输出条件（可以进行输出操作了）
         if(this.getPathR()!=null){
             if((this.getPredR()) && (!this.getPathR().equals("true")))
                 return true;
@@ -72,12 +66,19 @@ public class WaitTask {   // 在 actor 的list 中添加的任务
 
     public  boolean isWaitT3PPreds(){ //谓词T3，q'''成功，q''还没检查成功
         if(this.getPathR()!=null){
-            if((!this.getPredR()) && (this.getPathR().equals("true")))//(id,true,"false")
+            if((this.getPredR()) && (this.getPathR().equals("false")))//(id,true,"false")
                 return true;
         }
         return false;
     }
 
+    public  boolean isWaitT3FPreds(){ //谓词T3，q''成功，q'''还没检查成功
+        if(this.getPathR()!=null){
+            if((!this.getPredR()) && (this.getPathR().equals("true")))//(id,false,"true")
+                return true;
+        }
+        return false;
+    }
 
     public void output(){ //输出最终的检查结果
         System.out.println(this.getPathR());

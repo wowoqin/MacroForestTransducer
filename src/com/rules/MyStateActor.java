@@ -4,6 +4,8 @@ import com.ibm.actor.AbstractActor;
 import com.ibm.actor.Actor;
 import com.ibm.actor.DefaultMessage;
 import com.ibm.actor.Message;
+import com.taskmodel.ActorTask;
+import com.taskmodel.WaitTask;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -83,10 +85,11 @@ public class MyStateActor extends AbstractActor {
         sleep(1);
         Object data=message.getData();
         String subject = message.getSubject();
-        if("resActor".equals(subject)){ // actorTask,并且 data 是 null
+        if("resActor".equals(subject)){ // actorTask,并且 data = null
             this.setResActor(message.getSource());
         }else{
-            ActorTask task=(ActorTask)data;// task 是一个actorTask
+            ActorTask task=(ActorTask)data;// task
+            // 是一个actorTask
             if(task!=null){
                 // object 是q（State）、qName（String）、q'的返回结果（True/False）、q''的返回结果（String）
                 Object object = task.getObject();
@@ -131,7 +134,7 @@ public class MyStateActor extends AbstractActor {
                             *                1)T2-4:
                             *                  1. q'''先检查成功：
                             *                     则T2-4.test有多个匹配，即在T2-4.prActor中有多个q'，此时需要pop(layer,T2-4)
-                            *                      && task=(layer,true)给T3-4的 wtask-->(id,T,F)==>(id,T,T)时，栈顶为(id,qw);
+                            *                      && taskmodel=(layer,true)给T3-4的 wtask-->(id,T,F)==>(id,T,T)时，栈顶为(id,qw);
                             *                  2. q'''后检查成功，在此之前T3-4.wtask已经是(id,F,T)：
                             *                     则(layer,T)给T3-4.wtask-->(layer,T,T),而此时栈顶(layer,T2-4),但是整个T3-4已经检查成功了，
                             *                     则需要pop（layer,T2-4）&& (qw.id,true)发出去；
@@ -269,20 +272,10 @@ public class MyStateActor extends AbstractActor {
     }
 
     public void sendPredsResult(ActorTask actorTask){// 谓词检查成功，上传结果（id，true）给相应的 wt
-        boolean isFindInThis=false;
-        if(!tlist.isEmpty()){        //先在curactor.list中找是否有相同 id 的wt
-            for(int i=0;i<tlist.size();i++){
-                WaitTask wTask=(WaitTask)tlist.get(i);
-                if(wTask.getId()==actorTask.getId()){// 找到相同 id 的 wt
-                    isFindInThis=true;
-                    Message message = new DefaultMessage("predResult",actorTask);
-                    getManager().send(message, this, this);
-                }
-            }
-        }
-        if(!isFindInThis){  //curactor.list 中没有相同id的wt，则上传给resActor
-            Message message = new DefaultMessage("predResult",actorTask);
-            getManager().send(message, this, this.getResActor());
+        if(actorTask.isInSelf()){
+            getManager().send(new DefaultMessage("predResult",actorTask), this, this);
+        }else{
+            getManager().send(new DefaultMessage("predResult",actorTask), this, this.getResActor());
         }
     }
 
@@ -312,31 +305,6 @@ public class MyStateActor extends AbstractActor {
             }
         }
     }
-
-//    public void checkPreds(State state){
-//        name = ((Integer) this._predstack.hashCode()).toString().concat("T1-4.prActor");
-//        Actor actor = (actors.get(name));// preds的 actor
-//        if (this._q3 instanceof StateT2_3){
-//            for(int j=i-1;j>=0;j--){
-//                ((WaitTask) list.get(j)).setPredR(true);
-//            }
-//            ((MyStateActor)actor).getMyStack().clear();
-//            actorManager.detachActor(actor);
-//        }else if (this._q3 instanceof StateT2_4) {
-//            for(int j=i-1;j>=0;j--){
-//                ((WaitTask) list.get(j)).setPredR(true);
-//            }
-//            ((MyStateActor)actor).getMyStack().clear();
-//            if(!((MyStateActor)actor).getTlist().isEmpty())
-//                ((MyStateActor)actor).getTlist().clear();
-//            actorManager.detachActor(actor);
-//        }else if(this._q3 instanceof StateT3_3 || this._q3 instanceof StateT3_4){
-//
-//
-//
-//
-//        }
-//    }
 
     public void removeWTask(WaitTask wt){
         this.tlist.remove(wt);

@@ -1,11 +1,8 @@
 package com.rules;
 
 import com.XPath.PathParser.ASTPreds;
-import com.ibm.actor.Actor;
-import com.ibm.actor.DefaultMessage;
+import com.taskmodel.ActorTask;
 
-import java.util.List;
-import java.util.Queue;
 import java.util.Stack;
 
 /**
@@ -24,10 +21,12 @@ public class StateT2_3 extends StateT2{
     public void startElementDo(String tag,int layer,MyStateActor curactor) {// layer 是当前 tag 的层数
         if((getLevel()>=layer) && (tag.equals(_test))){
             Stack ss=curactor.getMyStack();
-            int id =((ActorTask) ss.peek()).getId(); // 当前栈顶 task 的 id
             //发送谓词结果 && pop 当前栈顶
+            ActorTask atask=((ActorTask) ss.peek());
+            int id=atask.getId();
+            boolean isInSelf=atask.isInSelf();
             curactor.popFunction();
-            curactor.sendPredsResult(new ActorTask(id, true));
+            curactor.sendPredsResult(new ActorTask(id, true,isInSelf));
             if(ss.isEmpty())
                 actorManager.detachActor(curactor);
         }

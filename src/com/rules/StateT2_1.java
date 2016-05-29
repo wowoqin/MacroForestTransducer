@@ -1,13 +1,8 @@
 package com.rules;
 
-import com.XPath.PathParser.ASTPath;
 import com.XPath.PathParser.ASTPreds;
-import com.ibm.actor.Actor;
-import com.ibm.actor.DefaultMessage;
+import com.taskmodel.ActorTask;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Queue;
 import java.util.Stack;
 
 /**
@@ -27,9 +22,11 @@ public class StateT2_1 extends StateT2 {
         if ((getLevel() == layer) && (tag.equals(_test))) {// T2-1 检查成功
             Stack ss=curactor.getMyStack();
             //发送谓词结果 && pop 当前栈顶
-            int id=((ActorTask) ss.peek()).getId();
+            ActorTask atask=((ActorTask) ss.peek());
+            int id=atask.getId();
+            boolean isInSelf=atask.isInSelf();
             curactor.popFunction();
-            curactor.sendPredsResult(new ActorTask(id, true));
+            curactor.sendPredsResult(new ActorTask(id, true,isInSelf));
             if(ss.isEmpty())
                 actorManager.detachActor(curactor);
         }

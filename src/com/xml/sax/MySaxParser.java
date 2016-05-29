@@ -6,6 +6,7 @@ import com.ibm.actor.Actor;
 import com.ibm.actor.DefaultActorManager;
 import com.ibm.actor.DefaultMessage;
 import com.rules.*;
+import com.taskmodel.ActorTask;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -42,7 +43,7 @@ public class MySaxParser<T> extends DefaultHandler {
         message = new DefaultMessage("resActor",null);
         manager.send(message, null, stackActor);
 
-        message = new DefaultMessage("pushTask",new ActorTask(0,currentQ));
+        message = new DefaultMessage("pushTask",new ActorTask(0,currentQ,true));
         manager.send(message, null, stackActor);
 
 

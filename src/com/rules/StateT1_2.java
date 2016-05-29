@@ -1,9 +1,9 @@
 package com.rules;
 
 import com.XPath.PathParser.ASTPath;
-import com.ibm.actor.DefaultMessage;
+import com.taskmodel.ActorTask;
+import com.taskmodel.WaitTask;
 
-import java.util.List;
 import java.util.Stack;
 
 /**
@@ -27,7 +27,7 @@ public class StateT1_2 extends StateT1 {
         if((getLevel() == layer) && (tag.equals(_test))) {//应该匹配的层数 getLayer（）和 当前标签 tag 的层数相等
             curactor.addWTask(new WaitTask(layer, false, tag));
             //当前actor直接进行push操作(不用pushFunction，也不用发消息)
-            curactor.getMyStack().push(new ActorTask(layer,_q3));
+            curactor.getMyStack().push(new ActorTask(layer,_q3,true));
 
         }
     }

@@ -1,5 +1,7 @@
 package com.rules;
 
+import com.taskmodel.ActorTask;
+
 import java.util.Stack;
 
 /**

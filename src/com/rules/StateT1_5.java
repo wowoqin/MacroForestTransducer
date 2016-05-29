@@ -1,10 +1,9 @@
 package com.rules;
 
 import com.XPath.PathParser.ASTPath;
-import com.ibm.actor.Actor;
-import com.ibm.actor.DefaultMessage;
+import com.taskmodel.ActorTask;
+import com.taskmodel.WaitTask;
 
-import java.util.List;
 import java.util.Stack;
 
 /**
@@ -27,7 +26,7 @@ public class StateT1_5 extends StateT1{
     public void startElementDo(String tag,int layer,MyStateActor curactor) {
         if((getLevel() == layer) && (tag.equals(_test))) {//应该匹配的层数 getLevel（）和 当前层数相等
             curactor.addWTask(new WaitTask(layer,true,null));
-            curactor.getMyStack().push(new ActorTask(layer,_q1));
+            curactor.getMyStack().push(new ActorTask(layer,_q1,true));
         }
     }
 

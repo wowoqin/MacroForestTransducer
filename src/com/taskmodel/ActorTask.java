@@ -1,4 +1,4 @@
-package com.rules;
+package com.taskmodel;
 
 /**
  * Created by qin on 2016/3/28.
@@ -11,17 +11,19 @@ public class ActorTask {// actor 之间交互的数据
 
     protected int id;//id
     // 发送给 actor的数据，
-    // 如：q（State）、qName（String）、null(当设置其resActor时)、q'的返回结果（True/False）、q''的返回结果（String）
+    // 如：q（State）、qName（String）、q'的返回结果（True/False）、q''的返回结果（String）
     protected Object object;
+    protected boolean isInSelf;//标识检查结果传给自己还是传给上级actor
 
-
-    public ActorTask(Object object) {// 在只发送一个 “stack” 时会运用此构造函数
+    public ActorTask(int id, Object object) {//actor之间传的消息(id,qName)、（id,true/tag）
+        this.id = id;
         this.object = object;
     }
 
-    public ActorTask(int id, Object object) {
+    public ActorTask(int id, Object object, boolean flg) {//栈内元素(id,q,isInSelf)
         this.id = id;
         this.object = object;
+        this.isInSelf = flg;
     }
 
     public int getId() {
@@ -40,5 +42,11 @@ public class ActorTask {// actor 之间交互的数据
         this.object = object;
     }
 
+    public boolean isInSelf() {
+        return isInSelf;
+    }
 
+    public void setInSelf(boolean inSelf) {
+        this.isInSelf = inSelf;
+    }
 }

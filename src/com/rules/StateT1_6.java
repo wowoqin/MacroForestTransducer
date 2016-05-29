@@ -1,13 +1,11 @@
 package com.rules;
 
 import com.XPath.PathParser.ASTPath;
-import com.XPath.PathParser.ASTPreds;
 import com.ibm.actor.Actor;
 import com.ibm.actor.DefaultMessage;
+import com.taskmodel.ActorTask;
+import com.taskmodel.WaitTask;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Queue;
 import java.util.Stack;
 
 /**
@@ -39,7 +37,7 @@ public class StateT1_6 extends StateT1{
             // 在 tlist 中添加需要等待匹配的任务模型
             curactor.addWTask(new WaitTask(layer,false,null));
 
-            currStack.push(new ActorTask(layer, _q3));
+            currStack.push(new ActorTask(layer, _q3,true));
 
             if(actor == null){  // 若pathActor 还没有创建 --> _pathstack 一定为空
                 stacklist.add(this._pathstack);
@@ -50,13 +48,13 @@ public class StateT1_6 extends StateT1{
                 actorManager.send(dmessage, curactor, actor);
 
                 //发送 q'' 给 paActor
-                dmessage=new DefaultMessage("push", new ActorTask(layer,_q1));
+                dmessage=new DefaultMessage("push", new ActorTask(layer,_q1,false));
                 actorManager.send(dmessage,curactor,actor);
             } else{  // 若path  actor 已经创建了,则发送 q'' 给 paActor即可
                 //发送 q'' 给 paActor
                 State currQ=(State)_q1.copy();
                 currQ.setLevel(layer+1);
-                dmessage=new DefaultMessage("push", new ActorTask(layer,currQ));
+                dmessage=new DefaultMessage("push", new ActorTask(layer,currQ,false));
                 actorManager.send(dmessage, curactor, actor);
             }
         }

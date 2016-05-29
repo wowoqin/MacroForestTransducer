@@ -3,9 +3,10 @@ package com.rules;
 import com.XPath.PathParser.ASTPreds;
 import com.ibm.actor.Actor;
 import com.ibm.actor.DefaultMessage;
+import com.taskmodel.ActorTask;
+import com.taskmodel.WaitTask;
 
 import java.util.List;
-import java.util.Queue;
 import java.util.Stack;
 
 /**
@@ -40,6 +41,7 @@ public class StateT3_2 extends StateT3{
             Stack stack=curactor.getMyStack();
             ActorTask atask=(ActorTask)stack.peek();
             int id=atask.getId();//当前栈顶（T3-2）的 id
+            boolean isInSelf=atask.isInSelf();
 
             String name=((Integer)this._predstack.hashCode()).toString().concat("T3-2.prActor");
             Actor actor=(actors.get(name));// preds'的 actor
@@ -47,9 +49,9 @@ public class StateT3_2 extends StateT3{
             if(tag.equals(_test)){  //T3-2 的 test 匹配
                 //1. (id,T3-2) 换为（id,T2-2）&& push(layer,q')
                 curactor.popFunction();
-                stack.push(new ActorTask(id,_q2));
+                stack.push(new ActorTask(id,_q2,isInSelf));
                 //push(layer,q')
-                stack.push(new ActorTask(layer, _q31));
+                stack.push(new ActorTask(layer, _q31,true));
                 //2.push(layer,q'')
                 if(actor==null){
                     stacklist.add(this._predstack);
@@ -62,61 +64,50 @@ public class StateT3_2 extends StateT3{
                     dmessage=new DefaultMessage("setCategory","T3PredsActor");
                     actorManager.send(dmessage,curactor,actor);
 
-                    dmessage=new DefaultMessage("push",new ActorTask(layer,_q32));
+                    dmessage=new DefaultMessage("push",new ActorTask(layer,_q32,false));
                     actorManager.send(dmessage,curactor,actor);
                 }else {
                     State currQ=(State)_q32.copy();
                     currQ.setLevel(layer + 1);
-                    dmessage=new DefaultMessage("push",new ActorTask(layer,currQ));
+                    dmessage=new DefaultMessage("push",new ActorTask(layer,currQ,false));
                     actorManager.send(dmessage, curactor, actor);
                 }
                 //3.add(layer,false,false)
                 curactor.addWTask(new WaitTask(layer,false,"false"));
             }else{// T3-2 的 test 不匹配
-                boolean isFindInThis = false;
-                List list=curactor.tlist;
                 //1. (id,T3-2) 换为（id,waitstate）
                 State waitState=new WaitState();
                 waitState.setLevel(((State) atask.getObject()).getLevel());
                 curactor.popFunction();
-                curactor.pushFunction(new ActorTask(id,waitState));
-                // PC:
-                if(!list.isEmpty()){
-                    for(int i=(list.size()-1);i>=0 && !isFindInThis;i--) {
-                        wtask = (WaitTask) list.get(i);
-                        if (wtask.getId() == id) {//找到了-->T3-2约束 PC 轴的test
-                            isFindInThis=true;
-                            //push(layer,q''')
-                            curactor.pushFunction(new ActorTask(layer,_q2));
-                            //2.push(layer,q'')
-                            if(actor==null){
-                                stacklist.add(this._predstack);
-                                actor=actorManager.createAndStartActor(MyStateActor.class,name);
-                                actors.put(actor.getName(),actor);
+                curactor.pushFunction(new ActorTask(id,waitState,isInSelf));
+                if(isInSelf){   //T3-2约束 PC 轴的test
+                    //push(layer,q''')
+                    curactor.pushFunction(new ActorTask(layer,_q2,true));
+                    //2.push(layer,q'')
+                    if(actor==null){
+                        stacklist.add(this._predstack);
+                        actor=actorManager.createAndStartActor(MyStateActor.class,name);
+                        actors.put(actor.getName(),actor);
 
-                                dmessage=new DefaultMessage("resActor",null);
-                                actorManager.send(dmessage, curactor, actor);
+                        dmessage=new DefaultMessage("resActor",null);
+                        actorManager.send(dmessage, curactor, actor);
 
-                                dmessage=new DefaultMessage("setCategory","T3PredsActor");
-                                actorManager.send(dmessage,curactor,actor);
+                        dmessage=new DefaultMessage("setCategory","T3PredsActor");
+                        actorManager.send(dmessage,curactor,actor);
 
-                                dmessage=new DefaultMessage("push",new ActorTask(layer,_q32));
-                                actorManager.send(dmessage,curactor,actor);
-                            }else {
-                                State currQ=(State)_q32.copy();
-                                currQ.setLevel(layer + 1);
-                                atask=new ActorTask(layer,_q32);
-                                dmessage=new DefaultMessage("pushTask",atask);
-                                actorManager.send(dmessage, curactor, actor);
-                            }
-                            //3.add(layer,false,false)
-                            curactor.addWTask(new WaitTask(layer,false,"false"));
-                        }
+                        dmessage=new DefaultMessage("push",new ActorTask(layer,_q32,false));
+                        actorManager.send(dmessage,curactor,actor);
+                    }else {
+                        State currQ=(State)_q32.copy();
+                        currQ.setLevel(layer + 1);
+                        dmessage=new DefaultMessage("pushTask",new ActorTask(layer,_q32,false));
+                        actorManager.send(dmessage, curactor, actor);
                     }
-                }
-                if(!isFindInThis){    // AD:
-                    //2.push（id,T2-2）
-                    curactor.pushFunction(new ActorTask(id,_q2));
+                    //3.add(layer,false,false)
+                    curactor.addWTask(new WaitTask(layer,false,"false"));
+                }else{  //T3-2约束 AD 轴的test
+                    //2.push（id,q'''）
+                    curactor.pushFunction(new ActorTask(id,_q2,true));
                     //2.push(id,q'')
                     if(actor==null){
                         stacklist.add(this._predstack);
@@ -129,12 +120,12 @@ public class StateT3_2 extends StateT3{
                         dmessage=new DefaultMessage("setCategory","T3PredsActor");
                         actorManager.send(dmessage,curactor,actor);
 
-                        dmessage=new DefaultMessage("push",new ActorTask(id,_q32));
+                        dmessage=new DefaultMessage("push",new ActorTask(id,_q32,false));
                         actorManager.send(dmessage,curactor,actor);
                     }else {
                         State currQ=(State)_q32.copy();
                         currQ.setLevel(layer + 1);
-                        dmessage=new DefaultMessage("pushTask",new ActorTask(id,currQ));
+                        dmessage=new DefaultMessage("pushTask",new ActorTask(id,currQ,false));
                         actorManager.send(dmessage, curactor, actor);
                     }
                     //3.add(id,false,false)
