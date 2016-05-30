@@ -35,7 +35,7 @@ public class StateT1_6 extends StateT1{
             String name=((Integer)this._pathstack.hashCode()).toString().concat("T1-6.paActor");
             Actor actor=(actors.get(name));// path的 actor
             // 在 tlist 中添加需要等待匹配的任务模型
-            curactor.addWTask(new WaitTask(layer,false,null));
+            curactor.addWTask(new WaitTask(layer,null,null));
 
             currStack.push(new ActorTask(layer, _q3,true));
 

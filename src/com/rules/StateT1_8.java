@@ -36,7 +36,7 @@ public class StateT1_8 extends StateT1 {
     public void startElementDo(String tag, int layer, MyStateActor curactor) throws CloneNotSupportedException {
         if ((layer >= getLevel()) && (tag.equals(_test))) {///当前层数大于等于应该匹配的层数 getLayer（）就可以
             // 在 tlist 中添加需要等待匹配的任务模型
-            curactor.addWTask(new WaitTask(layer, false, null));
+            curactor.addWTask(new WaitTask(layer, null, null));
 
             String name=((Integer)this._predstack.hashCode()).toString().concat("T1-8.prActor");
             Actor actor=(actors.get(name));// preds的 actor
@@ -118,7 +118,7 @@ public class StateT1_8 extends StateT1 {
                                             ((MyStateActor)actor).getTlist().clear();
                                         actorManager.detachActor(actor);
                                     }else if(this._q3 instanceof StateT3_3){
-                                        //设置q3所在的actor的list.wt.predR=true
+                                        //设置q3所在的actor的list.wt.value=true
 
                                         //查看preds'的性质
 

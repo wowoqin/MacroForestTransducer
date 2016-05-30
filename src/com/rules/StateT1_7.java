@@ -76,7 +76,7 @@ public class StateT1_7 extends StateT1 implements Cloneable{
                                 curactor.output(wtask);
                                 // 若 T1-7.pathStack 中弹栈之后还有 AD 轴的后续 path 的检查，
                                 // 则需要把当前满足的 wt.paResult复制到之前的等待的 wt.paResult
-                                //直接在T1-7所在的list中把wt.pathR设置为wtask.pathR.并且不用弹栈
+                                //直接在T1-7所在的list中把wt.pathR设置为wtask.value.并且不用弹栈
                                 if(list.size()>1){
                                     if (this._q1 instanceof StateT1_3 || this._q1 instanceof StateT1_4
                                             || this._q1 instanceof StateT1_7 || this._q1 instanceof StateT1_8){

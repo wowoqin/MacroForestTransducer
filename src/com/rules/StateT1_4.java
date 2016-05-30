@@ -32,7 +32,7 @@ public class StateT1_4 extends StateT1 implements Cloneable {
             String name=((Integer)this._predstack.hashCode()).toString().concat("T1-4.prActor");
             Actor actor=(actors.get(name));// preds 的 actor
             // 在 tlist 中添加需要等待匹配的任务模型
-            curactor.addWTask(new WaitTask(layer,false,tag));
+            curactor.addWTask(new WaitTask(layer,null,tag));
 
             if(actor == null){// 若谓词 actor 还没有创建 --> _predstack 一定为空
                 stacklist.add(this._predstack);
@@ -108,11 +108,11 @@ public class StateT1_4 extends StateT1 implements Cloneable {
                                              } else if (((StateT3_3) this._q3)._q3 instanceof StateT3_4) {
                                             //
                                              } else {
-                                            //T3-3 的preds'是个 PC 轴，则只发消息设置T3-3.list.wt.predR=true
+                                            //T3-3 的preds'是个 PC 轴，则只发消息设置T3-3.list.wt.value=true
                                              }
                                         }
                                     }else if (this._q3 instanceof StateT3_4) {
-                                        //设置q3所在的actor的list.wt.predR=true
+                                        //设置q3所在的actor的list.wt.value=true
                                         if (((StateT3_4) this._q3)._q32 instanceof StateT2_2 ||
                                                 ((StateT3_4) this._q3)._q32 instanceof StateT2_4) {
                                             //T3-4整个都检查成功
@@ -122,7 +122,7 @@ public class StateT1_4 extends StateT1 implements Cloneable {
                                         } else if (((StateT3_4) this._q3)._q32 instanceof StateT3_4) {
                                             //
                                         } else {
-                                            //T3-4 的preds'是个 PC 轴，则只发消息设置T3-4.list.wt.predR=true
+                                            //T3-4 的preds'是个 PC 轴，则只发消息设置T3-4.list.wt.value=true
                                         }
                                     }
                                     curactor.removeWTask(wtask);

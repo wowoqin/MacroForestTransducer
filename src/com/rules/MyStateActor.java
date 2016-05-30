@@ -283,6 +283,30 @@ public class MyStateActor extends AbstractActor {
         }
     }
 
+    public void doNext(WaitTask wtask){
+        Stack currstack=this.getMyStack();
+        ActorTask task=(ActorTask)currstack.peek();
+        int id=task.getId(); // 当前栈顶 taskmodel 的 id
+        boolean isInSelf=task.isInSelf();
+
+        if (wtask.isSatisfiedOut()) {//当前 wt 满足输出条件
+            if(this.getName().equals("stackActor") && (currstack.size()==1)){//在stack中
+                this.output(wtask);//也许有多个输出，此时不return；
+            }else { //（在stack中 && 作为T1-5的后续path ） 或者  （作为AD 轴后续 path 的一部分）
+                this.removeWTask(wtask);
+                if(isInSelf){
+                    getManager().send(new DefaultMessage("pathResult", new ActorTask(id, wtask.getPathR())), this, this);
+                }else{
+                    getManager().send(new DefaultMessage("paResult",new ActorTask(id,wtask.getPathR())),this,this.getResActor());
+                }
+                return;//结束大循环
+            }
+        }else{//到自己的结束标签，当前wt不满足输出条件
+            this.removeWTask(wtask);
+            return;//结束大循环
+        }
+    }
+
     public void removeWTask(WaitTask wt){
         this.tlist.remove(wt);
     }

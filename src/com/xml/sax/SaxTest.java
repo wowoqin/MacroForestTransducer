@@ -2,6 +2,7 @@ package com.xml.sax;
 
 import com.XPath.PathParser.ASTPath;
 import com.XPath.PathParser.QueryParser;
+import com.ibm.actor.Actor;
 import com.rules.State;
 import org.xml.sax.SAXException;
 
@@ -25,21 +26,25 @@ public class SaxTest {
         //MySaxParser dh = new MySaxParser("/a/c[/b][/d]");
         //MySaxParser dh = new MySaxParser("/a/c/d[/a]");
         File f = new File("test8.xml");
-        MySaxParser dh = new MySaxParser("/a[/b]");
+        MySaxParser dh = new MySaxParser("/a");
         //MySaxParser dh = new MySaxParser("//a[/b]//d");
         //MySaxParser dh = new MySaxParser("/a[/b[/c]][/d]/c[/d]");
         //MySaxParser dh = new MySaxParser("//a[/d]/c[/b[//g]]");
         parser.parse(f, dh);
-        System.out.println(Thread.currentThread().getName() + "主线程结束运行");
         //主线程等待所有子线程结束才结束
         //System.out.println(State.actorManager.getActiveRunnableCount());
         //if(State.actorManager.getActiveRunnableCount()>=1){
             //把所有子线程join到main中--》得到子线程的名称
-            try {
-                Thread.sleep(10000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+        for(String key:State.actors.keySet()){
+            Actor actor=State.actors.get(key);
+            if(!actor.isShutdown()){
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
-        //}
+        }
+        System.out.println(Thread.currentThread().getName() + "主线程结束运行");
     }
 }
