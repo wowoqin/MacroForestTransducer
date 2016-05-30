@@ -76,14 +76,14 @@ public class StateT1 extends State implements Cloneable {
     public void endElementDo(String tag,int layer,MyStateActor curactor){}
 
     public void processSelfEndTag(int layer,MyStateActor curactor){
-        WaitTask wtask;
-        ActorTask atask;
         Stack currstack=curactor.getMyStack();
-        int id=((ActorTask)currstack.peek()).getId(); // 当前栈顶 taskmodel 的 id
+        ActorTask task=(ActorTask)currstack.peek();
+        int id=task.getId(); // 当前栈顶 taskmodel 的 id
+        boolean isInSelf=task.isInSelf();
         List list=curactor.getTlist();//当前actor的list
 
         for(int i=list.size()-1;i>=0;i--){
-            wtask = (WaitTask)list.get(i);
+            WaitTask wtask = (WaitTask)list.get(i);
             if (wtask.getId()==layer) {//找到id==layer的 wt
                 if (wtask.isSatisfiedOut()) {//当前 wt 满足输出条件
                     if(curactor.getName().equals("stackActor")){//在stack中
@@ -93,13 +93,11 @@ public class StateT1 extends State implements Cloneable {
                         }else {//在stack中 && 作为T1-5的后续path
                             //则把(wt.id，wt.getPathR())给自己这个list中id=wt.id的 wt1
                             for(int j=i-1;j>=0;j--){
-                                WaitTask wtask1 = (WaitTask) list.get(j);
-                                if(wtask1.getId()==id){//找到相同id的 wt，把结果传给 wt
-                                    atask=new ActorTask(id,wtask.getPathR());
-                                    dmessage=new DefaultMessage("pathResult",atask);
+                                if(((WaitTask) list.get(j)).getId()==id){//找到相同id的 wt，把结果传给 wt
+                                    dmessage=new DefaultMessage("pathResult",new ActorTask(id,wtask.getPathR()));
                                     actorManager.send(dmessage,curactor,curactor);
                                     //此时需要跳出循环，是因为也许会T1-5下面有多个符合的T1-1
-                                    // /a/b : 若a下面有多个b，找到最后一个时，前面已经有很多的相同id的(0,true,b)了，
+                                    // /a/b : 若a下面有多个b，遇到/b时，即找到最后一个b时，前面已经有很多的相同id的(0,true,b)了，
                                     //       它们的id都等于0，所以此时就不需要再把之前已经检查好的wt再次赋值pathResult了
                                     curactor.removeWTask(wtask);
                                     return;//跳出这个方法（即跳出了小循环j，又跳出了大循环i）
@@ -107,18 +105,11 @@ public class StateT1 extends State implements Cloneable {
                             }
                         }
                     }else { //作为AD 轴后续 path 的一部分
-                        boolean isInThis=false;
-                        atask=new ActorTask(id,wtask.getPathR());
-                        for(int j=i-1;j>=0 && !isInThis;j--){//在自己的list中找相同id的wt
-                            WaitTask wtask1 = (WaitTask) list.get(j);
-                            if(wtask1.getId()==id){//找到了==>不在stack中 && 作为T1-5的后续path
-                                isInThis=true;
-                                dmessage=new DefaultMessage("pathResult",atask);
-                                actorManager.send(dmessage, curactor, curactor);
-                            }
-                        }
-                        if(!isInThis){//在T1-6、T1-7、T1-8的path栈中
-                            dmessage=new DefaultMessage("paResult",atask);
+                        if(isInSelf){
+                            dmessage=new DefaultMessage("pathResult",new ActorTask(id,wtask.getPathR()));
+                            actorManager.send(dmessage, curactor, curactor);
+                        }else{
+                            dmessage=new DefaultMessage("paResult",new ActorTask(id,wtask.getPathR()));
                             actorManager.send(dmessage,curactor,curactor.getResActor());
                         }
                         curactor.removeWTask(wtask);

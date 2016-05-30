@@ -64,7 +64,7 @@ public class WaitTask {   // 在 actor 的list 中添加的任务
         return false;
     }
 
-    public  boolean isWaitT3PPreds(){ //谓词T3，q'''成功，q''还没检查成功
+    public  boolean isWaitT3ParallPreds(){ //谓词T3，q'''成功，q''还没检查成功
         if(this.getPathR()!=null){
             if((this.getPredR()) && (this.getPathR().equals("false")))//(id,true,"false")
                 return true;
@@ -72,7 +72,7 @@ public class WaitTask {   // 在 actor 的list 中添加的任务
         return false;
     }
 
-    public  boolean isWaitT3FPreds(){ //谓词T3，q''成功，q'''还没检查成功
+    public  boolean isWaitT3FirstPreds(){ //谓词T3，q''成功，q'''还没检查成功
         if(this.getPathR()!=null){
             if((!this.getPredR()) && (this.getPathR().equals("true")))//(id,false,"true")
                 return true;

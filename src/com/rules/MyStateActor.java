@@ -72,13 +72,12 @@ public class MyStateActor extends AbstractActor {
     }
 
     /* stateActor 能够接收到的消息：
-        * 从 SAX 接口那里 ：startE、endE
-        * stateActor 之间：stack: stack
-        *                 pushTask：q'/ q''
-        *                 predResult: True (false 不用返回)
-        *                 pathResult: 一颗子树 / null
-        *                 setCategory：T3谓词中 preds' 所对应的 actor的类型（String）
-        *
+        * stateActor 之间：resActor:设置上级 actor
+        *                 pushTask：    q'/ q''
+        *                 predResult:   True (false 不用返回)
+        *                 pathResult:   一颗子树 / null
+        *                 setCategory：  T3谓词中 preds' 所对应的 actor的类型（String）
+        *                 qName：        startE、endE
         *  */
     @Override
     protected void loopBody(Message message) {
@@ -105,14 +104,20 @@ public class MyStateActor extends AbstractActor {
                }else if("predResult".equals(subject)){     // actorTask,并且 data 是一个q'的返回结果（True）
                     //此时，谓词的返回结果或者来自自己，或者是来自下一级的actor（T2的谓词actor或者是T3的preds'对应的actor）
                     // 收到谓词返回结果后，在list中找到相应的wt的ID，然后将谓词检查的结果重新赋值
-                    for(int i=0;i<tlist.size();i++) {
+                    for(int i=tlist.size()-1;i>=0;i--) {
                         WaitTask wt = (WaitTask) (tlist.get(i));
                         if (wt.getId() == task.getId()) {
                             if (message.getSource().getCategory().equals("T3PredsActor")) {  //谓词返回结果来自T3 preds'的actor
                                 wt.setPathR((String) (task.getObject()));
                             } else {    //消息来自自己-->curactor 或者是消息来自T2 的后续谓词
+                                if((((ActorTask)ss.peek()).getObject()) instanceof StateT2_4 && wt.isWaitT3FirstPreds() )
+                                    ss.pop();
                                 wt.setPredR((Boolean)(task.getObject()));
                             }
+
+                            ActorTask atask = (ActorTask) ss.peek();
+                            int id = atask.getId();
+                            State state = (State) atask.getObject();
                             //重新设置完成之后看当前设置完的wt是不是谓词满足的-->说明之前返回的谓词结果只是作为谓词的谓词
                             if (wt.isPredsSatisified()) {
                             /*谓词满足(id,true,true)会出现的情况：
@@ -139,15 +144,10 @@ public class MyStateActor extends AbstractActor {
                             *                     则(layer,T)给T3-4.wtask-->(layer,T,T),而此时栈顶(layer,T2-4),但是整个T3-4已经检查成功了，
                             *                     则需要pop（layer,T2-4）&& (qw.id,true)发出去；
                             *                2)(id,waitState)
-                            *
                             * */
                                 //谓词满足，看当前栈顶
                                 if (!ss.isEmpty()) {
                                     //发送谓词结果 && pop 当前栈顶
-                                    ActorTask atask = (ActorTask) ss.peek();
-                                    int id = atask.getId();
-
-                                    State state = (State) atask.getObject();
                                     if (state instanceof StateT2_4) {
                                         //从T2-4 的谓词栈那里返回结果-->T2-4检查成功
                                         //remove 与T2-4 相关的wt-->//d[/b]
@@ -156,28 +156,23 @@ public class MyStateActor extends AbstractActor {
                                             this.tlist.remove(wt);
                                         }
                                     }
-                                    this.sendPredsResult(new ActorTask(id, true));
+                                    this.sendPredsResult(new ActorTask(id, true,atask.isInSelf()));
                                 }
                                 this.removeWTask(wt);   //用完wt之后，删除这个谓词满足的wt
                             }
                             // 谓词原来是T3 && 收到的是 T2 的后续谓词的返回结果
                             //preds:child::test preds] 或者 [desc_or_self::test preds]中的preds的返回结果
-                            else if (wt.isWaitT3PPreds()) {// (id,true,"false")
+                            else if (wt.isWaitT3ParallPreds()) {// (id,true,"false")
                                 //q'''检查成功，q''还没检查成功
                                 if (!ss.isEmpty()) {
-                                    ActorTask atask = (ActorTask) ss.peek();
-                                    State state = (State) atask.getObject();//栈顶state
-                                    int id = atask.getId();
                                     if(state instanceof  StateT2_2){    // 原来的谓词为 T3-2 && preds'还没检查成功
                                         State waitState=new WaitState();
                                         waitState.setLevel(((State)atask.getObject()).getLevel());
-                                        atask=new ActorTask(id,waitState);
                                         //pop 当前(id,T2-2)
                                         this.popFunction();
                                         //push(id,qw)
-                                        this.pushFunction(atask);
-                                    }
-                                    if (state instanceof StateT2_4) {   // 原来的谓词为 T3-4 && preds'还没检查成功
+                                        this.pushFunction(new ActorTask(id,waitState,atask.isInSelf()));
+                                    }else if (state instanceof StateT2_4) {   // 原来的谓词为 T3-4 && preds'还没检查成功
                                         //从T2-4 的谓词栈那里返回结果-->T2-4检查成功
                                         //remove 与T2-4 相关的wt-->//d[/b]
                                         for (int j = i + 1; j < tlist.size(); j++) {
@@ -193,7 +188,7 @@ public class MyStateActor extends AbstractActor {
                     }
                }else if("pathResult".equals(subject)){ // actorTask,并且 data 是一个q''的返回结果（String）
                     // 在 waitTask 中找到相应的ID，然后将后续 path 检查的结果 重新赋值
-                    for(int i=0;i<tlist.size();i++){
+                    for(int i=tlist.size()-1;i>=0;i--){
                         WaitTask wt = (WaitTask)(tlist.get(i));
                         if(wt.getId() == task.getId()){
                             if(wt.getPathR()!=null){// 已经有后续path检查成功的相同层级的结果
@@ -201,7 +196,7 @@ public class MyStateActor extends AbstractActor {
                             }else{
                                 wt.setPathR((String) (task.getObject()));
                             }
-                            break;
+                            return;
                         }
                     }
                }else{                              // actorTask,并且 data 是一个qName（String）
@@ -253,24 +248,6 @@ public class MyStateActor extends AbstractActor {
             currStack.pop();
     }
 
-    public void sendPathResult(ActorTask actorTask){// path检查成功，上传结果（id，tag）给相应的 wt
-        boolean isFindInThis=false;
-        if(!this.tlist.isEmpty()){        //先在curactor.list中找是否有相同 id 的wt
-            for(int i=(tlist.size()-1);i>=0;i--){
-                WaitTask wTask=(WaitTask)tlist.get(i);
-                if(wTask.getId()==actorTask.getId()){// 找到相同 id 的 wt
-                    isFindInThis=true;
-                    Message message = new DefaultMessage("predResult",actorTask);
-                    getManager().send(message, this, this);
-                }
-            }
-        }
-        if(!isFindInThis){  //curactor.list 中没有相同id的wt，则上传给resActor
-            Message message = new DefaultMessage("predResult",actorTask);
-            getManager().send(message, this, this.getResActor());
-        }
-    }
-
     public void sendPredsResult(ActorTask actorTask){// 谓词检查成功，上传结果（id，true）给相应的 wt
         if(actorTask.isInSelf()){
             getManager().send(new DefaultMessage("predResult",actorTask), this, this);
@@ -312,7 +289,6 @@ public class MyStateActor extends AbstractActor {
 
     public void output(WaitTask wt){
         wt.output();
-        this.removeWTask(wt);
     }
 
     public void addWTask(WaitTask wt){
