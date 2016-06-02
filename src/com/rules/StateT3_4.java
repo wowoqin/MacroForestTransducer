@@ -20,13 +20,12 @@ public class StateT3_4 extends StateT3{
         super(preds);
         this._q2 = _q2;
         this._q3 = _q3;
-        _predstack=new Stack();
     }
 
     public static StateT3 TranslateState(ASTPreds preds){//重新创建T3-4
         State q2= StateT2.TranslateStateT2(StateT3.getSinglePred(preds));
         State q3=StateT3.TranslateStateT3(preds.getRemainderPreds());
-        return new StateT3_4(preds,q2,q3);//然后压入栈
+        return new StateT3_4(preds,q2,q3);
     }
 }
 

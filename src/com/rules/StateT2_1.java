@@ -33,8 +33,10 @@ public class StateT2_1 extends StateT2 {
                 waitState.setLevel(((State) atask.getObject()).getLevel());
                 waitState.getList().add(list.get(0));
                 curactor.popFunction();
+                //(id,T2-1,isInself) 换为 （id,qw,isInself）
                 curactor.pushTaskDo(new ActorTask(id, waitState, isInSelf));
-                curactor.sendPredsResult(new ActorTask(id, true, isInSelf));
+                //设置 T3-1.q'''检查成功
+                curactor.sendPredsResult(new ActorTask(id, true, true));//确定是给自己的
             }else{  //T2-1
                 //发送谓词结果 && pop 当前栈顶
                 curactor.popFunction();
@@ -48,12 +50,21 @@ public class StateT2_1 extends StateT2 {
     public void endElementDo(String tag, int layer, MyStateActor curactor) {
         // 自己能遇到上层结束标签，谓词检查失败，弹栈 && remove 等待当前栈顶T2-1结果的 wt
         if (layer == getLevel() - 1) {
-            Stack ss = curactor.getMyStack();
+            Stack ss=curactor.getMyStack();
+            ActorTask atask=((ActorTask) ss.peek());//(id,T2-1,isInself)
+            int id=atask.getId();
+            boolean isInSelf=atask.isInSelf();
             //pop(T2-1)
             curactor.popFunction();
+            //发消息（id,false,isInself）
+            curactor.sendPredsResult(new ActorTask(id,false, isInSelf));
             //当前栈不为空，栈顶进行endElementDo 操作（输出（T1-2或者T1-6）/弹栈（相同结束标签的waitState）等）
             if (!ss.isEmpty()) {
-                ((State) (((ActorTask) ss.peek()).getObject())).endElementDo(tag, layer, curactor);
+                State state=((State) (((ActorTask) ss.peek()).getObject()));
+                // T1-2 、T1-6的结束标签
+                if(state instanceof StateT1_2 || state instanceof StateT1_6){
+                    state.endElementDo(tag, layer, curactor);
+                }
             }else {
                 actorManager.detachActor(curactor);
             }

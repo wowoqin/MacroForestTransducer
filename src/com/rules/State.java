@@ -60,4 +60,10 @@ public  abstract class State  implements Cloneable {
     public void addWTask(WaitTask wtask){
         this.getList().add(wtask);
     }
+
+    public void removeWTask(WaitTask wtask){
+        this.getList().remove(wtask);
+    }
+
+
 }

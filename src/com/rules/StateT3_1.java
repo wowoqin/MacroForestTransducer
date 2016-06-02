@@ -20,9 +20,6 @@ public class StateT3_1 extends StateT3{
         super(preds);
         _q2=q2;
         _q3=q3;
-        _q2.setLevel(this.getLevel());//q2 检查【child::test】，应该匹配的标签的层数 不变
-        _q3.setLevel(this.getLevel());// q3 检查preds'，应该匹配的标签的层数与当前 [test] 同一层
-        this._predstack=new Stack();
     }
 
     public static StateT3 TranslateState(ASTPreds preds){//重新创建T3-1
@@ -30,6 +27,5 @@ public class StateT3_1 extends StateT3{
         State q3=StateT3.TranslateStateT3(preds.getRemainderPreds());
         return new StateT3_1(preds,q2,q3);
     }
-    //无论成败，q3-1 都被替换，所以 q3-1 不会遇到上层结束标签
 }
 

@@ -28,7 +28,8 @@ public class StateT2_4 extends StateT2 implements Cloneable{
     }
     public void startElementDo(String tag,int layer,MyStateActor curactor) throws CloneNotSupportedException{
         if ((layer >= getLevel()) && (tag.equals(_test))) {
-            addWTask(new WaitTask(layer,null,"true"));
+            // 等 q' 的结果
+            addWTask(new WaitTask(layer, null, "true"));
 
             String name=((Integer)this._predstack.hashCode()).toString().concat("T2-4.prActor");
             Actor actor=(actors.get(name));// preds的 actor
@@ -42,65 +43,37 @@ public class StateT2_4 extends StateT2 implements Cloneable{
                 actorManager.send(dmessage, curactor, actor);
                 //发送 q'给 prActor
                 _q3.setLevel(layer + 1);
-                dmessage=new DefaultMessage("pushTask", new ActorTask(layer,_q3,false));
-                actorManager.send(dmessage,curactor,actor);
+                actorManager.send(new DefaultMessage("pushTask", new ActorTask(layer,_q3,false)),
+                                                                                    curactor,actor);
             }else{
                 State currQ=(State)_q3.copy();
                 currQ.setLevel(layer + 1);
-                dmessage=new DefaultMessage("pushTask",new ActorTask(layer,currQ,false));
-                actorManager.send(dmessage, curactor, actor);
+                actorManager.send(new DefaultMessage("pushTask",new ActorTask(layer,currQ,false)),
+                                                                                    curactor, actor);
             }
         }
     }
 
     public void endElementDo(String tag,int layer,MyStateActor curactor) {
-        // 遇到上层结束标签，谓词检查失败，弹栈 && remove 等待当前栈顶T2-4结果的 wt
-        if(layer==getLevel()-1){
+        // 自己能遇到上层结束标签，谓词检查失败，弹栈 && remove 等待当前栈顶T2-4结果的 wt
+        if (layer == getLevel() - 1) {
             Stack ss=curactor.getMyStack();
-            ActorTask atask=(ActorTask)ss.peek();
-            //remove 等待当前栈顶T2-4结果的 wt-->与atask的id相等
-            //自己的 list 中找有无相同 id 的 wt(或许会有多个)
-            boolean isFindInThis = false;
-            WaitTask wtask;
-            List list=curactor.getTlist();
-            String name=((Integer)this._predstack.hashCode()).toString().concat("T2-4.prActor");
-            //自己的 list 中找有无相同 id 的 wt(或许会有多个)
-            if(!list.isEmpty()){
-                for(int i=0;i<list.size();i++) {
-                    wtask = (WaitTask) list.get(i);
-                    if (wtask.getId() == atask.getId()) {
-                        // T2-4 修饰 PC 轴path或者preds，与被修饰的path或者preds放在同一个栈
-                        isFindInThis = true;
-                        list.remove(wtask);
-                        actorManager.detachActor(actors.get(name));
-                    }
+            ActorTask atask=((ActorTask) ss.peek());//(id,T2-4,isInself)
+            int id=atask.getId();
+            boolean isInSelf=atask.isInSelf();
+            //pop(T2-4)
+            curactor.popFunction();
+            //发消息（id,false,isInself）
+            curactor.sendPredsResult(new ActorTask(id,false, isInSelf));
+            //当前栈不为空，栈顶进行endElementDo 操作（输出（T1-2或者T1-6）/弹栈（相同结束标签的waitState）等）
+            if (!ss.isEmpty()) {
+                State state=((State) (((ActorTask) ss.peek()).getObject()));
+                // T1-2 、T1-6的结束标签
+                if(state instanceof StateT1_2 || state instanceof StateT1_6){
+                    state.endElementDo(tag, layer, curactor);
                 }
-            }
-            //在自己所在的list中没有找到相同 id 的 wt，则在上级 actor 中找
-            if(isFindInThis) {  //PC
-                //pop(T2-4)
-                curactor.popFunction();
-                //当前栈不为空，栈顶进行endElementDo 操作（输出/弹栈等）
-                if (!ss.isEmpty()) {    // T1-2/T1-6/waitState
-                    ((State) (((ActorTask) ss.peek()).getObject())).endElementDo(tag, layer, curactor);
-                }
-            }else {// T2-4 修饰 AD 轴path或者preds，放在单独的谓词栈中
-                MyStateActor resActor=(MyStateActor)curactor.getResActor();
-                list= resActor.getTlist();
-                for(int i=0;i<list.size();i++){
-                    wtask=(WaitTask)list.get(i);
-                    if(wtask.getId()==atask.getId())
-                        resActor.removeWTask(wtask);
-                }
-                //pop(T2-4)
-                curactor.popFunction();
-                //当前栈不为空，栈顶进行endElementDo 操作（输出/弹栈等）
-                if (!ss.isEmpty()) {    // waitState
-                    ((State) (((ActorTask) ss.peek()).getObject())).endElementDo(tag, layer, curactor);
-                } else {
-                    actorManager.detachActor(curactor);
-                    actorManager.detachActor(actors.get(name));
-                }
+            }else {
+                actorManager.detachActor(curactor);
             }
         }
     }

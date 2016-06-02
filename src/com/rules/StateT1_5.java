@@ -31,16 +31,25 @@ public class StateT1_5 extends StateT1{
     }
 
     public void endElementDo(String tag,int layer,MyStateActor curactor){
-        if (tag.equals(_test)) {// 遇到自己的结束标签，检查
-            this.processSelfEndTag(layer,curactor);
-        }else if (layer == getLevel() - 1) { // 遇到上层结束标签(肯定作为后续path)
+        if (tag.equals(_test)) { //遇到自己的结束标签，检查自己的list中的每个wt -->输出/上传/remove/等待
+            for(int i=0;i<getList().size();i++){
+                WaitTask wtask=(WaitTask) getList().get(i);
+                if(wtask.hasReturned()){//输出/上传/remove
+                    curactor.doNext(wtask);
+                }else{//等待
+                    actorManager.awaitMessage(curactor);
+                    while(wtask.hasReturned())
+                        curactor.doNext(wtask);
+                }
+            }
+        }else if (layer == getLevel() - 1) { // 遇到上层结束标签
             // (能遇到上层结束标签，即T1-5作为一个后续的path（T1-5 的时候也会放在stackActor中），T1-6~T1-8会被放在paActor中)
-            // T1-5 的后续的path时，与T1-5 放在同一个栈，T1-6~T1-8 放在pathstack中
+            // T1-5 时，与T1-5 放在同一个栈，T1-6~T1-8 放在pathstack中
             curactor.popFunction();   // T1-5弹栈
             Stack ss=curactor.getMyStack();
             if(ss.isEmpty()) {   // 弹完之后当前actor 所在的stack 为空了，则删除当前 actor
                 actorManager.detachActor(curactor);
-            }else{                      // T1-5 作为 T1-5 的后续 path
+            }else{                      // T1-2 作为 T1-5 的后续 path
                 State state =(State)((ActorTask)(ss.peek())).getObject();
                 if(state instanceof StateT1_5){
                     state.endElementDo(tag,layer,curactor);
@@ -48,6 +57,4 @@ public class StateT1_5 extends StateT1{
             }
         }
     }
-
-
 }

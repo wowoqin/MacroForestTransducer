@@ -14,18 +14,24 @@ public class WaitState extends State {
 
     @Override
     public void endElementDo(String tag, int layer, MyStateActor curactor) {
-        // 遇到上层结束标签，谓词检查失败，弹栈 && remove 等待当前栈顶 qw 结果的 wt
-        if(layer==getLevel()-1){
+        // 自己能遇到上层结束标签，谓词检查失败，弹栈 && remove 等待当前栈顶 qw 结果的 wt
+        if (layer == getLevel() - 1) {
             Stack ss=curactor.getMyStack();
-            ActorTask atask=(ActorTask)ss.peek();
-            //remove 等待当前栈顶 qw 结果的 wt
-            curactor.FindAndRemoveFailedWTask(atask);
+            ActorTask atask=((ActorTask) ss.peek());//(id,qw,isInself)
+            int id=atask.getId();
+            boolean isInSelf=atask.isInSelf();
             //pop(qw)
             curactor.popFunction();
-            //当前栈不为空，若栈顶为stateT1，栈顶进行endElementDo 操作（输出/弹栈等）
+            //发消息（id,false,isInself）
+            curactor.sendPredsResult(new ActorTask(id, false, isInSelf));
+            //当前栈不为空，栈顶进行endElementDo 操作（输出（T1-2或者T1-6）/弹栈（相同结束标签的waitState）等）
             if (!ss.isEmpty()) {
-                ((State) (((ActorTask) ss.peek()).getObject())).endElementDo(tag, layer, curactor);
-            } else {
+                State state=((State) (((ActorTask) ss.peek()).getObject()));
+                // T1-2 、T1-6的结束标签
+                if(state instanceof StateT1_2 || state instanceof StateT1_6){
+                    state.endElementDo(tag, layer, curactor);
+                }
+            }else {
                 actorManager.detachActor(curactor);
             }
         }

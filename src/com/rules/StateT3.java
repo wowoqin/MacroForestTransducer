@@ -23,6 +23,7 @@ public class StateT3 extends  State implements Cloneable{
     protected StateT3(ASTPreds preds){
         _preds=preds;
         _test=_preds.getFirstStep().getNodeTest().toString();
+        _predstack=new Stack();
     }
 
     public String getNodeTest(){//得到当前 preds 的测试节点

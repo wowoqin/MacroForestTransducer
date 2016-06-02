@@ -20,9 +20,6 @@ public class StateT3_2 extends StateT3{
         super(preds);
         this._q2 = _q2;
         this._q3 = _q3;
-        _q2.setLevel(getLevel());//检查【child::test preds】
-        _q3.setLevel(getLevel());//检查preds'
-        _predstack=new Stack();
     }
 
     public static StateT3 TranslateState(ASTPreds preds){//重新创建T3-2

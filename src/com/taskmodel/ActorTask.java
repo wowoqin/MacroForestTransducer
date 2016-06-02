@@ -15,12 +15,12 @@ public class ActorTask {// actor 之间交互的数据
     protected Object object;
     protected boolean isInSelf;//标识检查结果传给自己还是传给上级actor
 
-    public ActorTask(int id, Object object) {//actor之间传的消息(id,qName)、（id,true/tag）
+    public ActorTask(int id, Object object) {//actor之间传的消息(id,qName)
         this.id = id;
         this.object = object;
     }
 
-    public ActorTask(int id, Object object, boolean flg) {//栈内元素(id,q,isInSelf)
+    public ActorTask(int id, Object object, boolean flg) {//栈内元素(id,q,isInSelf)、（id,true/tag,isInself)
         this.id = id;
         this.object = object;
         this.isInSelf = flg;

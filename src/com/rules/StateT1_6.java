@@ -29,9 +29,9 @@ public class StateT1_6 extends StateT1{
     @Override
     public void startElementDo(String tag,int layer,MyStateActor curactor) throws CloneNotSupportedException {// layer 是当前 tag 的层数
         if((getLevel() == layer)  && (tag.equals(_test))){//应该匹配的层数 getLevel（）和 当前层数相等
-            _q3.setLevel(layer + 1);
             // 在 tlist 中添加需要等待匹配的任务模型
             addWTask(new WaitTask(layer, null, null));
+            _q3.setLevel(layer + 1);
             curactor.pushTaskDo(new ActorTask(layer, _q3, true));
 
             String name=((Integer)this._pathstack.hashCode()).toString().concat("T1-6.paActor");

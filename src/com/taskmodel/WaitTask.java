@@ -78,41 +78,4 @@ public class WaitTask {   // 在 actor 的list 中添加的任务
     public void output(){ //输出最终的检查结果
         System.out.println(this.getPathR());
     }
-
-//    public void doNext(){
-//        if (this.isSatisfiedOut()) {//当前 wt 满足输出条件
-//            if(curactor.getName().equals("stackActor")){//在stack中
-//                if(currstack.size()==1){//输出
-//                    curactor.output(wtask);//也许有多个输出，此时不return；
-//                    break;
-//                }else {//在stack中 && 作为T1-5的后续path
-//                    //则把(wt.id，wt.getValue())给自己这个list中id=wt.id的 wt1
-//                    for(int j=i-1;j>=0;j--){
-//                        if(((WaitTask) list.get(j)).getId()==id){//找到相同id的 wt，把结果传给 wt
-//                            dmessage=new DefaultMessage("pathResult",new ActorTask(id,wtask.getPathR()));
-//                            actorManager.send(dmessage,curactor,curactor);
-//                            //此时需要跳出循环，是因为也许会T1-5下面有多个符合的T1-1
-//                            // /a/b : 若a下面有多个b，遇到/b时，即找到最后一个b时，前面已经有很多的相同id的(0,true,b)了，
-//                            //       它们的id都等于0，所以此时就不需要再把之前已经检查好的wt再次赋值pathResult了
-//                            curactor.removeWTask(wtask);
-//                            return;//跳出这个方法（即跳出了小循环j，又跳出了大循环i）
-//                        }
-//                    }
-//                }
-//            }else { //作为AD 轴后续 path 的一部分
-//                if(isInSelf){
-//                    dmessage=new DefaultMessage("pathResult",new ActorTask(id,wtask.getPathR()));
-//                    actorManager.send(dmessage, curactor, curactor);
-//                }else{
-//                    dmessage=new DefaultMessage("paResult",new ActorTask(id,wtask.getPathR()));
-//                    actorManager.send(dmessage,curactor,curactor.getResActor());
-//                }
-//                curactor.removeWTask(wtask);
-//                return;//结束大循环
-//            }
-//        }else{//到自己的结束标签，当前wt不满足输出条件
-//            curactor.removeWTask(wtask);
-//            return;//结束大循环
-//        }
-//    }
 }
