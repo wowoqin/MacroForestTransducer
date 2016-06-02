@@ -15,7 +15,6 @@ public class StateT1_2 extends StateT1 {
     protected StateT1_2(ASTPath path, State q3) {
         super(path);
         _q3 = q3;
-        _q3.setLevel(this.getLevel() + 1);//检查的谓词的层数肯定是当前应该匹配层数所对应的标签的子孙的层数
     }
 
     public static State TranslateState(ASTPath path) {//重新创建T1-2
@@ -23,12 +22,11 @@ public class StateT1_2 extends StateT1 {
         return new StateT1_2(path, q3);
     }
 
-    public void startElementDo(String tag, int layer,MyStateActor curactor) {// layer 表示当前标签 tag 的层数
+    public void startElementDo(String tag, int layer,MyStateActor curactor) throws CloneNotSupportedException {// layer 表示当前标签 tag 的层数
         if((getLevel() == layer) && (tag.equals(_test))) {//应该匹配的层数 getLayer（）和 当前标签 tag 的层数相等
-            curactor.addWTask(new WaitTask(layer, null, tag));
-            //当前actor直接进行push操作(不用pushFunction，也不用发消息)
-            curactor.getMyStack().push(new ActorTask(layer,_q3,true));
-
+            addWTask(new WaitTask(layer, null, tag));
+            _q3.setLevel(layer + 1);//检查的谓词的层数肯定是当前应该匹配层数所对应的标签的子孙的层数
+            curactor.pushTaskDo(new ActorTask(layer, _q3, true));
         }
     }
 

@@ -4,6 +4,7 @@ import com.XPath.PathParser.ASTPreds;
 import com.XPath.PathParser.AxisType;
 import com.ibm.actor.Message;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Stack;
@@ -62,7 +63,6 @@ public class StateT3 extends  State implements Cloneable{
     public void startElementDo(String tag, int layer,MyStateActor curactor) throws CloneNotSupportedException {}
 
     public void endElementDo(String tag,int layer,MyStateActor curactor){}
-
 
 
 }

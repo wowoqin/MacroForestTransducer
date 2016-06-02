@@ -15,7 +15,6 @@ public class StateT2_2 extends StateT2{
     protected  StateT2_2(ASTPreds preds,State q3){
         super(preds);
         _q3=q3;
-        _q3.setLevel(getLevel() + 1);
     }
 
     public static StateT2 TranslateState(ASTPreds preds){//重新创建T2-2
@@ -23,11 +22,11 @@ public class StateT2_2 extends StateT2{
         return new StateT2_2(preds,q3);
     }
 
-    public void startElementDo(String tag,int layer,MyStateActor curactor) {
+    public void startElementDo(String tag,int layer,MyStateActor curactor) throws CloneNotSupportedException {
         if((getLevel()==layer) && (tag.equals(_test))){// T2-2 的test匹配
-            curactor.addWTask(new WaitTask(layer,false,"true"));
-            //检查的谓词的层数肯定是当前应该匹配层数所对应的标签的子孙的层数
-            curactor.getMyStack().push(new ActorTask(layer,_q3,true));// 对于当前栈的压栈操作，就可以直接压栈（不用发送消息）
+            addWTask(new WaitTask(layer, null, "true"));
+            _q3.setLevel(getLevel() + 1);
+            curactor.pushTaskDo(new ActorTask(layer,_q3,true));
         }
     }
 

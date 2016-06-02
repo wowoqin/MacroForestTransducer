@@ -28,7 +28,7 @@ public class StateT2_4 extends StateT2 implements Cloneable{
     }
     public void startElementDo(String tag,int layer,MyStateActor curactor) throws CloneNotSupportedException{
         if ((layer >= getLevel()) && (tag.equals(_test))) {
-            curactor.addWTask(new WaitTask(layer,false,"true"));
+            addWTask(new WaitTask(layer,null,"true"));
 
             String name=((Integer)this._predstack.hashCode()).toString().concat("T2-4.prActor");
             Actor actor=(actors.get(name));// predsµÄ actor
@@ -42,7 +42,7 @@ public class StateT2_4 extends StateT2 implements Cloneable{
                 actorManager.send(dmessage, curactor, actor);
                 //·¢ËÍ q'¸ø prActor
                 _q3.setLevel(layer + 1);
-                dmessage=new DefaultMessage("push", new ActorTask(layer,_q3,false));
+                dmessage=new DefaultMessage("pushTask", new ActorTask(layer,_q3,false));
                 actorManager.send(dmessage,curactor,actor);
             }else{
                 State currQ=(State)_q3.copy();

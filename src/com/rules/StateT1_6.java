@@ -18,8 +18,6 @@ public class StateT1_6 extends StateT1{
         super(path);
         _q3=q3;
         _q1=q1;
-        _q3.setLevel(getLevel() + 1);
-        _q1.setLevel(getLevel() + 1);
         _pathstack =new Stack();
     }
 
@@ -30,32 +28,30 @@ public class StateT1_6 extends StateT1{
     }
     @Override
     public void startElementDo(String tag,int layer,MyStateActor curactor) throws CloneNotSupportedException {// layer 是当前 tag 的层数
-        if((this.getLevel() == layer)  && (tag.equals(_test))){//应该匹配的层数 getLevel（）和 当前层数相等
-            Stack currStack=curactor.getMyStack();
+        if((getLevel() == layer)  && (tag.equals(_test))){//应该匹配的层数 getLevel（）和 当前层数相等
+            _q3.setLevel(layer + 1);
+            // 在 tlist 中添加需要等待匹配的任务模型
+            addWTask(new WaitTask(layer, null, null));
+            curactor.pushTaskDo(new ActorTask(layer, _q3, true));
+
             String name=((Integer)this._pathstack.hashCode()).toString().concat("T1-6.paActor");
             Actor actor=(actors.get(name));// path的 actor
-            // 在 tlist 中添加需要等待匹配的任务模型
-            curactor.addWTask(new WaitTask(layer,null,null));
-
-            currStack.push(new ActorTask(layer, _q3,true));
 
             if(actor == null){  // 若pathActor 还没有创建 --> _pathstack 一定为空
                 stacklist.add(this._pathstack);
                 actor =actorManager.createAndStartActor(MyStateActor.class, name);
-                actors.put(actor.getName(),actor);
+                actors.put(actor.getName(), actor);
 
-                dmessage=new DefaultMessage("resActor", null);
-                actorManager.send(dmessage, curactor, actor);
+                actorManager.send(new DefaultMessage("resActor", null), curactor, actor);
 
                 //发送 q'' 给 paActor
-                dmessage=new DefaultMessage("push", new ActorTask(layer,_q1,false));
-                actorManager.send(dmessage,curactor,actor);
+                _q1.setLevel(layer + 1);
+                actorManager.send(new DefaultMessage("pushTask", new ActorTask(layer,_q1,false)),curactor,actor);
             } else{  // 若path  actor 已经创建了,则发送 q'' 给 paActor即可
                 //发送 q'' 给 paActor
                 State currQ=(State)_q1.copy();
                 currQ.setLevel(layer+1);
-                dmessage=new DefaultMessage("push", new ActorTask(layer,currQ,false));
-                actorManager.send(dmessage, curactor, actor);
+                actorManager.send(new DefaultMessage("pushTask", new ActorTask(layer,currQ,false)), curactor, actor);
             }
         }
     }

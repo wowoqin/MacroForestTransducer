@@ -4,6 +4,7 @@ import com.XPath.PathParser.ASTPreds;
 import com.XPath.PathParser.AxisType;
 import com.ibm.actor.Message;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Stack;
@@ -21,6 +22,7 @@ public class StateT2 extends  State implements Cloneable{
     protected StateT2(ASTPreds preds){
         _preds=preds;
         _test=_preds.getFirstStep().getNodeTest().toString();
+
     }
 
     public String getNodeTest(){//得到当前 preds 的测试节点

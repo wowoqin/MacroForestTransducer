@@ -3,6 +3,7 @@ package com.rules;
 import com.XPath.PathParser.ASTPreds;
 import com.taskmodel.ActorTask;
 
+import java.util.List;
 import java.util.Stack;
 
 /**
@@ -18,17 +19,28 @@ public class StateT2_3 extends StateT2{
         return new StateT2_3(preds);
     }
 
-    public void startElementDo(String tag,int layer,MyStateActor curactor) {// layer 是当前 tag 的层数
-        if((getLevel()>=layer) && (tag.equals(_test))){
+    public void startElementDo(String tag,int layer,MyStateActor curactor) throws CloneNotSupportedException {// layer 是当前 tag 的层数
+        if((layer>=getLevel()) && (tag.equals(_test))){
             Stack ss=curactor.getMyStack();
-            //发送谓词结果 && pop 当前栈顶
             ActorTask atask=((ActorTask) ss.peek());
             int id=atask.getId();
             boolean isInSelf=atask.isInSelf();
-            curactor.popFunction();
-            curactor.sendPredsResult(new ActorTask(id, true,isInSelf));
-            if(ss.isEmpty())
-                actorManager.detachActor(curactor);
+
+            List list=this.getList();
+            if(!list.isEmpty()){  //T3-3
+                WaitState waitState=new WaitState();
+                waitState.setLevel(((State) atask.getObject()).getLevel());
+                waitState.getList().add(list.get(0));
+                curactor.popFunction();
+                curactor.pushTaskDo(new ActorTask(id, waitState, isInSelf));
+                curactor.sendPredsResult(new ActorTask(id, true, isInSelf));
+            }else{  //T2-3
+                //发送谓词结果 && pop 当前栈顶
+                curactor.popFunction();
+                curactor.sendPredsResult(new ActorTask(id, true,isInSelf));
+                if(ss.isEmpty())
+                    actorManager.detachActor(curactor);
+            }
         }
     }
 

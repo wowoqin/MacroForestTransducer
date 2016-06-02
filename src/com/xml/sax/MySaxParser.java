@@ -43,7 +43,7 @@ public class MySaxParser<T> extends DefaultHandler {
         message = new DefaultMessage("resActor",null);
         manager.send(message, null, stackActor);
 
-        message = new DefaultMessage("pushTask",new ActorTask(0,currentQ,true));
+        message = new DefaultMessage("pushTask",new ActorTask(currentQ.getLevel(),currentQ,true));
         manager.send(message, null, stackActor);
 
 

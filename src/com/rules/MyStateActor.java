@@ -90,102 +90,92 @@ public class MyStateActor extends AbstractActor {
             ActorTask task=(ActorTask)data;// task
             // 是一个actorTask
             if(task!=null){
-                // object 是q（State）、qName（String）、q'的返回结果（True/False）、q''的返回结果（String）
+                // object 是 q（State）、qName（String）、q'的返回结果（True/False）、q''的返回结果（String）
                 Object object = task.getObject();
                 Stack  ss = this.getMyStack();
                 State  currQ;
 
-               if("push".equals(subject)){//单纯的push
-                   this.getMyStack().push(task);
-               }else if("pushTask".equals(subject)){       // actorTask,并且 data 是一个 q3
-                    this.pushFunction(task);
+               if("pushTask".equals(subject)){       // actorTask,并且 data 是一个 q3
+                   try {
+                       this.pushTaskDo(task);
+                   } catch (CloneNotSupportedException e) {
+                       e.printStackTrace();
+                   }
                }else if("setCategory".equals(subject)){    // actorTask,并且 data 是一个 string
-                    this.setCategory((String)object);
+                    this.setCategory((String) object);
                }else if("predResult".equals(subject)){     // actorTask,并且 data 是一个q'的返回结果（True）
-                    //此时，谓词的返回结果或者来自自己，或者是来自下一级的actor（T2的谓词actor或者是T3的preds'对应的actor）
-                    // 收到谓词返回结果后，在list中找到相应的wt的ID，然后将谓词检查的结果重新赋值
-                    for(int i=tlist.size()-1;i>=0;i--) {
-                        WaitTask wt = (WaitTask) (tlist.get(i));
-                        if (wt.getId() == task.getId()) {
-                            if (message.getSource().getCategory().equals("T3PredsActor")) {  //谓词返回结果来自T3 preds'的actor
-                                wt.setPathR((String) (task.getObject()));
-                            } else {    //消息来自自己-->curactor 或者是消息来自T2 的后续谓词
-                                if((((ActorTask)ss.peek()).getObject()) instanceof StateT2_4 && wt.isWaitT3FirstPreds() )
-                                    ss.pop();
-                                wt.setPredR((Boolean)(task.getObject()));
-                            }
+                   // 收到谓词返回结果后，在当前栈顶的state.list中找到相应的wt的ID，然后将谓词检查的结果重新赋值
+                   ActorTask atask = (ActorTask) ss.peek();//栈顶task
+                   int id = atask.getId();
+                   State state = (State) atask.getObject();//栈顶 state
 
-                            ActorTask atask = (ActorTask) ss.peek();
-                            int id = atask.getId();
-                            State state = (State) atask.getObject();
-                            //重新设置完成之后看当前设置完的wt是不是谓词满足的-->说明之前返回的谓词结果只是作为谓词的谓词
-                            if (wt.isPredsSatisified()) {
-                            /*谓词满足(id,true,true)会出现的情况：
-                            *   最原始的谓词为T2-->在test匹配后list.add(id,false,true);
-                            *          T2-2：则当前栈顶为T2-2，其谓词检查成功，则T2-2整体也检查成功；
-                            *          T2-4：则当前栈顶为T2-4，其谓词检查成功，则T2-4整体也检查成功，则此时
-                            *                就考虑它是否修饰了一个AD 轴的test(自身-->T2-4在一个独立栈)，
-                            *                若是，则当前栈里面的所有T2-4都是成功的；
-                            *
-                            *  最原始的谓词为T3：
-                            *          T3-1：当前栈顶:
-                            *                1)(id,waitState)
-                            *          T3-2：当前栈顶：
-                            *                1)(id,waitState)： preds'后检查成功，即先检查成功T2-2的preds(q')，将T2-2替换为waitState
-                            *                2)(id,T2-2)：      preds'先检查成功，wt=(id,false,true),然后T2-2的preds'(q')才检查成功，pop(q')后遇到T2-2
-                            *          T3-3：当前栈顶:
-                            *                1)(id,waitState)
-                            *          T3-4：当前栈顶：
-                            *                1)T2-4:
-                            *                  1. q'''先检查成功：
-                            *                     则T2-4.test有多个匹配，即在T2-4.prActor中有多个q'，此时需要pop(layer,T2-4)
-                            *                      && taskmodel=(layer,true)给T3-4的 wtask-->(id,T,F)==>(id,T,T)时，栈顶为(id,qw);
-                            *                  2. q'''后检查成功，在此之前T3-4.wtask已经是(id,F,T)：
-                            *                     则(layer,T)给T3-4.wtask-->(layer,T,T),而此时栈顶(layer,T2-4),但是整个T3-4已经检查成功了，
-                            *                     则需要pop（layer,T2-4）&& (qw.id,true)发出去；
-                            *                2)(id,waitState)
-                            * */
-                                //谓词满足，看当前栈顶
-                                if (!ss.isEmpty()) {
-                                    //发送谓词结果 && pop 当前栈顶
-                                    if (state instanceof StateT2_4) {
-                                        //从T2-4 的谓词栈那里返回结果-->T2-4检查成功
-                                        //remove 与T2-4 相关的wt-->//d[/b]
-                                        for (int j = i + 1; j < tlist.size(); j++) {
-                                            wt = (WaitTask) tlist.get(j);
-                                            this.tlist.remove(wt);
-                                        }
-                                    }
-                                    this.sendPredsResult(new ActorTask(id, true,atask.isInSelf()));
-                                }
-                                this.removeWTask(wt);   //用完wt之后，删除这个谓词满足的wt
-                            }
-                            // 谓词原来是T3 && 收到的是 T2 的后续谓词的返回结果
-                            //preds:child::test preds] 或者 [desc_or_self::test preds]中的preds的返回结果
-                            else if (wt.isWaitT3ParallPreds()) {// (id,true,"false")
-                                //q'''检查成功，q''还没检查成功
-                                if (!ss.isEmpty()) {
-                                    if(state instanceof  StateT2_2){    // 原来的谓词为 T3-2 && preds'还没检查成功
-                                        State waitState=new WaitState();
-                                        waitState.setLevel(((State)atask.getObject()).getLevel());
-                                        //pop 当前(id,T2-2)
-                                        this.popFunction();
-                                        //push(id,qw)
-                                        this.pushFunction(new ActorTask(id,waitState,atask.isInSelf()));
-                                    }else if (state instanceof StateT2_4) {   // 原来的谓词为 T3-4 && preds'还没检查成功
-                                        //从T2-4 的谓词栈那里返回结果-->T2-4检查成功
-                                        //remove 与T2-4 相关的wt-->//d[/b]
-                                        for (int j = i + 1; j < tlist.size(); j++) {
-                                            wt = (WaitTask) tlist.get(j);
-                                            this.tlist.remove(wt);
-                                        }
-                                        //pop(T2-4)
-                                        this.popFunction();
-                                    }
-                                }
-                            }
-                        }
-                    }
+                   List list=state.getList();
+                   for(int i=list.size()-1;i>=0;i--){
+                       WaitTask wt = (WaitTask) (tlist.get(i));
+                       if(message.getSource()==this){//消息来自自己
+                           wt.setPredR((Boolean)(task.getObject()));
+                       }else {//消息来自下级 actor
+                           if(message.getSource().getCategory().equals("T3PredsActor")){//T3的谓词栈
+                               wt.setPathR((String) (task.getObject()));
+                           }else{  // T2
+                               wt.setPredR((Boolean)(task.getObject()));
+                           }
+                       }
+                       //重新设置完成之后看当前设置完的wt是不是谓词满足的-->说明之前返回的谓词结果只是作为谓词的谓词
+                       if (wt.isPredsSatisified()){
+                           if(state instanceof StateT2_1){       //原来是T3-1
+                               //pop栈顶；发送 true
+                               this.popFunction();
+                               this.sendPredsResult(new ActorTask(id,true,atask.isInSelf()));
+                           }else if(state instanceof StateT2_2){
+                               if(list.size()==1){ //T2-2
+                                   //pop栈顶；发送 true
+                                   this.popFunction();
+                                   this.sendPredsResult(new ActorTask(id,true,atask.isInSelf()));
+                               }else{//原来是T3-1,现在只是T2-2检查成功
+                                   list.remove(wt);
+                                   this.sendPredsResult(new ActorTask(id,true,atask.isInSelf()));
+                               }
+                           }else if(state instanceof StateT2_3){ //原来是T3-3
+                               //pop栈顶；发送 true
+                               this.popFunction();
+                               this.sendPredsResult(new ActorTask(id,true,atask.isInSelf()));
+                           }else if(state instanceof StateT2_4){
+                               WaitTask wts=(WaitTask)list.get(0);
+                               if(wts.isWaitT3ParallPreds()){ //原来是T3-4 && q''还未检查成功
+                                   //T2-4 换为 qw
+                                   this.popFunction();//pop 的时候顺带也 clear 了 list
+                                   WaitState wq=new WaitState();
+                                   wq.setLevel(state.getLevel());
+                                   wq.getList().add(wts);
+                                   try {
+                                       this.pushTaskDo(new ActorTask(id,wq,task.isInSelf()));
+                                   } catch (CloneNotSupportedException e) {
+                                       e.printStackTrace();
+                                   }
+                               }else{//（原来是T2-4）或者 （原来是T3-4 && q''先检查成功）
+                                   //pop栈顶；发送 true
+                                   this.popFunction();
+                                   this.sendPredsResult(new ActorTask(id,true,atask.isInSelf()));
+                               }
+                           }else if(state instanceof WaitState){
+                               //pop栈顶；发送 true
+                               this.popFunction();
+                               this.sendPredsResult(new ActorTask(id,true,atask.isInSelf()));
+                           }
+                       }else if(wt.isWaitT3ParallPreds()){ // (id,true,"false")
+                           //q'''检查成功，q''还没检查成功
+                           this.popFunction();//pop 的时候顺带也 clear 了 list
+                           WaitState wq=new WaitState();
+                           wq.setLevel(state.getLevel());
+                           wq.getList().add(wt);
+                           try {
+                               this.pushTaskDo(new ActorTask(id,wq,task.isInSelf()));
+                           } catch (CloneNotSupportedException e) {
+                               e.printStackTrace();
+                           }
+                       }
+                   }
                }else if("pathResult".equals(subject)){ // actorTask,并且 data 是一个q''的返回结果（String）
                     // 在 waitTask 中找到相应的ID，然后将后续 path 检查的结果 重新赋值
                     for(int i=tlist.size()-1;i>=0;i--){
@@ -222,24 +212,121 @@ public class MyStateActor extends AbstractActor {
         //this.remove(message);
     }
 
-    public void pushFunction(ActorTask actorTask){
-        //这中情况发生的场景：T3谓词修饰 AD 轴的 path或者preds && T3的test不匹配
-        Stack currStack = this.getMyStack();
-        int layer=((State)(actorTask.getObject())).getLevel();
-        if(!currStack.isEmpty()){
-            ActorTask at=(ActorTask)currStack.peek();
-            if((((State)(at.getObject())).getLevel())>layer){
-                //若当前栈顶 q1 的layer 大于将要压栈的 q2 的layer，则压栈顺序为 q2，q1
-                currStack.pop();
-                currStack.push(actorTask);
-                currStack.push(at);
-            }else{
-                currStack.push(actorTask);
-            }
-        }else{
-            currStack.push(actorTask);
-        }
+    public void pushTaskDo(ActorTask actorTask) throws CloneNotSupportedException {
+        Stack curstack=this.getMyStack();
+        State state=(State)(actorTask.getObject());
 
+        if(state instanceof StateT1||state instanceof StateT2|| state instanceof WaitState){
+            curstack.push(actorTask);
+        }else {
+            int id=actorTask.getId();
+            boolean isInSelf=actorTask.isInSelf();
+            int level=((State)(actorTask.getObject())).getLevel();
+
+            if(state instanceof StateT3_1){
+                State firstPred=((StateT3_1) state)._q2;
+                State remainPred=((StateT3_1) state)._q3;
+                firstPred.setLevel(level);
+                remainPred.setLevel(level);
+                //push(q''')
+                curstack.push(new ActorTask(id, firstPred, isInSelf));
+                //在 T3-1.q'''.list 中添加要等待的 wt
+                firstPred.getList().add(new WaitTask(id, null, null));
+                String name=((Integer)(((StateT3_1) state)._predstack).hashCode()).toString().concat("T3-1.prActor");
+                Actor actor=State.actors.get(name);
+                //push(q'')-->继续调用此函数判断压栈
+                if(actor==null){
+                    State.stacklist.add(((StateT3_1) state)._predstack);
+                    actor=manager.createAndStartActor(MyStateActor.class, name);
+                    State.actors.put(actor.getName(), actor);
+
+                    getManager().send(new DefaultMessage("resActor", null), this, actor);
+
+                    getManager().send(new DefaultMessage("setCategory", "T3PredsActor"), this, actor);
+
+                    getManager().send(new DefaultMessage("pushTask",new ActorTask(id,remainPred,false)),this, actor);
+                }else{
+                    State currQ=(State)remainPred.copy();
+                    currQ.setLevel(level);
+                    getManager().send(new DefaultMessage("pushTask",new ActorTask(id,currQ,false)),this,actor);
+                }
+            }else if(state instanceof StateT3_2){
+                State firPred=((StateT3_2) state)._q2;
+                State remPred=((StateT3_2) state)._q3;
+                firPred.setLevel(level);
+                remPred.setLevel(level);
+                curstack.push(new ActorTask(id, firPred, isInSelf));
+                //在 T3-1.q'''.list 中添加要等待的 wt
+                firPred.getList().add(new WaitTask(id, null, null));
+                String name=((Integer)(((StateT3_2) state)._predstack).hashCode()).toString().concat("T3-2.prActor");
+                Actor actor=State.actors.get(name);
+                if(actor==null){
+                    State.stacklist.add(((StateT3_2) state)._predstack);
+                    actor=manager.createAndStartActor(MyStateActor.class, name);
+                    State.actors.put(actor.getName(), actor);
+
+                    getManager().send(new DefaultMessage("resActor", null), this, actor);
+
+                    getManager().send(new DefaultMessage("setCategory", "T3PredsActor"), this, actor);
+
+                    getManager().send(new DefaultMessage("pushTask",new ActorTask(id,remPred,false)),this, actor);
+                }else{
+                    State currQ=(State)remPred.copy();
+                    currQ.setLevel(level);
+                    getManager().send(new DefaultMessage("pushTask",new ActorTask(id,currQ,false)),this,actor);
+                }
+            }else if(state instanceof StateT3_3){
+                State firstPred=((StateT3_3) state)._q2;
+                State remainPred=((StateT3_3) state)._q3;
+                firstPred.setLevel(level);
+                remainPred.setLevel(level);
+                curstack.push(new ActorTask(id, firstPred, isInSelf));
+                //在 T3-1.q'''.list 中添加要等待的 wt
+                firstPred.getList().add(new WaitTask(id, null, null));
+                String name=((Integer)(((StateT3_3) state)._predstack).hashCode()).toString().concat("T3-3.prActor");
+                Actor actor=State.actors.get(name);
+                if(actor==null){
+                    State.stacklist.add(((StateT3_3) state)._predstack);
+                    actor=manager.createAndStartActor(MyStateActor.class, name);
+                    State.actors.put(actor.getName(), actor);
+
+                    getManager().send(new DefaultMessage("resActor", null), this, actor);
+
+                    getManager().send(new DefaultMessage("setCategory", "T3PredsActor"), this, actor);
+
+                    getManager().send(new DefaultMessage("pushTask",new ActorTask(id,remainPred,false)),this, actor);
+                }else{
+                    State currQ=(State)remainPred.copy();
+                    currQ.setLevel(level);
+                    getManager().send(new DefaultMessage("pushTask",new ActorTask(id,currQ,false)),this,actor);
+                }
+            }else if(state instanceof StateT3_4){
+                State firstPred=((StateT3_4) state)._q2;
+                State remainPred=((StateT3_4) state)._q3;
+                firstPred.setLevel(level);
+                remainPred.setLevel(level);
+                curstack.push(new ActorTask(id, firstPred, isInSelf));
+                //在 T3-1.q'''.list 中添加要等待的 wt
+                firstPred.getList().add(new WaitTask(id, null, null));
+                String name=((Integer)(((StateT3_1) state)._predstack).hashCode()).toString().concat("T3-4.prActor");
+                Actor actor=State.actors.get(name);
+                if(actor==null){
+                    State.stacklist.add(((StateT3_1) state)._predstack);
+                    actor=manager.createAndStartActor(MyStateActor.class, name);
+                    State.actors.put(actor.getName(), actor);
+
+                    getManager().send(new DefaultMessage("resActor", null), this, actor);
+
+                    getManager().send(new DefaultMessage("setCategory", "T3PredsActor"), this, actor);
+
+                    getManager().send(new DefaultMessage("pushTask",new ActorTask(id,remainPred,false)),this, actor);
+                }else{
+                    State currQ=(State)remainPred.copy();
+                    currQ.setLevel(level);
+                    getManager().send(new DefaultMessage("pushTask",new ActorTask(id,currQ,false)),this,actor);
+                }
+            }
+        }
     }
 
     public void popFunction(){
@@ -299,11 +386,9 @@ public class MyStateActor extends AbstractActor {
                 }else{
                     getManager().send(new DefaultMessage("paResult",new ActorTask(id,wtask.getPathR())),this,this.getResActor());
                 }
-                return;//结束大循环
             }
         }else{//到自己的结束标签，当前wt不满足输出条件
             this.removeWTask(wtask);
-            return;//结束大循环
         }
     }
 

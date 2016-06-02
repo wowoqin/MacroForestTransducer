@@ -21,7 +21,7 @@ public class StateT1_3 extends StateT1 implements Cloneable {
 
     public void startElementDo(String tag, int layer, MyStateActor curactor) throws CloneNotSupportedException {
         if ((layer >= getLevel()) && (tag.equals(_test))) {//当前层数大于等于应该匹配的层数 getLayer（）就可以
-            curactor.addWTask(new WaitTask(layer, true, tag));
+            addWTask(new WaitTask(layer,true,tag));
         }
     }
 

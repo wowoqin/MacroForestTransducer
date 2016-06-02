@@ -10,7 +10,6 @@ import java.util.Stack;
 public class WaitState extends State {
     @Override
     public void startElementDo(String tag, int layer, MyStateActor curactor) throws CloneNotSupportedException {
-
     }
 
     @Override

@@ -13,6 +13,7 @@ public class StateT1_1 extends StateT1 {
 
     protected StateT1_1(ASTPath path) {
         super(path);
+
     }
 
     public static State TranslateState(ASTPath path) {//重新创建T1-1
@@ -21,8 +22,8 @@ public class StateT1_1 extends StateT1 {
 
     public void startElementDo(String tag, int layer, MyStateActor curactor) {
         if ((getLevel() == layer) && (tag.equals(_test))) {//应该匹配的层数-->getLayer（）和 当前标签-->tag 的层数相等
-            // 在 tlist 中添加需要检查成功的任务模型
-            curactor.addWTask(new WaitTask(layer,true,tag));
+            // 在 list 中添加需要检查成功的任务模型
+            addWTask(new WaitTask(layer,true,tag));
         }
     }
 

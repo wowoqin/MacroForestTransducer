@@ -17,7 +17,6 @@ public class StateT1_7 extends StateT1 implements Cloneable{
     protected StateT1_7(ASTPath path, State q1) {
         super(path);
         _q1 = q1;
-        _q1.setLevel(this.getLevel()+1);
         this._pathstack=new Stack();
     }
 
@@ -28,32 +27,27 @@ public class StateT1_7 extends StateT1 implements Cloneable{
 
     public void startElementDo(String tag, int layer,MyStateActor curactor) throws CloneNotSupportedException{
         if ((layer >= getLevel()) && (tag.equals(_test))) {
+            // 在 tlist 中添加需要等待匹配的任务模型
+            addWTask(new WaitTask(layer,true,null));
+
             String name=((Integer)this._pathstack.hashCode()).toString().concat("T1-7.paActor");
             Actor actor=(actors.get(name));// path的 actor
-            // 在 tlist 中添加需要等待匹配的任务模型
-            curactor.addWTask(new WaitTask(layer,true,null));
 
             if(actor == null){  // 若pathActor 还没有创建 --> _pathstack 一定为空
                 stacklist.add(this._pathstack);
                 actor =actorManager.createAndStartActor(MyStateActor.class, name);
-                actors.put(actor.getName(),actor);
+                actors.put(actor.getName(), actor);
 
-                dmessage=new DefaultMessage("resActor", null);
-                actorManager.send(dmessage, curactor, actor);
+                actorManager.send(new DefaultMessage("resActor", null), curactor, actor);
                 //发送 q'' 给 paActor
                 _q1.setLevel(layer + 1);
-                dmessage=new DefaultMessage("push", new ActorTask(layer,_q1,false));
-                actorManager.send(dmessage,curactor,actor);
+                actorManager.send(new DefaultMessage("pushTask", new ActorTask(layer,_q1,false)),curactor,actor);
             } else{  // 若path  actor 已经创建了,则发送 q'' 给 paActor即可
                 State currQ=(State)_q1.copy();
                 currQ.setLevel(layer + 1);
-                dmessage=new DefaultMessage("push",new ActorTask(layer,currQ,false));
-                actorManager.send(dmessage, curactor, actor);
+                actorManager.send(new DefaultMessage("pushTask",new ActorTask(layer,currQ,false)), curactor, actor);
 
             }
-            // 还要设置一下path actor接收消息的subject
-            //actor.willReceive("startE");
-            //actor.peekNext("startE",isX1(getLevel()+1));// path actor接受的标签应该是当前标签的 child
         }
     }
 
