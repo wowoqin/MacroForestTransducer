@@ -72,7 +72,7 @@ public class WaitTask {   // 在 actor 的list 中添加的任务
     }
 
     public  boolean isWaitT3ParallPreds(){ //wt作为一个谓词T3，q'''成功，q''还没检查成功 //(id,true,"false")
-        return (isPredsTrue() && getPathR().equals("false"));
+        return (isPredsTrue() && getPathR()==null);
     }
 
     public void output(){ //输出最终的检查结果

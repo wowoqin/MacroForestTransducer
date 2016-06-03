@@ -57,8 +57,18 @@ public class StateT1_6 extends StateT1{
     }
 
     public void endElementDo(String tag,int layer,MyStateActor curactor){
+        //T1-6 遇到自己的结束标签，则证明T1-6.q3 已经检查完了，只需检查 T1-6.q1 是否还需要等待
         if (tag.equals(_test)) {// 遇到自己的结束标签，检查
-            this.processSelfEndTag(layer,curactor);
+            for(int i=0;i<getList().size();i++){
+                WaitTask wtask=(WaitTask) getList().get(i);
+                if(wtask.hasReturned()){
+                    curactor.doNext(wtask);
+                }else{//等待
+                    actorManager.awaitMessage(curactor);
+                    while(wtask.hasReturned())
+                        curactor.doNext(wtask);
+                }
+            }
         }else if (layer == getLevel() - 1) { // 遇到上层结束标签(肯定是作为后续path)
             // (能遇到上层结束标签，即T1-6作为一个后续的path（T1-5 的时候也会放在stackActor中），T1-6~T1-8会被放在paActor中)
             // T1-5 的后续的path时，与T1-5 放在同一个栈，T1-6~T1-8 放在pathstack中

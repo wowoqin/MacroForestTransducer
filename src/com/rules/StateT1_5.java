@@ -31,16 +31,11 @@ public class StateT1_5 extends StateT1{
     }
 
     public void endElementDo(String tag,int layer,MyStateActor curactor){
-        if (tag.equals(_test)) { //遇到自己的结束标签，检查自己的list中的每个wt -->输出/上传/remove/等待
+        // T1-5能遇到自己的结束标签，则T1-5.q1 已经弹栈了，而T1-5.q1 弹栈则说明 q1 已经检查完了
+        if (tag.equals(_test)) { //遇到自己的结束标签，检查自己的list中的每个wt -->输出/上传/remove
             for(int i=0;i<getList().size();i++){
                 WaitTask wtask=(WaitTask) getList().get(i);
-                if(wtask.hasReturned()){//输出/上传/remove
-                    curactor.doNext(wtask);
-                }else{//等待
-                    actorManager.awaitMessage(curactor);
-                    while(wtask.hasReturned())
-                        curactor.doNext(wtask);
-                }
+                curactor.doNext(wtask);
             }
         }else if (layer == getLevel() - 1) { // 遇到上层结束标签
             // (能遇到上层结束标签，即T1-5作为一个后续的path（T1-5 的时候也会放在stackActor中），T1-6~T1-8会被放在paActor中)

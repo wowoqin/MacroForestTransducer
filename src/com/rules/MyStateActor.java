@@ -112,7 +112,7 @@ public class MyStateActor extends AbstractActor {
 
                    for(int i=list.size()-1;i>=0;i--){
                        WaitTask wt = (WaitTask) (list.get(i));
-                       if(message.getSource()==this){//消息来自自己
+                       if(message.getSource()==this){   //消息来自自己
                            wt.setPredR((Boolean)(task.getObject()));
                        }else {//消息来自下级 actor
                            if(message.getSource().getCategory().equals("T3PredsActor")){//T3的谓词栈
@@ -136,13 +136,20 @@ public class MyStateActor extends AbstractActor {
                                    list.remove(wt);
                                    this.sendPredsResult(new ActorTask(id,true,atask.isInSelf()));
                                }
-                           }else if(state instanceof StateT2_3){ //原来是T3-3
+                           }else if(state instanceof StateT2_3){ //原来是T3-3 && q''先检查成功--(id,null,"true")
                                //pop栈顶；发送 true
                                this.popFunction();
-                               this.sendPredsResult(new ActorTask(id,true,atask.isInSelf()));
+                               this.sendPredsResult(new ActorTask(id, true, atask.isInSelf()));
+                               atask = (ActorTask) ss.peek();//栈顶task
+                               state = (State) atask.getObject();//栈顶 state
+                               if(!ss.isEmpty()){
+                                   if((state instanceof StateT2_3) && (!atask.isInSelf())){// T2-3 作为 AD 轴test的谓词
+                                       this.processSameADPred();
+                                   }
+                               }
                            }else if(state instanceof StateT2_4){
                                WaitTask wts=(WaitTask)list.get(0);
-                               if(wts.isWaitT3ParallPreds()){ //原来是T3-4 && q''还未检查成功
+                               if(wts.isWaitT3ParallPreds()){ //(id,true,null)--原来是T3-4 && q''还未检查成功
                                    //T2-4 换为 qw
                                    this.popFunction();//pop 的时候顺带也 clear 了 list
                                    WaitState wq=new WaitState();
@@ -153,17 +160,32 @@ public class MyStateActor extends AbstractActor {
                                    } catch (CloneNotSupportedException e) {
                                        e.printStackTrace();
                                    }
-                               }else{//（原来是T2-4）或者 （原来是T3-4 && q''先检查成功）
+                               }else{//(id,null,"true")---》原来是T2-4；
+                                                        // 或者 （原来是T3-4 && q''先检查成功-->现在整个T3-4都检查成功）
                                    //pop栈顶；发送 true
                                    this.popFunction();
                                    this.sendPredsResult(new ActorTask(id,true,atask.isInSelf()));
+                                   if(!ss.isEmpty()){
+                                       atask = (ActorTask) ss.peek();//栈顶task
+                                       state = (State) atask.getObject();//栈顶 state
+                                       if((state instanceof StateT2_4) && (!atask.isInSelf())){// T2-4 作为 AD 轴test的谓词
+                                           this.processSameADPred();
+                                       }
+                                   }
                                }
                            }else if(state instanceof WaitState){
                                //pop栈顶；发送 true
                                this.popFunction();
                                this.sendPredsResult(new ActorTask(id,true,atask.isInSelf()));
+                               if(!ss.isEmpty()){
+                                   atask = (ActorTask) ss.peek();//栈顶task
+                                   state = (State) atask.getObject();//栈顶 state
+                                   if(((state instanceof StateT2_3) || (state instanceof StateT2_4)) && (!atask.isInSelf())){// T2-3/T2-4 作为 AD 轴test的谓词
+                                       this.processSameADPred();
+                                   }
+                               }
                            }
-                       }else if(wt.isWaitT3ParallPreds()){ // (id,true,"false")
+                       }else if(wt.isWaitT3ParallPreds()){ // (id,true,null)
                            //q'''检查成功，q''还没检查成功
                            this.popFunction();//pop 的时候顺带也 clear 了 list
                            WaitState wq=new WaitState();
@@ -354,7 +376,7 @@ public class MyStateActor extends AbstractActor {
         }
     }
 
-    public void doNext(WaitTask wtask){
+    public void doNext(WaitTask wtask){   //输出/上传/remove/
         Stack currstack=this.getMyStack();
         ActorTask task=(ActorTask)currstack.peek();
         int id=task.getId(); // 当前栈顶 taskmodel 的 id

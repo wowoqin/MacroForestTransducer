@@ -34,8 +34,13 @@ public class StateT2_3 extends StateT2{
                 curactor.popFunction();
                 //(id,T2-3,isInself) 换为 （id,qw,isInself）
                 curactor.pushTaskDo(new ActorTask(id, waitState, isInSelf));
-                //设置 T3-3.q'''检查成功
+                //设置 T3-3.q'''检查成功-->
                 curactor.sendPredsResult(new ActorTask(id, true, true));//确定是给自己的
+                /*在谓词全部满足或者q''不满足弹栈的时候--> 栈顶为(id,qw,isInSelf)：
+                 *  1. 满足：wt（layer,true,"true"）
+                *   2. 不满足：wt（layer,true,"false"）
+                *                          弹 qw 了之后：：：-->栈顶(id,T2-3,false)
+                * */
             }else{  //T2-3
                 //发送谓词结果 && pop 当前栈顶
                 curactor.popFunction();
