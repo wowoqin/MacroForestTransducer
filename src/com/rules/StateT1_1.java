@@ -24,7 +24,6 @@ public class StateT1_1 extends StateT1 {
     public void startElementDo(String tag, int layer, MyStateActor curactor) {
         if ((getLevel() == layer) && (tag.equals(_test))) {//应该匹配的层数-->getLayer（）和 当前标签-->tag 的层数相等
             // 在 list 中添加需要检查成功的任务模型
-            //curactor.addWTask(new WaitTask(layer,true,tag));
             addWTask(new WaitTask(layer, true, tag));
         }
     }
@@ -34,8 +33,7 @@ public class StateT1_1 extends StateT1 {
         if(tag.equals(_test)){//遇到自己的结束标签，检查自己的list中的 wt -->输出/上传/remove
             //T1-6.path时，谓词未检查成功就传不过去，T1-1.list.size>=1;
             for(int i=0;i<getList().size();i++){
-                WaitTask wtask=(WaitTask) getList().get(i);
-                curactor.doNext(wtask);
+                curactor.doNext((WaitTask) getList().get(i));
             }
         }else if (layer == getLevel() - 1) { // 遇到上层结束标签
             // (能遇到上层结束标签，即T1-1作为一个后续的path（T1-5 的时候也会放在stackActor中），T1-6~T1-8会被放在paActor中)

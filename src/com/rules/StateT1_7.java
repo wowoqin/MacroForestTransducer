@@ -57,8 +57,11 @@ public class StateT1_7 extends StateT1 implements Cloneable{
                 WaitTask wtask=(WaitTask) getList().get(i);
                 if(wtask.hasReturned()){
                     curactor.doNext(wtask);
-                }else{//等待
+                }else{//等待--后续path的结果还未传回来，
+                    //当前结束标签先不处理
+                    curactor.addMessage(new DefaultMessage("endE", new ActorTask(layer,tag)));
                     actorManager.awaitMessage(curactor);
+                    curactor.peekNext("pathR");//优先处理path返回结果的消息
                     while(wtask.hasReturned())
                         curactor.doNext(wtask);
                 }

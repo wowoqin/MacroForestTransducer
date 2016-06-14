@@ -78,7 +78,9 @@ public class StateT1_8 extends StateT1 {
                 WaitTask wtask=(WaitTask) getList().get(i);
                 if(wtask.hasReturned()){
                     curactor.doNext(wtask);
-                }else{//等待
+                }else{//等待--或许是谓词的消息还未传回来，或许是后续path的结果还未传回来，
+                    // 当前结束标签先不处理
+                    curactor.addMessage(new DefaultMessage("endE", new ActorTask(layer,tag)));
                     actorManager.awaitMessage(curactor);
                     while(wtask.hasReturned())
                         curactor.doNext(wtask);

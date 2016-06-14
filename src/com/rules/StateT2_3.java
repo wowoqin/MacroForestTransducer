@@ -71,7 +71,7 @@ public class StateT2_3 extends StateT2{
             curactor.popFunction();
             //发消息（id,false,isInself）
             curactor.sendPredsResult(new ActorTask(id, false, isInSelf));
-            //当前栈不为空，栈顶进行endElementDo 操作（输出（T1-2或者T1-6）/弹栈（相同结束标签的waitState）等）
+            //当前栈不为空，栈顶进行endElementDo 操作（输出（T1-2或者T1-6）
             if (!ss.isEmpty()) {
                 State state=((State) (((ActorTask) ss.peek()).getObject()));
                 // T1-2 、T1-6的结束标签

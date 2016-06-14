@@ -1,6 +1,7 @@
 package com.rules;
 
 import com.XPath.PathParser.ASTPath;
+import com.ibm.actor.DefaultMessage;
 import com.taskmodel.ActorTask;
 import com.taskmodel.WaitTask;
 
@@ -35,7 +36,15 @@ public class StateT1_5 extends StateT1{
         if (tag.equals(_test)) { //遇到自己的结束标签，检查自己的list中的每个wt -->输出/上传/remove
             for(int i=0;i<getList().size();i++){
                 WaitTask wtask=(WaitTask) getList().get(i);
-                curactor.doNext(wtask);
+                if(wtask.hasReturned()){
+                    curactor.doNext(wtask);
+                }else{
+                    //当前结束标签先不处理
+                    curactor.addMessage(new DefaultMessage("endE", new ActorTask(layer,tag)));
+                    curactor.peekNext("pathR");//优先处理path返回结果的消息
+                    while(wtask.hasReturned())
+                        curactor.doNext(wtask);
+                }
             }
         }else if (layer == getLevel() - 1) { // 遇到上层结束标签
             // (能遇到上层结束标签，即T1-5作为一个后续的path（T1-5 的时候也会放在stackActor中），T1-6~T1-8会被放在paActor中)

@@ -7,7 +7,6 @@ import com.ibm.actor.Message;
 import com.taskmodel.ActorTask;
 import com.taskmodel.WaitTask;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
@@ -105,7 +104,7 @@ public class MyStateActor extends AbstractActor {
                    State state = (State) atask.getObject();//栈顶 state
                    List list=state.getList();
 
-                   for(int i=list.size()-1;i>=0;i--){
+                   for(int i=list.size()-1;i>=0;i--){//要是有多个等待同一谓词检查结果的wt(T1-6、T1-8)，需要把每一个的结果都设置了
                        WaitTask wt = (WaitTask) (list.get(i));
                        if(message.getSource()==this){   //消息来自自己
                            wt.setPredR((Boolean)(task.getObject()));
@@ -117,7 +116,7 @@ public class MyStateActor extends AbstractActor {
                            }
                        }
                        //重新设置完成之后看当前设置完的wt是不是谓词满足的-->说明之前返回的谓词结果只是作为谓词的谓词
-                       if (wt.isPredsSatisified()){
+                       if (wt.isPredsSatisified()){//谓词成功
                            if(state instanceof StateT2_1){       //原来是T3-1
                                //pop栈顶；发送 true
                                this.popFunction();
@@ -129,7 +128,20 @@ public class MyStateActor extends AbstractActor {
                                    this.sendPredsResult(new ActorTask(id,true,atask.isInSelf()));
                                }else{//原来是T3-2,现在只是T2-2检查成功
                                    list.remove(wt);
-                                   this.sendPredsResult(new ActorTask(id,true,atask.isInSelf()));
+                                   if(i==0){//T3-2检查成功(q''之前就检查成功了)
+                                       this.sendPredsResult(new ActorTask(id,true,atask.isInSelf()));
+                                   }else{//i==1，T2-2检查成功(无论之前q''是否检查成功，都先给自己setPredR=true)
+                                       WaitState qw=new WaitState();
+                                       qw.setLevel(state.getLevel());
+                                       qw.getList().add(state.getList().get(0));
+                                       this.popFunction();
+                                       try {
+                                           this.pushTaskDo(new ActorTask(id, qw, atask.isInSelf()));
+                                       } catch (CloneNotSupportedException e) {
+                                           e.printStackTrace();
+                                       }
+                                       this.sendPredsResult(new ActorTask(id,true,true));
+                                   }
                                }
                            }else if(state instanceof StateT2_3){ //原来是T3-3 && q''先检查成功--(id,null,"true")
                                //pop栈顶；发送 true
@@ -146,12 +158,12 @@ public class MyStateActor extends AbstractActor {
                                WaitTask wts=(WaitTask)list.get(0);
                                if(wts.isWaitT3ParallPreds()){ //(id,true,null)--原来是T3-4 && q''还未检查成功
                                    //T2-4 换为 qw
-                                   this.popFunction();//pop 的时候顺带也 clear 了 list
                                    WaitState wq=new WaitState();
                                    wq.setLevel(state.getLevel());
                                    wq.getList().add(wts);
+                                   this.popFunction();//pop 的时候顺带也 clear 了 list
                                    try {
-                                       this.pushTaskDo(new ActorTask(id,wq,task.isInSelf()));
+                                       this.pushTaskDo(new ActorTask(id,wq,atask.isInSelf()));
                                    } catch (CloneNotSupportedException e) {
                                        e.printStackTrace();
                                    }
@@ -168,7 +180,7 @@ public class MyStateActor extends AbstractActor {
                                        }
                                    }
                                }
-                           }else if(state instanceof WaitState){
+                           }else if(state instanceof WaitState){//q'''已经先检查成功，现在q''也检查成功了
                                //pop栈顶；发送 true
                                this.popFunction();
                                this.sendPredsResult(new ActorTask(id,true,atask.isInSelf()));
@@ -182,10 +194,10 @@ public class MyStateActor extends AbstractActor {
                            }
                        }else if(wt.isWaitT3ParallPreds()){ // (id,true,null)
                            //q'''检查成功，q''还没检查成功
-                           this.popFunction();//pop 的时候顺带也 clear 了 list
                            WaitState wq=new WaitState();
                            wq.setLevel(state.getLevel());
                            wq.getList().add(wt);
+                           this.popFunction();//pop 的时候顺带也 clear 了 list
                            try {
                                this.pushTaskDo(new ActorTask(id,wq,task.isInSelf()));
                            } catch (CloneNotSupportedException e) {
@@ -355,8 +367,10 @@ public class MyStateActor extends AbstractActor {
     public void sendPredsResult(ActorTask actorTask){// 谓词检查成功，上传结果（id，true）给相应的 wt
         if(actorTask.isInSelf()){
             getManager().send(new DefaultMessage("predResult",actorTask), this, this);
+            this.peekNext("predResult");//优先处理谓词返回
         }else{
             getManager().send(new DefaultMessage("predResult",actorTask), this, this.getResActor());
+            this.getResActor().peekNext("predResult");//优先处理谓词返回
         }
     }
 
@@ -368,9 +382,10 @@ public class MyStateActor extends AbstractActor {
             State state = (State)((ActorTask)(actor.getMyStack()).peek()).getObject();//上级actor的栈顶 state
             if(state instanceof StateT1){
                 getManager().send(new DefaultMessage("pathResult", actorTask), this, actor);
-            }else return false;//栈顶要是谓词，则标签是传不过去的
+            }else return false;//栈顶要是谓词(T1-6.preds)，则标签是传不过去的
 
         }
+        //this.peekNext("pathResult");//优先处理path返回
         return true;
     }
 
@@ -383,6 +398,7 @@ public class MyStateActor extends AbstractActor {
         if (wtask.isSatisfiedOut()) {//当前 wt 满足输出条件
             if(this.getName().equals("stackActor") && (currstack.size()==1)){//在stack中
                 this.output(wtask);
+                ((State)task.getObject()).removeWTask(wtask);
             }else { //（在stack中 && 作为T1-5的后续path ） 或者  （作为后续 path 的一部分在path栈）
                 ((State)task.getObject()).removeWTask(wtask);
                 boolean isSent=this.sendPathResult(new ActorTask(id, wtask.getPathR(),isInSelf));

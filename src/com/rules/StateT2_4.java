@@ -55,7 +55,6 @@ public class StateT2_4 extends StateT2 implements Cloneable{
     }
 
     public void endElementDo(String tag,int layer,MyStateActor curactor) {
-        // 自己能遇到上层结束标签，谓词检查失败，弹栈 && remove 等待当前栈顶T2-4结果的 wt
         if (layer == getLevel() - 1) {
             Stack ss=curactor.getMyStack();
             ActorTask atask=((ActorTask) ss.peek());//(id,T2-4,isInself)

@@ -32,7 +32,7 @@ public class StateT1_3 extends StateT1 implements Cloneable {
         if(tag.equals(_test)){//遇到自己的结束标签，检查自己的list中的最后一个 wt -->输出/上传/remove
             //本来上传list中的最后一个 wt即可，但
             //T1-6.path时，谓词未检查成功就传不过去，T1-3.list.size>=1;
-            for(int i=getList().size()-1;i>=0;i--){
+            for(int i=(getList().size()-1);i>=0;i--){
                 WaitTask wtask=(WaitTask) getList().get(i);
                 if(wtask.getId()>=layer){//只上传/输出当前layer及其layer下的福和的标签
                     curactor.doNext(wtask);

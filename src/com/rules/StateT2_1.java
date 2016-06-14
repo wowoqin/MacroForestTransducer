@@ -23,11 +23,11 @@ public class StateT2_1 extends StateT2 {
     public void startElementDo(String tag, int layer, MyStateActor curactor) throws CloneNotSupportedException { // layer 是当前 tag 的层数
         if ((getLevel() == layer) && (tag.equals(_test))) {// T2-1 检查成功
             Stack ss=curactor.getMyStack();
-            ActorTask atask=((ActorTask) ss.peek());
+            ActorTask atask=((ActorTask) ss.peek());//(id,T2-1,inInSelf)
             int id=atask.getId();
             boolean isInSelf=atask.isInSelf();
 
-            List list=this.getList();
+            List list=this.getList();//T2-1.list
             if(!list.isEmpty()){  //T3-1
                 WaitState waitState=new WaitState();
                 waitState.setLevel(((State) atask.getObject()).getLevel());
@@ -35,7 +35,7 @@ public class StateT2_1 extends StateT2 {
                 curactor.popFunction();
                 //(id,T2-1,isInself) 换为 （id,qw,isInself）
                 curactor.pushTaskDo(new ActorTask(id, waitState, isInSelf));
-                //设置 T3-1.q'''检查成功（发消息是因为万一q''线检查成功了呢）
+                //设置 T3-1.q'''检查成功（发消息是因为万一q''已经是检查成功的了呢）
                 curactor.sendPredsResult(new ActorTask(id, true, true));//确定是给自己的
             }else{  //T2-1
                 //发送谓词结果 && pop 当前栈顶
@@ -48,8 +48,7 @@ public class StateT2_1 extends StateT2 {
     }
 
     public void endElementDo(String tag, int layer, MyStateActor curactor) {
-        // 自己能遇到上层结束标签，谓词检查失败，弹栈 && remove 等待当前栈顶T2-1结果的 wt
-        if (layer == getLevel() - 1) {
+        if (layer == getLevel() - 1) {//遇到上层结束标签
             Stack ss=curactor.getMyStack();
             ActorTask atask=((ActorTask) ss.peek());//栈顶(id,T2-1,isInself)
             int id=atask.getId();

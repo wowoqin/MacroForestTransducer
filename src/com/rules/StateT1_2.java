@@ -1,6 +1,7 @@
 package com.rules;
 
 import com.XPath.PathParser.ASTPath;
+import com.ibm.actor.DefaultMessage;
 import com.taskmodel.ActorTask;
 import com.taskmodel.WaitTask;
 
@@ -37,8 +38,10 @@ public class StateT1_2 extends StateT1 {
                 WaitTask wtask=(WaitTask) getList().get(i);
                 if(wtask.hasReturned()){
                     curactor.doNext(wtask);
-                }else{//等待--谓词是弹栈了，但谓词返回的消息还没传回来
-                    actorManager.awaitMessage(curactor);
+                }else{//等待--谓词是弹栈了，但谓词检查的消息已经发出去了，但是或许还没接收到，或许接收到了还没设置完成
+                    //当前结束标签先不处理
+                    curactor.addMessage(new DefaultMessage("endE", new ActorTask(layer,tag)));
+                    curactor.peekNext("predR");//优先处理谓词返回结果的消息
                     while(wtask.hasReturned())
                         curactor.doNext(wtask);
                 }

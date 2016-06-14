@@ -32,7 +32,7 @@ public class WaitState extends State {
                 if(state instanceof StateT1_2 || state instanceof StateT1_6){
                     state.endElementDo(tag, layer, curactor);
                 }else if(((state instanceof StateT2_3) || (state instanceof StateT2_4))
-                                                && (!atask.isInSelf())){// T2-3 作为 AD 轴test的谓词
+                                                && (!atask.isInSelf())){// T2-3 /T2_4 作为 AD 轴test的谓词
                     curactor.processSameADPred();
                 }
             }else {

@@ -55,13 +55,18 @@ public class StateT1_4 extends StateT1 implements Cloneable {
     public void endElementDo(String tag,int layer,MyStateActor curactor) {
         if (tag.equals(_test)) {//遇到自己的结束标签，检查自己的list中的最后一个 wt -->输出/上传/remove/等待
             //T1-6.path时，谓词未检查成功就传不过去，T1-4.list.size>=1;
-            for(int i=getList().size()-1;i>=0;i--) {
+            for(int i=(getList().size()-1);i>=0;i--) {
                 WaitTask wtask = (WaitTask) getList().get(i);
                 if (wtask.getId() >= layer) {
                     if(wtask.hasReturned()){
                         curactor.doNext(wtask);
-                    }else{//等待
+                    }else{
+                        //挂起当前结束标签
+                        curactor.addMessage(new DefaultMessage("endE", new ActorTask(layer,tag)));
+                        //-->//a[][][],在等待谓词返回消息的时候，也许还会遇到test，
+                        // 需要把其他来的标签都挂起，因为该结束标签是一定要对其进行处理的，还要优先处理谓词返回结果
                         actorManager.awaitMessage(curactor);
+                        curactor.peekNext("predR");//优先处理谓词返回结果的消息
                         while(wtask.hasReturned())
                             curactor.doNext(wtask);
                     }
