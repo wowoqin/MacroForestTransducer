@@ -63,6 +63,9 @@ public class WaitTask {   // 在 actor 的list 中添加的任务
         return (isPredsTrue() && (getPathR()!=null) && (!getPathR().equals("NF")));
     }
 
+    public boolean isPathNotNull(){
+        return (getPathR()!=null);
+    }
     public  boolean isPredsSatisified(){ //wt作为一个谓词，检查成功 (id,true,"true")
         return (isPredsTrue() && getPathR().equals("true"));
     }

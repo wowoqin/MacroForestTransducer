@@ -26,9 +26,9 @@ public class SaxTest {
         //MySaxParser dh = new MySaxParser("/a/c[/b][/d]");
         //MySaxParser dh = new MySaxParser("/a/c/d[/a]");
         File f = new File("test8.xml");
-        //MySaxParser dh = new MySaxParser("/a[/b]");
+        MySaxParser dh = new MySaxParser("/a[/b]");
         //MySaxParser dh = new MySaxParser("//a[/b]//d");
-        MySaxParser dh = new MySaxParser("/a[/b[/c]]/e[/f]");
+        //MySaxParser dh = new MySaxParser("/a[/b[/c]]/e[/f]");
         //MySaxParser dh = new MySaxParser("//a[/d]/c[/b[//g]]");
         parser.parse(f, dh);
         //主线程等待所有子线程结束才结束

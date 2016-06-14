@@ -76,24 +76,4 @@ public class StateT1 extends State implements Cloneable {
     @Override
     public void endElementDo(String tag,int layer,MyStateActor curactor){}
 
-    public void processSelfEndTag(int layer,MyStateActor curactor){
-        List list=curactor.getTlist();//当前actor的list
-        for(int i=list.size()-1;i>=0;i--){
-            WaitTask wtask = (WaitTask)list.get(i);
-            if (wtask.getId()==layer){//找到id==layer的 wt
-                if(wtask.hasReturned()){
-                    curactor.doNext(wtask);
-                }else{//到自己的结束标签,后续actor还没做完，则当前actro应该等其它actor做完再判断；
-                    actorManager.awaitMessage(curactor);
-                    while (wtask.hasReturned()) {
-                        curactor.doNext(wtask);
-                    }
-                }
-            }else if(wtask.getId()<layer){
-                return;
-            }
-            //id>layer,则下一次循环
-        }
-    }
-
 }

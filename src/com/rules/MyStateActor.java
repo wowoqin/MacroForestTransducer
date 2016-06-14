@@ -19,19 +19,14 @@ public class MyStateActor extends AbstractActor {
     protected Stack myStack;//每个actor 中应该有一个 stack ，也就是一个 stack 对应于一个 actor
     protected Actor resActor;//上级 Actor
 
-    protected List tlist;// 存放等待匹配的任务 list
 
-    public MyStateActor(){
-        tlist=new ArrayList();
-    }
+    public MyStateActor(){}
 
     public Stack getMyStack() {
         return myStack;
     }
 
-    public List getTlist() {
-        return tlist;
-    }
+
 
     public void setMyStack(Stack myStack) {
         this.myStack = myStack;
@@ -201,17 +196,14 @@ public class MyStateActor extends AbstractActor {
                }else if("pathResult".equals(subject)){ // actorTask,并且 data 是一个q''的返回结果（String）
                     // 在 waitTask 中找到相应的ID，然后将后续 path 检查的结果 重新赋值
                    ActorTask atask = (ActorTask) ss.peek();//栈顶task
-                   int id = atask.getId();
                    State state = (State) atask.getObject();//栈顶 state
                    //给栈顶q.list中的 wt 赋值
                    List list=state.getList();
-                   for(int i=list.size()-1;i>=0;i--){
-                       WaitTask wt = (WaitTask) (list.get(i));
-                       if(wt.getPathR()!=null){// 已经有后续path检查成功的相同层级的结果
-                           list.add(i+1,wt);
-                       }else{
-                           wt.setPathR((String) (task.getObject()));
-                       }
+                   WaitTask wt = (WaitTask) (list.get(list.size()-1));
+                   if(wt.getPathR()!=null){// 已经有后续path检查成功的相同层级的结果
+                       list.add(wt);
+                   }else{
+                       wt.setPathR((String) (task.getObject()));
                    }
                }else{                              // actorTask,并且 data 是一个qName（String）
                     if (!ss.isEmpty()) {
@@ -368,12 +360,18 @@ public class MyStateActor extends AbstractActor {
         }
     }
 
-    public void sendPathResult(ActorTask actorTask){// path检查成功，上传结果（id，tag）给相应的 wt
+    public boolean sendPathResult(ActorTask actorTask){// path检查成功，上传结果（id，tag）给相应的 wt
         if(actorTask.isInSelf()){
             getManager().send(new DefaultMessage("pathResult",actorTask), this, this);
         }else{
-            getManager().send(new DefaultMessage("pathResult", actorTask), this, this.getResActor());
+            MyStateActor actor=(MyStateActor)this.getResActor();//上级actor
+            State state = (State)((ActorTask)(actor.getMyStack()).peek()).getObject();//上级actor的栈顶 state
+            if(state instanceof StateT1){
+                getManager().send(new DefaultMessage("pathResult", actorTask), this, actor);
+            }else return false;//栈顶要是谓词，则标签是传不过去的
+
         }
+        return true;
     }
 
     public void doNext(WaitTask wtask){   //输出/上传/remove/
@@ -384,10 +382,14 @@ public class MyStateActor extends AbstractActor {
 
         if (wtask.isSatisfiedOut()) {//当前 wt 满足输出条件
             if(this.getName().equals("stackActor") && (currstack.size()==1)){//在stack中
-                this.output(wtask);//也许有多个输出，此时不return；
-            }else { //（在stack中 && 作为T1-5的后续path ） 或者  （作为AD 轴后续 path 的一部分）
+                this.output(wtask);
+            }else { //（在stack中 && 作为T1-5的后续path ） 或者  （作为后续 path 的一部分在path栈）
                 ((State)task.getObject()).removeWTask(wtask);
-                this.sendPathResult(new ActorTask(id, wtask.getPathR(),isInSelf));
+                boolean isSent=this.sendPathResult(new ActorTask(id, wtask.getPathR(),isInSelf));
+                //作为T1-6的后续path的返回结果，若当前时刻其preds还未检查完成，则需要先寄存在当前state.list中，
+                //直到遇到T1-6的结束标签,将当前list中所有的满足的wt都上传
+                if(!isSent)
+                    ((State)task.getObject()).addWTask(wtask);
             }
         }else{//到自己的结束标签，当前wt不满足输出条件
             ((State)task.getObject()).removeWTask(wtask);
@@ -408,15 +410,8 @@ public class MyStateActor extends AbstractActor {
         getManager().detachActor(this);
     }
 
-    public void removeWTask(WaitTask wt){
-        this.tlist.remove(wt);
-    }
 
     public void output(WaitTask wt){
         wt.output();
-    }
-
-    public void addWTask(WaitTask wt){
-        this.tlist.add(wt);
     }
 }

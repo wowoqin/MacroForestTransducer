@@ -54,13 +54,18 @@ public class StateT1_4 extends StateT1 implements Cloneable {
     @Override
     public void endElementDo(String tag,int layer,MyStateActor curactor) {
         if (tag.equals(_test)) {//遇到自己的结束标签，检查自己的list中的最后一个 wt -->输出/上传/remove/等待
-            WaitTask wtask=(WaitTask) getList().get(getList().size()-1);
-            if(wtask.hasReturned()){
-                curactor.doNext(wtask);
-            }else{//等待
-                actorManager.awaitMessage(curactor);
-                while(wtask.hasReturned())
-                    curactor.doNext(wtask);
+            //T1-6.path时，谓词未检查成功就传不过去，T1-4.list.size>=1;
+            for(int i=getList().size()-1;i>=0;i--) {
+                WaitTask wtask = (WaitTask) getList().get(i);
+                if (wtask.getId() >= layer) {
+                    if(wtask.hasReturned()){
+                        curactor.doNext(wtask);
+                    }else{//等待
+                        actorManager.awaitMessage(curactor);
+                        while(wtask.hasReturned())
+                            curactor.doNext(wtask);
+                    }
+                }else return;
             }
         }else if (layer == getLevel() - 1) { // 遇到上层结束标签
             // (能遇到上层结束标签，即T1-2作为一个后续的path（T1-5 的时候也会放在stackActor中），T1-6~T1-8会被放在paActor中)
