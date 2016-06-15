@@ -46,7 +46,8 @@ public class StateT1_1 extends StateT1 {
                 boolean isInSelf=task.isInSelf();
                 WaitTask wt=(WaitTask)getList().get(0);
                 for(int i=0;i<list.size();i++){//多个满足的标签,
-                    curactor.sendPathResult(new ActorTask(id,wt.getPathR(),isInSelf));
+                    //此时无论如何都需要把消息传过去，即使先不处理(谓词优先)
+                    curactor.sendPathResults(new ActorTask(id,wt.getPathR(),isInSelf));
                 }
             }
             //pop(T1-1)

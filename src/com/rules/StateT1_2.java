@@ -60,7 +60,7 @@ public class StateT1_2 extends StateT1 {
                     curactor.sendPathResult(new ActorTask(id,wt.getPathR(),isInSelf));
                 }
             }
-            //pop(T1-1)
+            //pop(T1-2)
             curactor.popFunction();   // T1-2弹栈
             if(ss.isEmpty()) {   // 弹完之后当前actor 所在的stack 为空了，则删除当前 actor
                 actorManager.detachActor(curactor);

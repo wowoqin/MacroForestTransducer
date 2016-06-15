@@ -369,24 +369,32 @@ public class MyStateActor extends AbstractActor {
             getManager().send(new DefaultMessage("predResult",actorTask), this, this);
             this.peekNext("predResult");//优先处理谓词返回
         }else{
-            getManager().send(new DefaultMessage("predResult",actorTask), this, this.getResActor());
-            this.getResActor().peekNext("predResult");//优先处理谓词返回
+            Actor resActor=this.getResActor();
+            getManager().send(new DefaultMessage("predResult",actorTask), this, resActor);
+            resActor.peekNext("predResult");//优先处理谓词返回
         }
     }
 
     public boolean sendPathResult(ActorTask actorTask){// path检查成功，上传结果（id，tag）给相应的 wt
         if(actorTask.isInSelf()){
-            getManager().send(new DefaultMessage("pathResult",actorTask), this, this);
+            getManager().send(new DefaultMessage("pathResult", actorTask), this, this);
         }else{
             MyStateActor actor=(MyStateActor)this.getResActor();//上级actor
             State state = (State)((ActorTask)(actor.getMyStack()).peek()).getObject();//上级actor的栈顶 state
             if(state instanceof StateT1){
                 getManager().send(new DefaultMessage("pathResult", actorTask), this, actor);
-            }else return false;//栈顶要是谓词(T1-6.preds)，则标签是传不过去的
+            }else return false;//栈顶要是谓词(T1-6.preds)，则标签是传不过去的-->此时选择不传，等到下一结束标签或者是上级结束标签时再传
 
         }
-        //this.peekNext("pathResult");//优先处理path返回
         return true;
+    }
+
+    public void sendPathResults(ActorTask actorTask){
+        if(actorTask.isInSelf()){
+            getManager().send(new DefaultMessage("pathResult", actorTask), this, this);
+        }else{
+            getManager().send(new DefaultMessage("pathResult", actorTask), this, this.getResActor());
+            }
     }
 
     public void doNext(WaitTask wtask){   //输出/上传/remove/

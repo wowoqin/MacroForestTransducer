@@ -4,6 +4,7 @@ import com.XPath.PathParser.ASTPath;
 import com.taskmodel.ActorTask;
 import com.taskmodel.WaitTask;
 
+import java.util.List;
 import java.util.Stack;
 
 /**
@@ -42,7 +43,8 @@ public class StateT1_3 extends StateT1 implements Cloneable {
             // (能遇到上层结束标签，即T1-3作为一个后续的path（T1-5 的时候也会放在stackActor中），T1-6~T1-8会被放在paActor中)
             // T1-5 时，与T1-5 放在同一个栈，T1-6~T1-8 放在pathstack
             Stack ss=curactor.getMyStack();
-            if(!getList().isEmpty()){   //T1-3作为T1-6的后续path && T1-6的谓词后检查完成(弹栈)
+            List list=getList();
+            if(!list.isEmpty()){   //T1-3作为T1-6的后续path && T1-6的谓词后检查完成(弹栈)
                 //则此时是遇到的T1-6的结束标签（先传，后pop）
                 ActorTask task=(ActorTask)ss.peek();//(id,T1-3,isInSelf)
                 int id=task.getId(); // 当前栈顶 taskmodel 的 id

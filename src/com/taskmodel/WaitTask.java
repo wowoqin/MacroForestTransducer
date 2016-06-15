@@ -49,27 +49,41 @@ public class WaitTask {   // 在 actor 的list 中添加的任务
         this.pathR = pathR;
     }
 
+    public boolean isPredRTrue(){
+        if((getPredR()!=null) && getPredR())
+            return true;
+        return false;
+    }
+
+    public boolean pathRIsT1(){//tag 或者“NF”
+        return (getPathR()!=null && getPathR()!="true");
+    }
+
+    public boolean pathRIsT3(){//"true"/"false"
+        return (getPathR()!=null && (getPathR()=="true" || getPathR()=="false"));
+    }
+
     public boolean hasReturned(){
-        return (getPredR()!=null && getPathR()!=null);
+        return ((getPredR()!=null) && (getPathR()!=null));
     }
 
     public boolean isSatisfiedOut() { // 检查当前 waitTask 是不是已经满足输出条件（可以进行输出操作了）
-        return (getPredR() && (getPathR()!=null) && (!getPathR().equals("NF")));
+        return (isPredRTrue() && (pathRIsT1()) && (!getPathR().equals("NF")));
     }
 
     public boolean isPathNotNull(){
         return (getPathR()!=null);
     }
     public  boolean isPredsSatisified(){ //wt作为一个谓词，检查成功 (id,true,"true")
-        return (getPredR() && getPathR().equals("true"));
+        return (isPredRTrue() && (isPathNotNull() && getPathR().equals("true")));
     }
 
     public  boolean isWaitT3FirstPreds(){ //wt作为一个谓词T3，q''成功，q'''还没检查成功 //(id,false,"true")
-        return (!getPredR() && getPathR().equals("true"));
+        return (getPredR()==null && getPathR().equals("true"));
     }
 
     public  boolean isWaitT3ParallPreds(){ //wt作为一个谓词T3，q'''成功，q''还没检查成功 //(id,true,"false")
-        return (getPredR() && getPathR()==null);
+        return (isPredRTrue() && getPathR()==null);
     }
 
     public void output(){ //输出最终的检查结果
