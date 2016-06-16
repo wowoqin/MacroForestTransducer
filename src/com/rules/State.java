@@ -17,7 +17,7 @@ public  abstract class State  implements Cloneable {
     public static Map<String,Actor> actors=new HashMap<String, Actor>();// 所有的actor的 map < actorName,actor >
     public static List stacklist=new LinkedList();
 
-    public List list=new LinkedList();//每一个 state 有一个 list，存放其 wt
+    protected List list=new LinkedList();//每一个 state 有一个 list，存放其 wt
 
     public  abstract void startElementDo(String tag,int layer,MyStateActor curactor) throws CloneNotSupportedException;
     public  abstract void endElementDo(String tag,int layer,MyStateActor curactor);

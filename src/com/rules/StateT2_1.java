@@ -51,12 +51,10 @@ public class StateT2_1 extends StateT2 {
         if (layer == getLevel() - 1) {//遇到上层结束标签
             Stack ss=curactor.getMyStack();
             ActorTask atask=((ActorTask) ss.peek());//栈顶(id,T2-1,isInself)
-            int id=atask.getId();
-            boolean isInSelf=atask.isInSelf();
             //pop(T2-1)
             curactor.popFunction();
             //发消息（id,false,isInself）
-            curactor.sendPredsResult(new ActorTask(id,false, isInSelf));
+            curactor.sendPredsResult(new ActorTask(atask.getId(),false, atask.isInSelf()));
             //其实在此处还应该看T3-1.q''还在做检查否？是-->terminate
 
             //当前栈不为空，栈顶为 T1-2或者T1-6-->进行endElementDo 操作:输出/上传/remove/等待

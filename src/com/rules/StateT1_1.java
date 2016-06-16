@@ -5,6 +5,7 @@ import com.ibm.actor.DefaultMessage;
 import com.taskmodel.ActorTask;
 import com.taskmodel.WaitTask;
 
+import java.util.List;
 import java.util.Stack;
 
 /**
@@ -30,24 +31,29 @@ public class StateT1_1 extends StateT1 {
 
     public void endElementDo(String tag,int layer,MyStateActor curactor){
         // T1-1 不需要等待
-        if(tag.equals(_test)){//遇到自己的结束标签，检查自己的list中的 wt -->输出/上传/remove
-            //T1-6.path时，谓词未检查成功就传不过去，T1-1.list.size>=1;
-            for(int i=0;i<getList().size();i++){
-                curactor.doNext((WaitTask) getList().get(i));
-            }
+        if(tag.equals(_test)){//遇到自己的结束标签，检查自己的list中的 wt -->输出/remove
+            List list=getList();
+            curactor.doNext((WaitTask) list.get(0));
         }else if (layer == getLevel() - 1) { // 遇到上层结束标签
             // (能遇到上层结束标签，即T1-1作为一个后续的path（T1-5 的时候也会放在stackActor中），T1-6~T1-8会被放在paActor中)
             // T1-5 时，与T1-5 放在同一个栈，T1-6~T1-8 放在pathstack
             Stack ss=curactor.getMyStack();
-            if(!getList().isEmpty()){   //T1-1作为T1-6的后续path && T1-6的谓词后检查完成(弹栈)
-                //则此时是遇到的T1-6的结束标签（先传，后pop）
-                ActorTask task=(ActorTask)ss.peek();//(id,T1-1,isInSelf)
-                int id=task.getId(); // 当前栈顶 taskmodel 的 id
-                boolean isInSelf=task.isInSelf();
-                WaitTask wt=(WaitTask)getList().get(0);
+            ActorTask task=(ActorTask)ss.peek();//(id,T1-1,isInSelf)
+            List list=getList();
+            if(!list.isEmpty()){  //上传T1-1.test
+                WaitTask wt=(WaitTask)list.get(0);
                 for(int i=0;i<list.size();i++){//多个满足的标签,
-                    //此时无论如何都需要把消息传过去，即使先不处理(谓词优先)
-                    curactor.sendPathResults(new ActorTask(id,wt.getPathR(),isInSelf));
+                    //上传
+                    boolean isInself=task.isInSelf();
+                    if(isInself)//T1-5的后续path，则优先处理path的返回结果，而不是T1-5 的结束标签
+                        curactor.peekNext("pathResult");
+                    else{
+                        State state =(State)((ActorTask)
+                                (((MyStateActor)(curactor.getResActor())).getMyStack().peek())).getObject();
+                        if (state instanceof StateT1_7)
+                            curactor.peekNext("pathResult");
+                    }
+                    curactor.sendPathResults(new ActorTask(task.getId(), wt.getPathR(), isInself));
                 }
             }
             //pop(T1-1)

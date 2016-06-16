@@ -397,24 +397,25 @@ public class MyStateActor extends AbstractActor {
             }
     }
 
-    public void doNext(WaitTask wtask){   //输出/上传/remove/
+    public void doNext(WaitTask wtask){   //输出/remove
         Stack currstack=this.getMyStack();
         ActorTask task=(ActorTask)currstack.peek();
-        int id=task.getId(); // 当前栈顶 taskmodel 的 id
-        boolean isInSelf=task.isInSelf();
+//        int id=task.getId(); // 当前栈顶 taskmodel 的 id
+//        boolean isInSelf=task.isInSelf();
 
         if (wtask.isSatisfiedOut()) {//当前 wt 满足输出条件
             if(this.getName().equals("stackActor") && (currstack.size()==1)){//在stack中
                 this.output(wtask);
                 ((State)task.getObject()).removeWTask(wtask);
-            }else { //（在stack中 && 作为T1-5的后续path ） 或者  （作为后续 path 的一部分在path栈）
-                ((State)task.getObject()).removeWTask(wtask);
-                boolean isSent=this.sendPathResult(new ActorTask(id, wtask.getPathR(),isInSelf));
-                //作为T1-6的后续path的返回结果，若当前时刻其preds还未检查完成，则需要先寄存在当前state.list中，
-                //直到遇到T1-6的结束标签,将当前list中所有的满足的wt都上传
-                if(!isSent)
-                    ((State)task.getObject()).addWTask(wtask);
             }
+//            else { //（在stack中 && 作为T1-5的后续path ） 或者  （作为后续 path 的一部分在path栈）
+//                ((State)task.getObject()).removeWTask(wtask);
+//                boolean isSent=this.sendPathResult(new ActorTask(id, wtask.getPathR(),isInSelf));
+//                //作为T1-6的后续path的返回结果，若当前时刻其preds还未检查完成，则需要先寄存在当前state.list中，
+//                //直到遇到T1-6的结束标签,将当前list中所有的满足的wt都上传
+//                if(!isSent)
+//                    ((State)task.getObject()).addWTask(wtask);
+//            }
         }else{//到自己的结束标签，当前wt不满足输出条件
             ((State)task.getObject()).removeWTask(wtask);
         }
@@ -434,8 +435,14 @@ public class MyStateActor extends AbstractActor {
         getManager().detachActor(this);
     }
 
+    public void processSameADPath(State state,List list) {
+        for(int i=0;i<list.size();i++)
+            state.getList().add(list.get(i));
+    }
 
     public void output(WaitTask wt){
         wt.output();
     }
+
+
 }

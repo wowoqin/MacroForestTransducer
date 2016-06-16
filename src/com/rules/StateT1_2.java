@@ -5,6 +5,7 @@ import com.ibm.actor.DefaultMessage;
 import com.taskmodel.ActorTask;
 import com.taskmodel.WaitTask;
 
+import java.util.List;
 import java.util.Stack;
 
 /**
@@ -32,32 +33,34 @@ public class StateT1_2 extends StateT1 {
     }
 
     public void endElementDo(String tag,int layer,MyStateActor curactor){
+        //T1-2.preds压在T1-2 的上面，T1-2要想遇到自己的结束标签，则preds已经弹栈&&发回了检查结果：
+        // 而发回谓词检查结果的时候约定优先处理谓词返回结果，所以在处理自己的结束标签时，谓词已经设置完毕
         if (tag.equals(_test)) {// 遇到自己的结束标签，检查
             //T1-6.path时，谓词未检查成功就传不过去，T1-2.list.size>=1;
-            for(int i=0;i<getList().size();i++){
-                WaitTask wtask=(WaitTask) getList().get(i);
-                if(wtask.hasReturned()){
-                    curactor.doNext(wtask);
-                }else{//等待--谓词是弹栈了，但谓词检查的消息已经发出去了，但是或许还没接收到，或许接收到了还没设置完成
+            List list=getList();
+            WaitTask wtask=(WaitTask) list.get(0);
+            if(wtask.hasReturned()){
+                curactor.doNext(wtask);
+            }
+                else{//等待--谓词是弹栈了，但谓词检查的消息已经发出去了，但是或许还没接收到，或许接收到了还没设置完成
                     //当前结束标签先不处理
                     curactor.addMessage(new DefaultMessage("endE", new ActorTask(layer,tag)));
                     curactor.peekNext("predR");//优先处理谓词返回结果的消息
-                    while(wtask.hasReturned())
-                        curactor.doNext(wtask);
+//                    while(wtask.hasReturned())
+//                        curactor.doNext(wtask);
                 }
-            }
-        }else if (layer == getLevel() - 1) { // 遇到上层结束标签
+           // }
+        }else if (layer == getLevel() - 1) { // 遇到上层结束标签-->作为后续path
             // (能遇到上层结束标签，即T1-2作为一个后续的path（T1-5 的时候也会放在stackActor中），T1-6~T1-8会被放在paActor中)
             // T1-5 时，与T1-5 放在同一个栈，T1-6~T1-8 放在pathstack中
             Stack ss=curactor.getMyStack();
-            if(!getList().isEmpty()){   //T1-2作为T1-6的后续path && T1-6的谓词后检查完成(弹栈)
-                //则此时是遇到的T1-6的结束标签（先传，后pop）
-                ActorTask task=(ActorTask)ss.peek();//(id,T1-1,isInSelf)
-                int id=task.getId(); // 当前栈顶 taskmodel 的 id
-                boolean isInSelf=task.isInSelf();
-                WaitTask wt=(WaitTask)getList().get(0);
+            ActorTask task=(ActorTask)ss.peek();//(id,T1-1,isInSelf)
+            List list=((StateT1)task.getObject()).getList();
+            if(!list.isEmpty()){  //上传T1-2.test
+                WaitTask wt=(WaitTask)list.get(0);
                 for(int i=0;i<list.size();i++){//多个满足的标签,
-                    curactor.sendPathResult(new ActorTask(id,wt.getPathR(),isInSelf));
+                    //此时无论如何都需要把消息传过去，即使先不处理(谓词优先，path返回的消息放在messages中)
+                    curactor.sendPathResults(new ActorTask(task.getId(), wt.getPathR(), task.isInSelf()));
                 }
             }
             //pop(T1-2)
