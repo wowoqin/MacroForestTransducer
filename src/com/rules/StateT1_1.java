@@ -32,6 +32,7 @@ public class StateT1_1 extends StateT1 {
     public void endElementDo(String tag,int layer,MyStateActor curactor){
         // T1-1 不需要等待
         if(tag.equals(_test)){//遇到自己的结束标签，检查自己的list中的 wt -->输出/remove
+            System.out.println("T1-1遇到自己结束标签-->doNext");
             List list=getList();
             curactor.doNext((WaitTask) list.get(0));
         }else if (layer == getLevel() - 1) { // 遇到上层结束标签
@@ -41,17 +42,22 @@ public class StateT1_1 extends StateT1 {
             ActorTask task=(ActorTask)ss.peek();//(id,T1-1,isInSelf)
             List list=getList();
             if(!list.isEmpty()){  //上传T1-1.test
+                System.out.println("T1-1遇到上层结束标签-->传递结果");
                 WaitTask wt=(WaitTask)list.get(0);
-                for(int i=0;i<list.size();i++){//多个满足的标签,
-                    //上传
+                for(int i=0;i<list.size();i++){//也许会有多个满足的标签, /a/b  或者 //a/b-->都代表a的所有b孩子
+                    //都上传
                     boolean isInself=task.isInSelf();
-                    if(isInself)//T1-5的后续path，则优先处理path的返回结果，而不是T1-5 的结束标签
+                    if(isInself){//T1-5的后续path，则优先处理path的返回结果，而不是T1-5 的结束标签
+                        System.out.println("T1-1作为 T1-5 的 path-->T1-5应该先处理 pathR");
                         curactor.peekNext("pathResult");
+                    }
                     else{
                         State state =(State)((ActorTask)
                                 (((MyStateActor)(curactor.getResActor())).getMyStack().peek())).getObject();
-                        if (state instanceof StateT1_7)
+                        if (state instanceof StateT1_7){
+                            System.out.println("T1-1作为 T1-7 的 path--> T1-7应该先处理 pathR");
                             curactor.peekNext("pathResult");
+                        }
                     }
                     curactor.sendPathResults(new ActorTask(task.getId(), wt.getPathR(), isInself));
                 }

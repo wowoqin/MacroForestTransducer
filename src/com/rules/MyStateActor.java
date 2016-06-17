@@ -59,10 +59,21 @@ public class MyStateActor extends AbstractActor {
         return super.getMaxMessageCount();
     }
 
+    //@Override
+//    public void addMessage(DefaultMessage message){
+//        DefaultMessage[] messages=getMessages();
+//        synchronized (messages){
+//            for(int i=0;i<messages.length;i++){
+//                messages[i+1]=messages[i];
+//            }
+//            messages[0]=message;
+//        }
+//    }
+
     @Override
     protected void runBody() {
-        List list=State.stacklist;
-        this.setMyStack((Stack) list.get(list.size() - 1));
+//        List list=State.stacklist;
+//        this.setMyStack((Stack) list.get(list.size() - 1));
     }
 
     /* stateActor 能够接收到的消息：
@@ -78,8 +89,10 @@ public class MyStateActor extends AbstractActor {
         sleep(1);
         String subject = message.getSubject();
         Object data=message.getData();
-        if("resActor".equals(subject)){ //  data = null
+        if("resActor".equals(subject)){ //  data = stack
+            System.out.println("设置 " + this.getName() + " 的 resActor");
             this.setResActor(message.getSource());
+            this.setMyStack((Stack) data);
         }else if("setCategory".equals(subject)){    // actorTask,并且 data 是一个 string
             this.setCategory((String) data);
         }else{
@@ -92,6 +105,7 @@ public class MyStateActor extends AbstractActor {
                 State  currQ;
 
                if("pushTask".equals(subject)){       // actorTask,并且 data 是一个 q3
+                   System.out.println(this.getName()+" 是新建的，并进行压栈操作");
                    try {
                        this.pushTaskDo(task);
                    } catch (CloneNotSupportedException e) {
@@ -99,6 +113,7 @@ public class MyStateActor extends AbstractActor {
                    }
                }else if("predResult".equals(subject)){     // actorTask,并且 data 是一个q'的返回结果（True）
                    // 收到谓词返回结果后，在当前栈顶的state.list中找到相应的wt的ID，然后将谓词检查的结果重新赋值
+                   System.out.println(this.getName()+" 开始处理接收到的 predResult");
                    ActorTask atask = (ActorTask) ss.peek();//栈顶task
                    int id = atask.getId();
                    State state = (State) atask.getObject();//栈顶 state
@@ -110,8 +125,10 @@ public class MyStateActor extends AbstractActor {
                            wt.setPredR((Boolean)(task.getObject()));
                        }else {//消息来自下级 actor
                            if(message.getSource().getCategory().equals("T3PredsActor")){//T3的谓词栈
+                               System.out.println("loopBody 处理T3并列谓词返回结果");
                                wt.setPathR((String) (task.getObject()));
                            }else{  // T2
+                               System.out.println("loopBody 处理T2谓词的返回结果");
                                wt.setPredR((Boolean)(task.getObject()));
                            }
                        }
@@ -212,9 +229,12 @@ public class MyStateActor extends AbstractActor {
                    //给栈顶q.list中的 wt 赋值
                    List list=state.getList();
                    WaitTask wt = (WaitTask) (list.get(list.size()-1));
+                   System.out.println(state+" 在 loopbody 中处理传回的 pathResult");
                    if(wt.getPathR()!=null){// 已经有后续path检查成功的相同层级的结果
+                       System.out.println(state+" 的list 中已经有传回的 pathResults");
                        list.add(wt);
                    }else{
+                       System.out.println(state+" 的list 中还没有传回的 pathResults");
                        wt.setPathR((String) (task.getObject()));
                    }
                }else{                              // actorTask,并且 data 是一个qName（String）
@@ -224,12 +244,14 @@ public class MyStateActor extends AbstractActor {
                         String tag = (String)object;
                         int layer = task.getId();
                         if("startE".equals(subject)){
+                            System.out.println(this.getName()+" 在 loopBody 中接收到 startE："+tag);
                             try {
                                 currQ.startElementDo(tag, layer, this);
                             } catch (CloneNotSupportedException e) {
                                 e.printStackTrace();
                             }
                         }else if("endE".equals(subject)){
+                            System.out.println(this.getName()+" 在 loopBody 中接收到 endE："+tag);
                             currQ.endElementDo(tag, layer, this);
                         }
                     }
@@ -245,7 +267,10 @@ public class MyStateActor extends AbstractActor {
         State state=(State)(actorTask.getObject());     // 要压栈的 state
 
         if(state instanceof StateT1||state instanceof StateT2|| state instanceof WaitState){
-            curstack.push(actorTask);
+            if(curstack!=null){
+                curstack.push(actorTask);
+                System.out.println(this.getName()+" 中压入了"+ state);
+            }
         }else {
             int id=actorTask.getId();
             boolean isInSelf=actorTask.isInSelf();
@@ -360,24 +385,31 @@ public class MyStateActor extends AbstractActor {
 
     public void popFunction(){
         Stack currStack = this.getMyStack();
-        if(!currStack.isEmpty())
+        if(!currStack.isEmpty()){
+            System.out.println(this.getName()+" popFunction");
             currStack.pop();
+        }
     }
 
     public void sendPredsResult(ActorTask actorTask){// 谓词检查成功，上传结果（id，true）给相应的 wt
+        DefaultMessage message=new DefaultMessage("predResult",actorTask);
         if(actorTask.isInSelf()){
-            getManager().send(new DefaultMessage("predResult",actorTask), this, this);
+            System.out.println(this.getName()+" sendPredResults  To 自己");
+            getManager().send(message, this, this);
             this.peekNext("predResult");//优先处理谓词返回
         }else{
+            System.out.println(this.getName()+" sendPredResults  To 上级");
             Actor resActor=this.getResActor();
-            getManager().send(new DefaultMessage("predResult",actorTask), this, resActor);
+            getManager().send(message, this, resActor);
             resActor.peekNext("predResult");//优先处理谓词返回
         }
     }
 
     public boolean sendPathResult(ActorTask actorTask){// path检查成功，上传结果（id，tag）给相应的 wt
         if(actorTask.isInSelf()){
-            getManager().send(new DefaultMessage("pathResult", actorTask), this, this);
+            System.out.println(this.getName()+" sendPathResults  To self");
+            DefaultMessage message=new DefaultMessage("pathResult", actorTask);
+            getManager().send(message, this, this);
         }else{
             MyStateActor actor=(MyStateActor)this.getResActor();//上级actor
             State state = (State)((ActorTask)(actor.getMyStack()).peek()).getObject();//上级actor的栈顶 state
@@ -390,21 +422,23 @@ public class MyStateActor extends AbstractActor {
     }
 
     public void sendPathResults(ActorTask actorTask){
+        DefaultMessage message=new DefaultMessage("pathResult", actorTask);
         if(actorTask.isInSelf()){
-            getManager().send(new DefaultMessage("pathResult", actorTask), this, this);
+            System.out.println(this.getName()+" sendPathResults  To self");
+            getManager().send(message, this, this);
         }else{
-            getManager().send(new DefaultMessage("pathResult", actorTask), this, this.getResActor());
+            System.out.println(this.getName()+" sendPathResults  To res");
+            getManager().send(message, this, this.getResActor());
             }
     }
 
     public void doNext(WaitTask wtask){   //输出/remove
         Stack currstack=this.getMyStack();
         ActorTask task=(ActorTask)currstack.peek();
-//        int id=task.getId(); // 当前栈顶 taskmodel 的 id
-//        boolean isInSelf=task.isInSelf();
 
         if (wtask.isSatisfiedOut()) {//当前 wt 满足输出条件
             if(this.getName().equals("stackActor") && (currstack.size()==1)){//在stack中
+                System.out.println( this.getName()+" doNext && 成功输出");
                 this.output(wtask);
                 ((State)task.getObject()).removeWTask(wtask);
             }
@@ -417,11 +451,13 @@ public class MyStateActor extends AbstractActor {
 //                    ((State)task.getObject()).addWTask(wtask);
 //            }
         }else{//到自己的结束标签，当前wt不满足输出条件
+            System.out.println( this.getName()+" doNext && 失败移除");
             ((State)task.getObject()).removeWTask(wtask);
         }
     }
 
     public void processSameADPred(){
+        System.out.println(this.getName()+" processSameADPred");
         Stack currstack=this.getMyStack();
 
         while(!currstack.isEmpty()){
@@ -436,8 +472,26 @@ public class MyStateActor extends AbstractActor {
     }
 
     public void processSameADPath(State state,List list) {
+        System.out.println(this.getName()+" processSameADPath");
         for(int i=0;i<list.size();i++)
             state.getList().add(list.get(i));
+    }
+
+    public void createAnotherActor(String name,Stack stack,ActorTask task){
+        System.out.println(this.getName() + " 创建下级 Actor");
+        Actor actor=getManager().createAndStartActor(this.getClass(), name);
+        State.actors.put(name, actor);
+        System.out.println(actor.getName()+" 与栈相关联");
+        ((MyStateActor) actor).setMyStack(stack);
+        //System.out.println(State.actors.size());
+        System.out.println("设置 "+this.getName()+" 的上级 Actor");
+        ((MyStateActor)actor).setResActor(this);
+        try {
+            ((MyStateActor)actor).pushTaskDo(task);
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
+
     }
 
     public void output(WaitTask wt){

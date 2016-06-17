@@ -40,19 +40,20 @@ public class StateT3 extends  State implements Cloneable{
 
     public static State TranslateStateT3(ASTPreds preds){
     //根据轴类型选择性的调用T3规则
-        if(preds.getRemainderPreds().toString().equals(""))
+        if(preds.getRemainderPreds().toString().equals("")){
             return StateT2.TranslateStateT2(preds);
-
-        if(preds.getFirstStep().getAxisType()== AxisType.PC)
-        {
-            if (preds.getFirstStep().getPreds().toString().equals(""))
-                return StateT3_1.TranslateState(preds);
-            return StateT3_2.TranslateState(preds);
+        }else{
+            if(preds.getFirstStep().getAxisType()== AxisType.PC)
+            {
+                if (preds.getFirstStep().getPreds().toString().equals(""))
+                    return StateT3_1.TranslateState(preds);
+                return StateT3_2.TranslateState(preds);
+            }else{
+                if (preds.getFirstStep().getPreds().toString().equals(""))//AD
+                    return StateT3_4.TranslateState(preds);
+                return StateT3_4.TranslateState(preds);
+            }
         }
-        if (preds.getFirstStep().getPreds().toString().equals(""))//AD
-            return StateT3_4.TranslateState(preds);
-        return StateT3_4.TranslateState(preds);
-
     }
 
 

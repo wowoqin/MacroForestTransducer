@@ -38,18 +38,22 @@ public class StateT1_2 extends StateT1 {
         if (tag.equals(_test)) {// 遇到自己的结束标签，检查
             //T1-6.path时，谓词未检查成功就传不过去，T1-2.list.size>=1;
             List list=getList();
-            WaitTask wtask=(WaitTask) list.get(0);
-            if(wtask.hasReturned()){
-                curactor.doNext(wtask);
-            }
-                else{//等待--谓词是弹栈了，但谓词检查的消息已经发出去了，但是或许还没接收到，或许接收到了还没设置完成
-                    //当前结束标签先不处理
-                    curactor.addMessage(new DefaultMessage("endE", new ActorTask(layer,tag)));
-                    curactor.peekNext("predR");//优先处理谓词返回结果的消息
-//                    while(wtask.hasReturned())
-//                        curactor.doNext(wtask);
+            if(!list.isEmpty()){
+                WaitTask wtask=(WaitTask) list.get(0);
+                if(wtask.hasReturned()){
+                    System.out.println("T1-2遇到自己结束标签 && 谓词结果已处理完毕");
+                    curactor.doNext(wtask);
                 }
-           // }
+                else{//等待--谓词是弹栈了，但谓词检查的消息已经发出去了，但是或许还没接收到，或许接收到了还没设置完成
+                //当前结束标签先不处理
+                    if(curactor.getMessageCount()==1){
+                        if(curactor.getMessages()[0].getSubject().equals("predResult"))
+                            System.out.println("T1-2遇到自己结束标签 && 谓词结果返回还未处理");
+                    }
+                    System.out.println("T1-2.messages.add(T1-2的结束标签)-->等predResult处理完毕再处理");
+                    curactor.addMessage(new DefaultMessage("endE", new ActorTask(layer, tag)));
+                }
+            }
         }else if (layer == getLevel() - 1) { // 遇到上层结束标签-->作为后续path
             // (能遇到上层结束标签，即T1-2作为一个后续的path（T1-5 的时候也会放在stackActor中），T1-6~T1-8会被放在paActor中)
             // T1-5 时，与T1-5 放在同一个栈，T1-6~T1-8 放在pathstack中

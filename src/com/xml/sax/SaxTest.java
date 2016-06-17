@@ -32,6 +32,8 @@ public class SaxTest {
         //System.out.println(State.actorManager.getActiveRunnableCount());
         //if(State.actorManager.getActiveRunnableCount()>=1){
             //把所有子线程join到main中--》得到子线程的名称
+        //State.actorManager.terminateAndWait();
+
         for(String key:State.actors.keySet()){
             Actor actor=State.actors.get(key);
             if(!actor.isShutdown()){

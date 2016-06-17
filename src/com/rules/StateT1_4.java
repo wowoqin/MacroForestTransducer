@@ -28,25 +28,34 @@ public class StateT1_4 extends StateT1 implements Cloneable {
 
     public void startElementDo(String tag,int layer,MyStateActor curactor) throws CloneNotSupportedException{
         if ((layer >= getLevel()) && (tag.equals(_test))) {
+            System.out.println("T1-4.startElementDo中，当前actor的数量：" + actors.size());
             // 在 list 中添加需要等待匹配的任务模型
             addWTask(new WaitTask(layer, null, tag));
 
             String name=((Integer)this._predstack.hashCode()).toString().concat("T1-4.prActor");
             Actor actor=(actors.get(name));// preds 的 actor
             if(actor == null){// 若谓词 actor 还没有创建 --> _predstack 一定为空
-                stacklist.add(this._predstack);
-                actor =actorManager.createAndStartActor(MyStateActor.class, name);
-                actors.put(name, actor);
-
-                actorManager.send(new DefaultMessage("resActor", null), curactor, actor);
-                //发送 q' 给 prActor
+                System.out.println("T1-4.test匹配 && 谓词actor == null");
                 _q3.setLevel(layer + 1);
-                actorManager.send(new DefaultMessage("pushTask", new ActorTask(layer,_q3,false)),curactor,actor);
+                curactor.createAnotherActor(name,this._predstack,new ActorTask(layer,_q3,false));
+                //actor =actorManager.createAndStartActor(MyStateActor.class, name);
+//                actors.put(name, actor);
+//                System.out.println("T1-4.predActor 创建后，当前actor的数量：" + actors.size());
+//
+//
+//                dmessage=new DefaultMessage("resActor", null);
+//                actorManager.send(dmessage, curactor, actor);
+//                //发送 q' 给 prActor
+//                _q3.setLevel(layer + 1);
+//                dmessage=new DefaultMessage("pushTask", new ActorTask(layer,_q3,false));
+//                actorManager.send(dmessage,curactor,actor);
             }
             else{  // 若谓词 actor 已经创建了,则发送 q' 给 prActor即可
+                System.out.println("T1-4.test匹配 && 谓词actor != null" + "当前actor的数量：" + actors.size());
                 State currQ=(State)_q3.copy();
                 currQ.setLevel(layer + 1);
-                actorManager.send(new DefaultMessage("pushTask",new ActorTask(layer,currQ,false)), curactor, actor);
+                dmessage=new DefaultMessage("pushTask",new ActorTask(layer,currQ,false));
+                actorManager.send(dmessage, curactor, actor);
             }
         }
     }
@@ -62,13 +71,13 @@ public class StateT1_4 extends StateT1 implements Cloneable {
 //                        curactor.doNext(wtask);
 //                    }else{
 //                        //挂起当前结束标签
-//                        curactor.addMessage(new DefaultMessage("endE", new ActorTask(layer,tag)));
+//                        curactor.addMessage(new DefaultMessage("endE", new ActorTask(layer, tag)));
 //                        //-->//a[][][],在等待谓词返回消息的时候，也许还会遇到test，
 //                        // 需要把其他来的标签都挂起，因为该结束标签是一定要对其进行处理的，还要优先处理谓词返回结果
 //                        actorManager.awaitMessage(curactor);
-//                        curactor.peekNext("predR");//优先处理谓词返回结果的消息
-//                        while(wtask.hasReturned())
-//                            curactor.doNext(wtask);
+//                        curactor.peekNext("predResult");//优先处理谓词返回结果的消息
+////                        while(wtask.hasReturned())
+////                            curactor.doNext(wtask);
 //                    }
 //                }else return;
 //            }
@@ -76,16 +85,29 @@ public class StateT1_4 extends StateT1 implements Cloneable {
             List list=getList();
             WaitTask wtask = (WaitTask) getList().get(list.size()-1);
             if(wtask.hasReturned()){
+                System.out.println("T1-4遇到自己结束标签 && 谓词结果已处理完毕");
                 curactor.doNext(wtask);
-            }else{
+            }else{//等待--谓词检查的消息已经发出去了，但是或许还没接收到，或许接收到了还没设置完成
+                //当前结束标签先不处理
+                //System.out.println(curactor.getMessageCount());
+                if(curactor.getMessageCount()==0){
+                    System.out.println("T1-4遇到自己结束标签 && 谓词结果已被处理 && 还未处理完成");
+                    actorManager.awaitMessage(curactor);
+                    while(wtask.hasReturned())
+                        curactor.doNext(wtask);
+                } else if(curactor.getMessageCount()==1){
+                    if(curactor.getMessages()[0].getSubject().equals("predResult"))
+                        System.out.println("T1-4遇到自己结束标签 && 谓词结果返回还未处理");
+                }
                 //挂起当前结束标签
-                curactor.addMessage(new DefaultMessage("endE", new ActorTask(layer,tag)));
+                //curactor.addMessage(new DefaultMessage("endE", new ActorTask(layer,tag)));
                 //-->//a[][][],在等待谓词返回消息的时候，也许还会遇到test，
                 // 需要把其他来的标签都挂起，因为该结束标签是一定要对其进行处理的，还要优先处理谓词返回结果
                // actorManager.awaitMessage(curactor);
-                curactor.peekNext(null);//优先处理谓词返回结果的消息
-                while(wtask.hasReturned())
-                    curactor.doNext(wtask);
+//                curactor.peekNext(null);//优先处理谓词返回结果的消息
+
+//                while(wtask.hasReturned())
+//                    curactor.doNext(wtask);
             }
         }else if (layer == getLevel() - 1) { // 遇到上层结束标签
             // (能遇到上层结束标签，即T1-2作为一个后续的path（T1-5 的时候也会放在stackActor中），T1-6~T1-8会被放在paActor中)

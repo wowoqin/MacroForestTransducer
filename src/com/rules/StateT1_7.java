@@ -27,6 +27,7 @@ public class StateT1_7 extends StateT1 implements Cloneable{
 
     public void startElementDo(String tag, int layer,MyStateActor curactor) throws CloneNotSupportedException{
         if ((layer >= getLevel()) && (tag.equals(_test))) {
+            System.out.println("T1-7.startElementDo中，当前actor的数量：" + actors.size());
             // 在 tlist 中添加需要等待匹配的任务模型
             addWTask(new WaitTask(layer,true,null));
 
@@ -34,18 +35,22 @@ public class StateT1_7 extends StateT1 implements Cloneable{
             Actor actor=(actors.get(name));// path的 actor
 
             if(actor == null){  // 若pathActor 还没有创建 --> _pathstack 一定为空
-                stacklist.add(this._pathstack);
-                actor =actorManager.createAndStartActor(MyStateActor.class, name);
-                actors.put(actor.getName(), actor);
-
-                actorManager.send(new DefaultMessage("resActor", null), curactor, actor);
-                //发送 q'' 给 paActor
+                System.out.println("T1-7.test匹配 && pathactor == null");
                 _q1.setLevel(layer + 1);
-                actorManager.send(new DefaultMessage("pushTask", new ActorTask(layer,_q1,false)),curactor,actor);
+                curactor.createAnotherActor(name, this._pathstack, new ActorTask(layer, _q1, false));
+//                actor =actorManager.createAndStartActor(MyStateActor.class, name);
+//                actors.put(actor.getName(), actor);
+//
+//                actorManager.send(new DefaultMessage("resActor", null), curactor, actor);
+//                //发送 q'' 给 paActor
+//                _q1.setLevel(layer + 1);
+//                actorManager.send(new DefaultMessage("pushTask", new ActorTask(layer,_q1,false)),curactor,actor);
             } else{  // 若path  actor 已经创建了,则发送 q'' 给 paActor即可
+                System.out.println("T1-7.test匹配 && pathactor != null，当前actor的数量：" + actors.size());
                 State currQ=(State)_q1.copy();
                 currQ.setLevel(layer + 1);
-                actorManager.send(new DefaultMessage("pushTask",new ActorTask(layer,currQ,false)), curactor, actor);
+                dmessage=new DefaultMessage("pushTask",new ActorTask(layer,currQ,false));
+                actorManager.send(dmessage, curactor, actor);
 
             }
         }
@@ -59,11 +64,9 @@ public class StateT1_7 extends StateT1 implements Cloneable{
                     curactor.doNext(wtask);
                 }else{//等待--后续path的结果还未传回来，
                     //当前结束标签先不处理
-                    curactor.addMessage(new DefaultMessage("endE", new ActorTask(layer,tag)));
-                    actorManager.awaitMessage(curactor);
+                    curactor.addMessage(new DefaultMessage("endE", new ActorTask(layer, tag)));
                     curactor.peekNext("pathR");//优先处理path返回结果的消息
-                    while(wtask.hasReturned())
-                        curactor.doNext(wtask);
+                    actorManager.awaitMessage(curactor);
                 }
             }
         }else if (layer == getLevel() - 1) { // 遇到上层结束标签(T1-7作为一个后续的path)

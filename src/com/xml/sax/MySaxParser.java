@@ -22,7 +22,8 @@ public class MySaxParser<T> extends DefaultHandler {
     protected ASTPath path;
     protected int layer;
 
-    protected DefaultActorManager manager;
+    // SAX 接口处的引用
+    protected DefaultActorManager manager= State.actorManager;
     protected DefaultMessage message;
 
     public MySaxParser(String path_str) {
@@ -31,19 +32,17 @@ public class MySaxParser<T> extends DefaultHandler {
         path = qp.parseXPath(path_str);
         State currentQ = StateT1.TranslateStateT1(path);//将XPath翻译为各个状态
         Stack stack = new Stack();
-        State.stacklist.add(stack);
-
-        // SAX 接口处的引用
-        manager  = State.actorManager;
+        //State.stacklist.add(stack);
 
         // 创建 stack 对应的 actor--> stackActor
         Actor stackActor = manager.createAndStartActor(MyStateActor.class, "stackActor");
         State.actors.put(stackActor.getName(),stackActor);
 
-        manager.send(new DefaultMessage("resActor",null), null, stackActor);
+        message=new DefaultMessage("resActor",stack);
+        manager.send(message, null, stackActor);
 
-        manager.send(new DefaultMessage("pushTask",new ActorTask(currentQ.getLevel(),currentQ,true)),
-                                                                                        null, stackActor);
+        message=new DefaultMessage("pushTask",new ActorTask(currentQ.getLevel(),currentQ,true));
+        manager.send(message, null, stackActor);
 
 
     }
@@ -58,6 +57,7 @@ public class MySaxParser<T> extends DefaultHandler {
     @Override
     public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
         //把开始标签发给所有的 stateActor
+        System.out.println("SAX 遇到startE：" + qName + "，当前actor的数量：" + State.actors.size());
         message=new DefaultMessage("startE",new ActorTask(layer,qName));
         manager.broadcast(message, null);
         layer++; //layer 是表示在 XML 流中的标签的层数
@@ -67,15 +67,19 @@ public class MySaxParser<T> extends DefaultHandler {
     public void endElement(String uri, String localName, String qName) throws SAXException {
         layer--;
         //把结束标签发给所有的 stateActor
-        message=new DefaultMessage("endE",new ActorTask(layer,qName));
-        manager.broadcast(message,null);
+        System.out.println("SAX 遇到endE："+qName+"，当前actor的数量："+State.actors.size());
+        message=new DefaultMessage("endE", new ActorTask(layer, qName));
+        manager.broadcast(message, null);
+
     }
 
 
     @Override
     public void endDocument() throws SAXException{
-        System.out.println("----------- End  Document ----------");
+        //manager.terminateAndWait();
         super.endDocument();
+        System.out.println("----------- End  Document ----------");
+
     }
 
     @Override

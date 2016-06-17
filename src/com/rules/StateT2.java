@@ -31,16 +31,16 @@ public class StateT2 extends  State implements Cloneable{
 
     public static StateT2 TranslateStateT2(ASTPreds preds){
         //根据轴类型选择性的调用T2规则
-
         if(preds.getFirstStep().getAxisType()== AxisType.PC)
         {
             if (preds.getFirstStep().getPreds().toString().equals(""))
                 return StateT2_1.TranslateState(preds);//无后续谓词
             return StateT2_2.TranslateState(preds);//有后续谓词
+        }else{
+            if (preds.getFirstStep().getPreds().toString().equals("")) //AD
+                return StateT2_3.TranslateState(preds);//无后续谓词
+            return StateT2_4.TranslateState(preds);//有后续谓词
         }
-        if (preds.getFirstStep().getPreds().toString().equals("")) //AD
-            return StateT2_3.TranslateState(preds);//无后续谓词
-        return StateT2_4.TranslateState(preds);//有后续谓词
     }
 
 

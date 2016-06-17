@@ -29,6 +29,7 @@ public class StateT1_6 extends StateT1{
     @Override
     public void startElementDo(String tag,int layer,MyStateActor curactor) throws CloneNotSupportedException {// layer 是当前 tag 的层数
         if((getLevel() == layer)  && (tag.equals(_test))){//应该匹配的层数 getLevel（）和 当前层数相等
+            System.out.println("T1-6.startElementDo中，当前actor的数量：" + actors.size());
             // 在 tlist 中添加需要等待匹配的任务模型
             addWTask(new WaitTask(layer, null, null));
             _q3.setLevel(layer + 1);
@@ -38,20 +39,23 @@ public class StateT1_6 extends StateT1{
             Actor actor=(actors.get(name));// path的 actor
 
             if(actor == null){  // 若pathActor 还没有创建 --> _pathstack 一定为空
-                stacklist.add(this._pathstack);
-                actor =actorManager.createAndStartActor(MyStateActor.class, name);
-                actors.put(actor.getName(), actor);
-
-                actorManager.send(new DefaultMessage("resActor", null), curactor, actor);
-
-                //发送 q'' 给 paActor
+                System.out.println("T1-6.test匹配 && pathactor == null");
                 _q1.setLevel(layer + 1);
-                actorManager.send(new DefaultMessage("pushTask", new ActorTask(layer,_q1,false)),curactor,actor);
+                curactor.createAnotherActor(name, this._pathstack, new ActorTask(layer, _q1, false));
+//                actor =actorManager.createAndStartActor(MyStateActor.class, name);
+//                actors.put(actor.getName(), actor);
+//
+//                actorManager.send(new DefaultMessage("resActor", null), curactor, actor);
+//
+//                //发送 q'' 给 paActor
+//                actorManager.send(new DefaultMessage("pushTask", new ActorTask(layer,_q1,false)),curactor,actor);
             } else{  // 若path  actor 已经创建了,则发送 q'' 给 paActor即可
                 //发送 q'' 给 paActor
+                System.out.println("T1-6.test匹配 && pathactor != null，当前actor的数量：" + actors.size());
                 State currQ=(State)_q1.copy();
                 currQ.setLevel(layer+1);
-                actorManager.send(new DefaultMessage("pushTask", new ActorTask(layer,currQ,false)), curactor, actor);
+                dmessage=new DefaultMessage("pushTask", new ActorTask(layer,currQ,false));
+                actorManager.send(dmessage, curactor, actor);
             }
         }
     }
@@ -64,10 +68,16 @@ public class StateT1_6 extends StateT1{
                 if(wtask.hasReturned()){
                     curactor.doNext(wtask);
                 }else{//等待--或许是谓词的消息还未传回来，或许是后续path的结果还未传回来，                    //当前结束标签先不处理
-                    curactor.addMessage(new DefaultMessage("endE", new ActorTask(layer,tag)));
-                    actorManager.awaitMessage(curactor);
-                    while(wtask.hasReturned())
-                        curactor.doNext(wtask);
+                    if(wtask.getPredR()==null){
+                        curactor.addMessage(new DefaultMessage("endE", new ActorTask(layer, tag)));
+                        curactor.peekNext("predResult");//优先处理谓词返回结果的消息
+                    }else if(wtask.getPathR()==null){
+                        curactor.addMessage(new DefaultMessage("endE", new ActorTask(layer, tag)));
+                        curactor.peekNext("pathResult");//优先处理path返回结果的消息
+                        actorManager.awaitMessage(curactor);
+                    }
+//                    while(wtask.hasReturned())
+//                        curactor.doNext(wtask);
                 }
             }
         }else if (layer == getLevel() - 1) { // 遇到上层结束标签(肯定是作为后续path)
