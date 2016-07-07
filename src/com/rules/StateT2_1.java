@@ -44,13 +44,11 @@ public class StateT2_1 extends StateT2 {
                 curactor.popFunction();
                 curactor.sendPredsResult(new ActorTask(id, true, isInSelf));
                 if(curactor.getMyStack().isEmpty()){
-                    System.out.println("detach 之前： 当前actor的数量：" + actors.size());
-                    if(actors.containsKey(curactor.getName())){
-                        //System.out.println(curactor.getName()+" 将被 detach");
-                        actorManager.detachActor(curactor);
-                        //System.out.println(actorManager==null);
-                    }
-                    System.out.println("detach 之后： 当前actor的数量：" + actors.size());
+                    System.out.println(curactor.getName()+" detach 之前： 当前actor的数量：" +actors.size());
+                    actorManager.detachActor(curactor);
+                    actors.remove(curactor.getName());
+                    System.out.println(" detach 之后： 当前actor的数量：" + actors.size());
+
                 }
             }
         }

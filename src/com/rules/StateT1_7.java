@@ -32,9 +32,8 @@ public class StateT1_7 extends StateT1 implements Cloneable{
             addWTask(new WaitTask(layer,true,null));
 
             String name=((Integer)this._pathstack.hashCode()).toString().concat("T1-7.paActor");
-            Actor actor=(actors.get(name));// path的 actor
-
-            if(actor == null){  // 若pathActor 还没有创建 --> _pathstack 一定为空
+            Actor actor=actors.get(name);
+            if(this._pathstack.isEmpty()){  // 若pathActor 还没有创建 --> _pathstack 一定为空
                 System.out.println("T1-7.test匹配 && pathactor == null");
                 _q1.setLevel(layer + 1);
                 curactor.createAnotherActor(name, this._pathstack, new ActorTask(layer, _q1, false));
@@ -46,12 +45,16 @@ public class StateT1_7 extends StateT1 implements Cloneable{
 //                _q1.setLevel(layer + 1);
 //                actorManager.send(new DefaultMessage("pushTask", new ActorTask(layer,_q1,false)),curactor,actor);
             } else{  // 若path  actor 已经创建了,则发送 q'' 给 paActor即可
-                System.out.println("T1-7.test匹配 && pathactor != null，当前actor的数量：" + actors.size());
+                //System.out.println("T1-7.test匹配 && pathactor != null，当前actor的数量：" + actors.length);
                 State currQ=(State)_q1.copy();
                 currQ.setLevel(layer + 1);
                 dmessage=new DefaultMessage("pushTask",new ActorTask(layer,currQ,false));
-                actorManager.send(dmessage, curactor, actor);
-
+//                for(int i=0;i<actors.length;i++){
+//                    if(actors[i].getName().equals(name)){
+//                        actorManager.send(dmessage, curactor, actors[i]);
+//                        return;
+//                    }
+//                }
             }
         }
     }

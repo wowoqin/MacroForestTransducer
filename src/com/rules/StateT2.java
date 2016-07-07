@@ -25,9 +25,6 @@ public class StateT2 extends  State implements Cloneable{
 
     }
 
-    public String getNodeTest(){//得到当前 preds 的测试节点
-        return _preds.getFirstStep().getNodeTest().toString();
-    }
 
     public static StateT2 TranslateStateT2(ASTPreds preds){
         //根据轴类型选择性的调用T2规则

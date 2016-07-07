@@ -29,16 +29,15 @@ public class StateT1_6 extends StateT1{
     @Override
     public void startElementDo(String tag,int layer,MyStateActor curactor) throws CloneNotSupportedException {// layer 是当前 tag 的层数
         if((getLevel() == layer)  && (tag.equals(_test))){//应该匹配的层数 getLevel（）和 当前层数相等
-            System.out.println("T1-6.startElementDo中，当前actor的数量：" + actors.size());
+            //System.out.println("T1-6.startElementDo中，当前actor的数量：" + actors.length);
             // 在 tlist 中添加需要等待匹配的任务模型
             addWTask(new WaitTask(layer, null, null));
             _q3.setLevel(layer + 1);
             curactor.pushTaskDo(new ActorTask(layer, _q3, true));
 
             String name=((Integer)this._pathstack.hashCode()).toString().concat("T1-6.paActor");
-            Actor actor=(actors.get(name));// path的 actor
 
-            if(actor == null){  // 若pathActor 还没有创建 --> _pathstack 一定为空
+            if(this._pathstack.isEmpty()){  // 若_pathstack 为空
                 System.out.println("T1-6.test匹配 && pathactor == null");
                 _q1.setLevel(layer + 1);
                 curactor.createAnotherActor(name, this._pathstack, new ActorTask(layer, _q1, false));
@@ -51,11 +50,16 @@ public class StateT1_6 extends StateT1{
 //                actorManager.send(new DefaultMessage("pushTask", new ActorTask(layer,_q1,false)),curactor,actor);
             } else{  // 若path  actor 已经创建了,则发送 q'' 给 paActor即可
                 //发送 q'' 给 paActor
-                System.out.println("T1-6.test匹配 && pathactor != null，当前actor的数量：" + actors.size());
+                //System.out.println("T1-6.test匹配 && pathactor != null，当前actor的数量：" + actors.length);
                 State currQ=(State)_q1.copy();
                 currQ.setLevel(layer+1);
                 dmessage=new DefaultMessage("pushTask", new ActorTask(layer,currQ,false));
-                actorManager.send(dmessage, curactor, actor);
+//                for(int i=0;i<actors.length;i++){
+//                    if(actors[i].getName().equals(name)){
+//                        actorManager.send(dmessage, curactor, actors[i]);
+//                        return;
+//                    }
+//                }
             }
         }
     }

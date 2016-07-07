@@ -25,7 +25,7 @@ public class StateT1_5 extends StateT1{
 
     public void startElementDo(String tag,int layer,MyStateActor curactor) throws CloneNotSupportedException {
         if((getLevel() == layer) && (tag.equals(_test))) {//应该匹配的层数 getLevel（）和 当前层数相等
-            System.out.println("T1-5.startElementDo中，当前actor的数量：" + actors.size());
+            //System.out.println("T1-5.startElementDo中，当前actor的数量：" + actors.length);
             addWTask(new WaitTask(layer,true,null));
             _q1.setLevel(layer + 1); //q1 检查后续 path，肯定是当前标签的子孙中检查
             curactor.pushTaskDo(new ActorTask(layer,_q1,true));

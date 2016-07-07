@@ -25,10 +25,7 @@ public class StateT1 extends State implements Cloneable {
         _test=_path.getFirstStep().getNodeTest().toString();
     }
 
-    @Override
-    public String getNodeTest() {//得到当前 XPath 的测试节点
-        return _path.getFirstStep().getNodeTest().toString();
-    }
+
 
     public static State TranslateStateT1(ASTPath path) {
         //根据轴类型、剩余path选择性的调用相应的T1规则

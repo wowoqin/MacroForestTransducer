@@ -23,7 +23,7 @@ public class SaxTest {
         //MySaxParser dh = new MySaxParser("/a/c[/b][/d]");
         //MySaxParser dh = new MySaxParser("/a/c/d[/a]");
         File f = new File("test8.xml");
-        MySaxParser dh = new MySaxParser("//a[/b]");
+        MySaxParser dh = new MySaxParser("//a[/c]");
         //MySaxParser dh = new MySaxParser("//a[/b]//d");
         //MySaxParser dh = new MySaxParser("/a[/b[/c]]/e[/f]");
         //MySaxParser dh = new MySaxParser("//a[/d]/c[/b[//g]]");
@@ -33,9 +33,21 @@ public class SaxTest {
         //if(State.actorManager.getActiveRunnableCount()>=1){
             //把所有子线程join到main中--》得到子线程的名称
         //State.actorManager.terminateAndWait();
+        //State.actors=State.actorManager.getActors();
+//        for(String key:State.actorManager.getActors().keySet()){
+//            Actor actor=State.actors.get(key);
+//            if(!actor.isShutdown()){
+//                try {
+//                    Thread.sleep(1000);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        }
 
-        for(String key:State.actors.keySet()){
-            Actor actor=State.actors.get(key);
+
+        for(int i=0;i<State.actorManager.getActors().length;i++){
+            Actor actor=State.actorManager.getActors()[i];
             if(!actor.isShutdown()){
                 try {
                     Thread.sleep(1000);

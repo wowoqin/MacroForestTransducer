@@ -32,14 +32,13 @@ public class StateT1_8 extends StateT1 {
 
     public void startElementDo(String tag, int layer, MyStateActor curactor) throws CloneNotSupportedException {
         if ((layer >= getLevel()) && (tag.equals(_test))) {///当前层数大于等于应该匹配的层数 getLayer（）就可以
-            System.out.println("T1-8.startElementDo中，当前actor的数量：" + actors.size());
+            //System.out.println("T1-8.startElementDo中，当前actor的数量：" + actors.length);
             // 在 tlist 中添加需要等待匹配的任务模型
             addWTask(new WaitTask(layer, null, null));
 
             String name=((Integer)this._predstack.hashCode()).toString().concat("T1-8.prActor");
-            Actor actor=(actors.get(name));// preds的 actor
 
-            if (actor == null) {  // 若predsActor 还没有创建 --> _predstack 一定为空
+            if (this._predstack.isEmpty()) {  // 若predsActor 还没有创建 --> _predstack 一定为空
                 System.out.println("T1-8.test匹配 && 谓词actor == null");
                 _q3.setLevel(layer + 1);
                 curactor.createAnotherActor(name, this._predstack, new ActorTask(layer, _q3, false));
@@ -51,16 +50,20 @@ public class StateT1_8 extends StateT1 {
 //                //发送 q' 给 prActor
 //                actorManager.send(new DefaultMessage("pushTask", new ActorTask(layer, _q3,false)), curactor, actor);
             } else {  // 若preds 的 actor 已经创建了,则发送 q'' 给 paActor即可
-                System.out.println("T1-8.test匹配 && 谓词actor != null" + "当前actor的数量：" + actors.size());
+                //System.out.println("T1-8.test匹配 && 谓词actor != null" + "当前actor的数量：" + actors.length);
                 State currQ = (State) _q3.copy();
                 currQ.setLevel(layer + 1);
                 dmessage=new DefaultMessage("pushTask", new ActorTask(layer, currQ,false));
-                actorManager.send(dmessage, curactor, actor);
+//                for(int i=0;i<actors.length;i++){
+//                    if(actors[i].getName().equals(name)){
+//                        actorManager.send(dmessage, curactor, actors[i]);
+//                        return;
+//                    }
+//                }
             }
 
             name=((Integer)this._pathstack.hashCode()).toString().concat("T1-8.paActor");
-            actor=(actors.get(name));// path的 actor
-            if (actor == null) {  // 若 pathActor 还没有创建 --> _pathstack 一定为空
+            if (this._pathstack.isEmpty()) {  // 若 pathActor 还没有创建 --> _pathstack 一定为空
                 System.out.println("T1-8.test匹配 && pathactor == null");
                 _q1.setLevel(layer + 1);
                 curactor.createAnotherActor(name, this._pathstack, new ActorTask(layer, _q1, false));
@@ -72,11 +75,16 @@ public class StateT1_8 extends StateT1 {
 //                //发送 q'' 给 paActor
 //                actorManager.send(new DefaultMessage("pushTask", new ActorTask(layer, _q1,false)), curactor, actor);
             } else {  // 若path  actor 已经创建了,则发送 q'' 给 paActor即可
-                System.out.println("T1-8.test匹配 && pathactor != null，当前actor的数量：" + actors.size());
+                //System.out.println("T1-8.test匹配 && pathactor != null，当前actor的数量：" + actors.length);
                 State currQ = (State) _q1.copy();
                 currQ.setLevel(layer + 1);
                 dmessage=new DefaultMessage("pushTask", new ActorTask(layer, currQ,false));
-                actorManager.send(dmessage, curactor, actor);
+//                for(int i=0;i<actors.length;i++){
+//                    if(actors[i].getName().equals(name)){
+//                        actorManager.send(dmessage, curactor, actors[i]);
+//                        return;
+//                    }
+//                }
             }
         }
     }

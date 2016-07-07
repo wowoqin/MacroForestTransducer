@@ -16,7 +16,6 @@ public class StateT3 extends  State implements Cloneable{
 
     protected  ASTPreds _preds;
     protected  String   _test;
-
     protected Stack _predstack;
 
 
@@ -26,9 +25,6 @@ public class StateT3 extends  State implements Cloneable{
         _predstack=new Stack();
     }
 
-    public String getNodeTest(){//得到当前 preds 的测试节点
-        return _preds.getFirstStep().getNodeTest().toString();
-    }
 
     public static ASTPreds getSinglePred(ASTPreds preds){
     //得到当前谓词的的第一个谓词，也就是【child::test preds】或者【desc_or_self::test preds】

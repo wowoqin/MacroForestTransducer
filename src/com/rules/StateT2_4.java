@@ -32,24 +32,27 @@ public class StateT2_4 extends StateT2 implements Cloneable{
             addWTask(new WaitTask(layer, null, "true"));
 
             String name=((Integer)this._predstack.hashCode()).toString().concat("T2-4.prActor");
-            Actor actor=(actors.get(name));// preds的 actor
-
-            if(actor == null){// 若 prActor还没有创建 ，predstack 一定为空
-                stacklist.add(this._predstack);
-                actor =actorManager.createAndStartActor(MyStateActor.class, name);
-                actors.put(actor.getName(),actor);
-
-                dmessage=new DefaultMessage("resActor", null);
-                actorManager.send(dmessage, curactor, actor);
-                //发送 q'给 prActor
-                _q3.setLevel(layer + 1);
-                actorManager.send(new DefaultMessage("pushTask", new ActorTask(layer,_q3,false)),
-                                                                                    curactor,actor);
+            if(this._predstack.isEmpty()){// 若 prActor还没有创建 ，predstack 一定为空
+                curactor.createAnotherActor(name,this._predstack, new ActorTask(layer,_q3,false));
+//                actor =actorManager.createAndStartActor(MyStateActor.class, name);
+//                actors.put(actor.getName(),actor);
+//
+//                dmessage=new DefaultMessage("resActor", null);
+//                actorManager.send(dmessage, curactor, actor);
+//                //发送 q'给 prActor
+//                _q3.setLevel(layer + 1);
+//                actorManager.send(new DefaultMessage("pushTask", new ActorTask(layer,_q3,false)),
+//                                                                                    curactor,actor);
             }else{
                 State currQ=(State)_q3.copy();
                 currQ.setLevel(layer + 1);
-                actorManager.send(new DefaultMessage("pushTask",new ActorTask(layer,currQ,false)),
-                                                                                    curactor, actor);
+                dmessage=new DefaultMessage("pushTask",new ActorTask(layer,currQ,false));
+//                for(int i=0;i<actors.length;i++){
+//                    if(actors[i].getName().equals(name)){
+//                        actorManager.send(dmessage, curactor, actors[i]);
+//                        return;
+//                    }
+//                }
             }
         }
     }

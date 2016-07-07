@@ -26,36 +26,31 @@ public class StateT1_4 extends StateT1 implements Cloneable {
         return new StateT1_4(path, q3);
     }
 
-    public void startElementDo(String tag,int layer,MyStateActor curactor) throws CloneNotSupportedException{
+    public  void startElementDo(String tag,int layer,MyStateActor curactor) throws CloneNotSupportedException{
         if ((layer >= getLevel()) && (tag.equals(_test))) {
-            System.out.println("T1-4.startElementDo中，当前actor的数量：" + actors.size());
+            System.out.println("进入了 T1-4 的 startElementDo 方法");
             // 在 list 中添加需要等待匹配的任务模型
             addWTask(new WaitTask(layer, null, tag));
+            String name = ((Integer) this._predstack.hashCode()).toString().concat("T1-4.prActor");
 
-            String name=((Integer)this._predstack.hashCode()).toString().concat("T1-4.prActor");
-            Actor actor=(actors.get(name));// preds 的 actor
-            if(actor == null){// 若谓词 actor 还没有创建 --> _predstack 一定为空
+            if(this._predstack.isEmpty()) {// 若predstack 为空
                 System.out.println("T1-4.test匹配 && 谓词actor == null");
+                Actor actor=actorManager.createAndStartActor(MyStateActor.class, name);
+                actor.peekNext("resActor");
+                dmessage=new DefaultMessage("resActor",this._predstack);
+                actorManager.send(dmessage, curactor, actor);
+
                 _q3.setLevel(layer + 1);
-                curactor.createAnotherActor(name,this._predstack,new ActorTask(layer,_q3,false));
-                //actor =actorManager.createAndStartActor(MyStateActor.class, name);
-//                actors.put(name, actor);
-//                System.out.println("T1-4.predActor 创建后，当前actor的数量：" + actors.size());
-//
-//
-//                dmessage=new DefaultMessage("resActor", null);
-//                actorManager.send(dmessage, curactor, actor);
-//                //发送 q' 给 prActor
-//                _q3.setLevel(layer + 1);
-//                dmessage=new DefaultMessage("pushTask", new ActorTask(layer,_q3,false));
-//                actorManager.send(dmessage,curactor,actor);
-            }
-            else{  // 若谓词 actor 已经创建了,则发送 q' 给 prActor即可
+                dmessage=new DefaultMessage("pushTask",new ActorTask(layer, _q3, false));
+                actorManager.send(dmessage,curactor,actor);
+            }else{  // 若谓词 actor 已经创建了,则发送 q' 给 prActor即可
                 System.out.println("T1-4.test匹配 && 谓词actor != null" + "当前actor的数量：" + actors.size());
-                State currQ=(State)_q3.copy();
+                Actor actor=actors.get(name);
+                actor.peekNext("pushTask");
+                State currQ=(State) _q3.copy();
                 currQ.setLevel(layer + 1);
                 dmessage=new DefaultMessage("pushTask",new ActorTask(layer,currQ,false));
-                actorManager.send(dmessage, curactor, actor);
+                actorManager.send(dmessage,curactor,actor);
             }
         }
     }
