@@ -27,12 +27,12 @@ public class StateT1_7 extends StateT1 implements Cloneable{
 
     public void startElementDo(String tag, int layer,MyStateActor curactor) throws CloneNotSupportedException{
         if ((layer >= getLevel()) && (tag.equals(_test))) {
-            System.out.println("T1-7.startElementDo中，当前actor的数量：" + actors.size());
+           // System.out.println("T1-7.startElementDo中，当前actor的数量：" + actors.size());
             // 在 tlist 中添加需要等待匹配的任务模型
             addWTask(new WaitTask(layer,true,null));
 
             String name=((Integer)this._pathstack.hashCode()).toString().concat("T1-7.paActor");
-            Actor actor=actors.get(name);
+            //Actor actor=actors.get(name);
             if(this._pathstack.isEmpty()){  // 若pathActor 还没有创建 --> _pathstack 一定为空
                 System.out.println("T1-7.test匹配 && pathactor == null");
                 _q1.setLevel(layer + 1);
@@ -68,7 +68,7 @@ public class StateT1_7 extends StateT1 implements Cloneable{
                 }else{//等待--后续path的结果还未传回来，
                     //当前结束标签先不处理
                     curactor.addMessage(new DefaultMessage("endE", new ActorTask(layer, tag)));
-                    curactor.peekNext("pathR");//优先处理path返回结果的消息
+                    curactor.peekNext("pathResult");//优先处理path返回结果的消息
                     actorManager.awaitMessage(curactor);
                 }
             }

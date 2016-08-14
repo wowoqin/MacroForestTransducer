@@ -206,7 +206,8 @@ public class MyStateActor extends AbstractActor {
                                     }
                                 }
                             }
-                        }else if(wt.isWaitT3ParallPreds()){ // (id,true,null)
+                        }
+                        else if(wt.isWaitT3ParallPreds()){ // (id,true,null)
                             //q'''检查成功，q''还没检查成功
                             WaitState wq=new WaitState();
                             wq.setLevel(state.getLevel());
@@ -235,28 +236,31 @@ public class MyStateActor extends AbstractActor {
                         System.out.println(state+" 的list 中还没有传回的 pathResults");
                         wt.setPathR((String) (task.getObject()));
                     }
-                }else{                              // actorTask,并且 data 是一个qName（String）
+                }else{   // actorTask,并且 data 是一个qName（String）
                     if (!ss.isEmpty()) {
                         // 找到当前 actor 的当前栈顶的当前 state
                         currQ = (State) (((ActorTask) (ss.peek())).getObject());
                         String tag = (String)object;
                         int layer = task.getId();
+                        System.out.println(this.getName()+" 接收到标签 "+tag +"，当前actor的数量："+manager.getActors().length);
+                        if((!State.actors.isEmpty()) && (this.getName().equals("stackActor"))){
+                            System.out.println("由 "+this.getName()+" 向其它actor发送标签 "+tag);
+                            for(String key:State.actors.keySet()){
+                                Actor to=State.actors.get(key);
+                                getManager().send(message,null,to);
+                            }
+                        }
 
                         if("startE".equals(subject)){
-                            System.out.println("start标签 "+tag +" 来的时候当前actor的数量："+manager.getActors().length);
-                            System.out.println(this.getName()+" 在 loopBody 中接收到 startE："+tag);
+                            System.out.println(this.getName()+" 在 loopBody 中开始处理接收到 startE："+tag);
                             try {
                                 currQ.startElementDo(tag, layer, this);
                             } catch (CloneNotSupportedException e) {
                                 e.printStackTrace();
                             }
-                            System.out.println(this.getName()+" 处理完接收到的XML开始标签 "+tag);
                         }else if("endE".equals(subject)){
-                            System.out.println("end标签 "+tag +" 来的时候当前actor的数量："+manager.getActors().length);
-                            System.out.println(this.getName()+" 在 loopBody 中接收到 endE："+tag);
+                            System.out.println(this.getName() + " 在 loopBody 中开始处理接收到 endE：" + tag);
                             currQ.endElementDo(tag, layer, this);
-                            System.out.println(this.getName() + " 处理完接收到的XML结束标签 " + tag);
-
                         }
                     }
                 }
@@ -393,7 +397,7 @@ public class MyStateActor extends AbstractActor {
     public void popFunction(){
         Stack currStack = this.getMyStack();
         if(!currStack.isEmpty()){
-            System.out.println(this.getName() + " popFunction");
+            System.out.println(this.getName() + " 执行 popFunction");
             currStack.pop();
         }
     }
@@ -401,14 +405,14 @@ public class MyStateActor extends AbstractActor {
     public void sendPredsResult(ActorTask actorTask){// 谓词检查成功，上传结果（id，true）给相应的 wt
         DefaultMessage message=new DefaultMessage("predResult",actorTask);
         if(actorTask.isInSelf()){
-            System.out.println(this.getName()+" sendPredResults  To 自己");
-            getManager().send(message, this, this);
+            System.out.println(this.getName() + " sendPredResults  To 自己");
             this.peekNext("predResult");//优先处理谓词返回
-        }else{
-            System.out.println(this.getName()+" sendPredResults  To 上级");
-            Actor resActor=this.getResActor();
-            getManager().send(message, this, resActor);
-            resActor.peekNext("predResult");//优先处理谓词返回
+            getManager().send(message, this, this);
+        } else {
+            System.out.println(this.getName() + " sendPredResults  To 上级");
+            MyStateActor  res = (MyStateActor)this.getResActor();
+            res.peekNext("predResult");//优先处理谓词返回
+            getManager().send(message, this, res);
         }
     }
 

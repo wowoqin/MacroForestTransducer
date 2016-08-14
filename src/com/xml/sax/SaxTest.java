@@ -15,7 +15,7 @@ import java.io.IOException;
  */
 public class SaxTest {
     public static void main(String[] args) throws ParserConfigurationException, SAXException, IOException {
-        System.out.println(Thread.currentThread().getName()+"主线程开始运行");
+        System.out.println(Thread.currentThread().getName()+" 线程开始运行");
         SAXParserFactory factory = SAXParserFactory.newInstance();
         SAXParser parser = factory.newSAXParser();
         //File f = new File("test3.xml");
@@ -56,6 +56,6 @@ public class SaxTest {
                 }
             }
         }
-        System.out.println(Thread.currentThread().getName() + "主线程结束运行");
+        System.out.println(Thread.currentThread().getName() + " 线程结束运行");
     }
 }

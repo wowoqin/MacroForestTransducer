@@ -22,7 +22,7 @@ public class StateT2_1 extends StateT2 {
 
     public void startElementDo(String tag, int layer, MyStateActor curactor) throws CloneNotSupportedException { // layer 是当前 tag 的层数
         if ((getLevel() == layer) && (tag.equals(_test))) {// T2-1 检查成功
-            System.out.println(curactor.getName()+ "进入startElementDo，开始处理 "+tag+",当前时刻 actor的数量："+actors.size());
+            System.out.println(curactor.getName() + "进入startElementDo，开始处理 " + tag + ",当前时刻 actor的数量：" + actorManager.getActors().length);
             ActorTask atask=((ActorTask) curactor.getMyStack().peek());//(id,T2-1,inInSelf)
             int id=atask.getId();
             boolean isInSelf=atask.isInSelf();
@@ -40,17 +40,17 @@ public class StateT2_1 extends StateT2 {
                 curactor.sendPredsResult(new ActorTask(id, true, true));//确定是给自己的
             }else{  //T2-1
                 //发送谓词结果 && pop 当前栈顶
-                System.out.println("单纯的 T2-1 匹配成功");
+                System.out.println("单纯的 T2-1 匹配成功--发送谓词结果 && pop 当前栈顶");
                 curactor.popFunction();
                 curactor.sendPredsResult(new ActorTask(id, true, isInSelf));
                 if(curactor.getMyStack().isEmpty()){
-                    System.out.println(curactor.getName()+" detach 之前： 当前actor的数量：" +actors.size());
-                    actorManager.detachActor(curactor);
                     actors.remove(curactor.getName());
-                    System.out.println(" detach 之后： 当前actor的数量：" + actors.size());
-
+                    actorManager.detachActor(curactor);
+                    System.out.println("detach 之后：当前actor的数量：" + actorManager.getActors().length+
+                                            ";当前线程："+Thread.currentThread().getName()+",当前actor："+curactor.getName());
                 }
             }
+            System.out.println("T2-1 处理完接收到的XML开始标签 "+tag);
         }
     }
 

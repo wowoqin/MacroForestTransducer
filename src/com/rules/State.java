@@ -16,7 +16,6 @@ public  abstract class State  implements Cloneable {
     public DefaultMessage dmessage;                       // 中间生成的消息
     public static DefaultActorManager actorManager=DefaultActorManager.getDefaultInstance();
     public static Map<String,Actor> actors=new HashMap<String, Actor>();
-            //new HashMap<String, Actor>();// 所有的actor的 map < actorName,actor >
 
     protected List list=new LinkedList();//每一个 state 有一个 list，存放其 wt
 
@@ -61,13 +60,5 @@ public  abstract class State  implements Cloneable {
     public void removeWTask(WaitTask wtask){
         this.getList().remove(wtask);
     }
-
-//    public static Map<String, Actor> getActors() {
-//        AbstractActor[] mactors=actorManager.getActors();
-//        for(int i=0;i<mactors.length;i++){
-//            actors.put(mactors[i].getName(),mactors[i]);
-//        }
-//        return actors;
-//    }
 
 }
