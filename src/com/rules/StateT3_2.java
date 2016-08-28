@@ -24,7 +24,7 @@ public class StateT3_2 extends StateT3{
 
     public static StateT3 TranslateState(ASTPreds preds){//重新创建T3-2
         State q2= StateT2.TranslateStateT2(StateT3.getSinglePred(preds));
-        State q3=StateT3.TranslateStateT3(preds.getRemainderPreds());
+        State q3= StateT3.TranslateStateT3(preds.getRemainderPreds());
         return new StateT3_2(preds,q2,q3);
     }
 }

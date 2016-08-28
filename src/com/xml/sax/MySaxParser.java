@@ -35,10 +35,10 @@ public class MySaxParser<T> extends DefaultHandler {
 
         // 创建 stack 对应的 actor--> stackActor
         stackActor = manager.createAndStartActor(MyStateActor.class, "stackActor");
-        message=new DefaultMessage("resActor",stack);
+        message=new DefaultMessage("resActor&&pushTask",new Object[]{stack,new ActorTask(currentQ.getLevel(),currentQ,true)});
         manager.send(message, null, stackActor);
-        message=new DefaultMessage("pushTask",new ActorTask(currentQ.getLevel(),currentQ,true));
-        manager.send(message, null, stackActor);
+//        message=new DefaultMessage("pushTask",new ActorTask(currentQ.getLevel(),currentQ,true));
+//        manager.send(message, null, stackActor);
 
     }
 

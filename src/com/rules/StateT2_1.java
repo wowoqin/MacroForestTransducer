@@ -45,12 +45,14 @@ public class StateT2_1 extends StateT2 {
                 curactor.sendPredsResult(new ActorTask(id, true, isInSelf));
                 if(curactor.getMyStack().isEmpty()){
                     actors.remove(curactor.getName());
-                    actorManager.detachActor(curactor);
-                    System.out.println("detach 之后：当前actor的数量：" + actorManager.getActors().length+
-                                            ";当前线程："+Thread.currentThread().getName()+",当前actor："+curactor.getName());
+//                    System.out.printf("actors 中删除了该actor："+curactor.getName());
+//                    actorManager.detachActor(curactor);
+//                    actorManager.removeThread(Thread.currentThread().getName());
+//                    System.out.println(actorManager.getActiveRunnableCount()+" "+actorManager.getTrendValue());
+//                    System.out.println("当前线程:"+Thread.currentThread().getName());
+//                    System.out.println("detach 之后：当前actor的数量：" + actorManager.getActors().length);
                 }
             }
-            System.out.println("T2-1 处理完接收到的XML开始标签 "+tag);
         }
     }
 

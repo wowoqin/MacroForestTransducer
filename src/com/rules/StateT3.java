@@ -16,7 +16,7 @@ public class StateT3 extends  State implements Cloneable{
 
     protected  ASTPreds _preds;
     protected  String   _test;
-    protected Stack _predstack;
+    protected  Stack _predstack;
 
 
     protected StateT3(ASTPreds preds){

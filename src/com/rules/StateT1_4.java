@@ -37,13 +37,10 @@ public class StateT1_4 extends StateT1 implements Cloneable {
                 System.out.println("T1-4.test匹配 && 谓词actor == null，则创建 predActor：");
                 Actor actor=actorManager.createAndStartActor(MyStateActor.class, name);
                 actors.put(name,actor);
-                //actor.peekNext("resActor");
-                dmessage=new DefaultMessage("resActor",this._predstack);
-                actorManager.send(dmessage, curactor, actor);
-
                 _q3.setLevel(layer + 1);
-                dmessage=new DefaultMessage("pushTask",new ActorTask(layer, _q3, false));
-                actorManager.send(dmessage,curactor,actor);
+                dmessage=new DefaultMessage("resActor&&pushTask",
+                                        new Object[]{this._predstack,new ActorTask(layer, _q3, false)});
+                actorManager.send(dmessage, curactor, actor);
             }else{  // 若谓词 actor 已经创建了,则发送 q' 给 prActor即可
                 System.out.println("T1-4.test匹配 && 谓词actor != null" + "当前actor的数量：" + actors.size());
                 Actor actor=actors.get(name);
@@ -60,23 +57,6 @@ public class StateT1_4 extends StateT1 implements Cloneable {
     public void endElementDo(String tag,int layer,MyStateActor curactor) {
         if (tag.equals(_test)) {//遇到自己的结束标签，检查自己的list中的最后一个 wt -->输出/remove
             //T1-6.path时，谓词未检查成功就传不过去，T1-4.list.size>=1;
-//            for(int i=(getList().size()-1);i>=0;i--) {
-//                WaitTask wtask = (WaitTask) getList().get(i);
-//                if (wtask.getId() >= layer) { //只上传/输出当前layer及其layer下的符合的标签
-//                    if(wtask.hasReturned()){
-//                        curactor.doNext(wtask);
-//                    }else{
-//                        //挂起当前结束标签
-//                        curactor.addMessage(new DefaultMessage("endE", new ActorTask(layer, tag)));
-//                        //-->//a[][][],在等待谓词返回消息的时候，也许还会遇到test，
-//                        // 需要把其他来的标签都挂起，因为该结束标签是一定要对其进行处理的，还要优先处理谓词返回结果
-//                        actorManager.awaitMessage(curactor);
-//                        curactor.peekNext("predResult");//优先处理谓词返回结果的消息
-////                        while(wtask.hasReturned())
-////                            curactor.doNext(wtask);
-//                    }
-//                }else return;
-//            }
             List list=getList();
             WaitTask wtask = (WaitTask) getList().get(list.size()-1);
             System.out.println("T1-4遇到自己结束标签;当前线程："+Thread.currentThread().getName()+",当前actor："+curactor.getName());
@@ -84,53 +64,15 @@ public class StateT1_4 extends StateT1 implements Cloneable {
                 System.out.println("T1-4 的谓词结果已处理完毕");
                 curactor.doNext(wtask);
             }else{//等待--谓词检查的消息已经发出去了，但是或许还没接收到，或许接收到了还没设置完成
-                for(int i=0;((i<10000)&&(!wtask.hasReturned()));i++){
+                do{
                     try {
-                        Thread.sleep(1);
+                        Thread.currentThread().sleep(1);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                }
+                }while(!wtask.hasReturned());
                 curactor.doNext(wtask);
-
-//                if(curactor.getMessageCount()==0){
-//                    System.out.println("谓词结果已被处理 && 还未处理完成 || 谓词结果还未被T1-4接收到");
-//                    if(!wtask.hasReturned()){
-//                        try {
-//                            Thread.sleep(1);
-//                        } catch (InterruptedException e) {
-//                            e.printStackTrace();
-//                        }
-//                    }else{
-//                        curactor.doNext(wtask);
-//                    }
-//                } else if(curactor.getMessageCount()==1){
-//                    if(curactor.getMessages()[0].getSubject().equals("predResult")){
-//                        System.out.println("谓词结果返回但还未进行处理");
-//                        if(!wtask.hasReturned()){
-//                            try {
-//                                Thread.sleep(1);
-//                            } catch (InterruptedException e) {
-//                                e.printStackTrace();
-//                            }
-//                        }else{
-//                            curactor.doNext(wtask);
-//                        }
-//
-//
-//                    }
-//                }
-                //挂起当前结束标签
-                //curactor.addMessage(new DefaultMessage("endE", new ActorTask(layer,tag)));
-                //-->//a[][][],在等待谓词返回消息的时候，也许还会遇到test，
-                // 需要把其他来的标签都挂起，因为该结束标签是一定要对其进行处理的，还要优先处理谓词返回结果
-               // actorManager.awaitMessage(curactor);
-//                curactor.peekNext(null);//优先处理谓词返回结果的消息
-
-//                while(wtask.hasReturned())
-//                    curactor.doNext(wtask);
             }
-            System.out.println(curactor.getName() + " 处理完接收到的XML结束标签 " + tag);
         }else if (layer == getLevel() - 1) { // 遇到上层结束标签
             // (能遇到上层结束标签，即T1-2作为一个后续的path（T1-5 的时候也会放在stackActor中），T1-6~T1-8会被放在paActor中)
             // T1-5 时，与T1-5 放在同一个栈，T1-6~T1-8 放在pathstack中

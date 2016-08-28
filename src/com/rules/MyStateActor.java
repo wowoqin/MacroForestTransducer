@@ -31,29 +31,24 @@ public class MyStateActor extends AbstractActor {
         this.myStack = myStack;
     }
 
+    public void setResActor(Actor resActor) {
+        this.resActor = resActor;
+    }
+    public Actor getResActor() {
+        return resActor;
+    }
     @Override
     public void activate() {
         super.activate();
     }
-
-    public void setResActor(Actor resActor) {
-        this.resActor = resActor;
-    }
-
-    public Actor getResActor() {
-        return resActor;
-    }
-
     @Override
     public void deactivate() {
         super.deactivate();
     }
-
     @Override
     public boolean willReceive(String subject) {
         return super.willReceive(subject);
     }
-
     @Override
     public int getMaxMessageCount() {
         return super.getMaxMessageCount();
@@ -86,11 +81,17 @@ public class MyStateActor extends AbstractActor {
         sleep(1);
         String subject = message.getSubject();
         Object data=message.getData();
-        if("resActor".equals(subject)){ //  data = stack
-            System.out.println("创建了新的actor：" + this.getName() + " ，然后设置其 resActor && 与栈相关联");
+        if("resActor&&pushTask".equals(subject)){ //  data = {stack,task}
+            System.out.println("创建了新的actor：" + this.getName() + " ，然后设置其 resActor && 与栈相关联&& 压栈");
+            Object[] data2=(Object[])data;
             this.setResActor(message.getSource());
-            this.setMyStack((Stack) data);
-            this.peekNext("pushTask");//新创建了actor后接下来的操作肯定是push操作
+            this.setMyStack((Stack) data2[0]);
+            try {
+                this.pushTaskDo((ActorTask)data2[1]);
+            } catch (CloneNotSupportedException e) {
+                e.printStackTrace();
+            }
+            //this.peekNext("pushTask");
         }else if("setCategory".equals(subject)){    // actorTask,并且 data 是一个 string
             this.setCategory((String) data);
         }else{
@@ -108,7 +109,8 @@ public class MyStateActor extends AbstractActor {
                     } catch (CloneNotSupportedException e) {
                         e.printStackTrace();
                     }
-                }else if("predResult".equals(subject)){     // actorTask,并且 data 是一个q'的返回结果（True）
+                }
+                else if("predResult".equals(subject)){     // actorTask,并且 data 是一个q'的返回结果（True）
                     // 收到谓词返回结果后，在当前栈顶的state.list中找到相应的wt的ID，然后将谓词检查的结果重新赋值
                     System.out.println(this.getName()+" 开始处理接收到的 predResult");
                     ActorTask atask = (ActorTask) ss.peek();//栈顶task
@@ -128,6 +130,10 @@ public class MyStateActor extends AbstractActor {
                                 System.out.println(this.getName()+" loopBody 处理T2谓词的返回结果");
                                 wt.setPredR((Boolean)(task.getObject()));
                             }
+                        }
+                        if(((MyStateActor)message.getSource()).getMyStack().isEmpty()){
+                            getManager().detachActor(message.getSource());
+                            System.out.println("detach 之后：当前actor的数量：" + State.actorManager.getActors().length);
                         }
                         //重新设置完成之后看当前设置完的wt是不是谓词满足的-->说明之前返回的谓词结果只是作为谓词的谓词
                         if (wt.isPredsSatisified()){//谓词成功
@@ -242,7 +248,6 @@ public class MyStateActor extends AbstractActor {
                         currQ = (State) (((ActorTask) (ss.peek())).getObject());
                         String tag = (String)object;
                         int layer = task.getId();
-                        System.out.println(this.getName()+" 接收到标签 "+tag +"，当前actor的数量："+manager.getActors().length);
                         if((!State.actors.isEmpty()) && (this.getName().equals("stackActor"))){
                             System.out.println("由 "+this.getName()+" 向其它actor发送标签 "+tag);
                             for(String key:State.actors.keySet()){
@@ -276,7 +281,7 @@ public class MyStateActor extends AbstractActor {
         Stack curstack=this.getMyStack();
         State state=(State)(actorTask.getObject());     // 要压栈的 state
 
-        if(state instanceof StateT1||state instanceof StateT2|| state instanceof WaitState){
+        if(state instanceof StateT1||state instanceof StateT2||state instanceof WaitState){
             if(curstack!=null){
                 curstack.push(actorTask);
                 System.out.println(this.getName()+" 的栈中压入了"+ state);
@@ -300,19 +305,15 @@ public class MyStateActor extends AbstractActor {
                 String name=((Integer)(stack).hashCode()).toString().concat("T3-1.prActor");
                 //push(q'')-->继续调用此函数判断压栈
                 if(stack.isEmpty()){
-                    this.createAnotherActor(name,stack,new ActorTask(id,remainPred,false));
+                    Actor actor=getManager().createAndStartActor(this.getClass(), name);
+                    DefaultMessage message=new DefaultMessage("resActor&&pushTask",new Object[]{stack,new ActorTask(id,remainPred,false)});
+                    getManager().send(message, this, actor);
                 }else{
                     State currQ=(State)remainPred.copy();
                     currQ.setLevel(level);
                     DefaultMessage message=new DefaultMessage("pushTask",new ActorTask(id,currQ,false));
                     Actor actor=State.actors.get(name);
                     getManager().send(message, this, actor);
-//                    for(int i=0;i<State.actors.length;i++){
-//                        if(State.actors[i].getName().equals(name)){
-//                            getManager().send(message, this, State.actors[i]);
-//                            return;
-//                        }
-//                    }
                 }
             }else if(state instanceof StateT3_2){
                 State firPred=((StateT3_2) state)._q2;  //T2-2
@@ -325,19 +326,15 @@ public class MyStateActor extends AbstractActor {
                 Stack stack=((StateT3_2) state)._predstack;
                 String name=((Integer)(stack).hashCode()).toString().concat("T3-2.prActor");
                 if(stack.isEmpty()){
-                    this.createAnotherActor(name, ((StateT3_2) state)._predstack, new ActorTask(id, remainPred, false));
+                    Actor actor=getManager().createAndStartActor(this.getClass(), name);
+                    DefaultMessage message=new DefaultMessage("resActor&&pushTask",new Object[]{stack,new ActorTask(id,remainPred,false)});
+                    getManager().send(message, this, actor);
                 }else{
                     State currQ=(State)remainPred.copy();
                     currQ.setLevel(level);
                     DefaultMessage message=new DefaultMessage("pushTask",new ActorTask(id,currQ,false));
                     Actor actor=State.actors.get(name);
                     getManager().send(message, this, actor);
-//                    for(int i=0;i<State.actors.length;i++){
-//                        if(State.actors[i].getName().equals(name)){
-//                            getManager().send(message, this, State.actors[i]);
-//                            return;
-//                        }
-//                    }
                 }
             }else if(state instanceof StateT3_3){
                 State firstPred=((StateT3_3) state)._q2;  //T2-3
@@ -350,20 +347,15 @@ public class MyStateActor extends AbstractActor {
                 Stack stack=((StateT3_3) state)._predstack;
                 String name=((Integer)(stack).hashCode()).toString().concat("T3-3.prActor");
                 if(stack.isEmpty()){
-                    this.createAnotherActor(name, ((StateT3_3) state)._predstack, new ActorTask(id, remainPred, false));
+                    Actor actor=getManager().createAndStartActor(this.getClass(), name);
+                    DefaultMessage message=new DefaultMessage("resActor&&pushTask",new Object[]{stack,new ActorTask(id,remainPred,false)});
+                    getManager().send(message, this, actor);
                 }else{
                     State currQ=(State)remainPred.copy();
                     currQ.setLevel(level);
                     DefaultMessage message=new DefaultMessage("pushTask",new ActorTask(id,currQ,false));
                     Actor actor=State.actors.get(name);
                     getManager().send(message, this, actor);
-
-//                    for(int i=0;i<State.actors.size();i++){
-//                        if(State.actors.getName().equals(name)){
-//                            getManager().send(message, this, State.actors[i]);
-//                            return;
-//                        }
-//                    }
                }
             }else if(state instanceof StateT3_4){
                 State firstPred=((StateT3_4) state)._q2;  //T2-4
@@ -376,19 +368,15 @@ public class MyStateActor extends AbstractActor {
                 Stack stack=((StateT3_4) state)._predstack;
                 String name=((Integer)(stack).hashCode()).toString().concat("T3-4.prActor");
                 if(stack.isEmpty()){
-                    this.createAnotherActor(name, ((StateT3_4) state)._predstack, new ActorTask(id, remainPred, false));
+                    Actor actor=getManager().createAndStartActor(this.getClass(), name);
+                    DefaultMessage message=new DefaultMessage("resActor&&pushTask",new Object[]{stack,new ActorTask(id,remainPred,false)});
+                    getManager().send(message, this, actor);
                 }else{
                     State currQ=(State)remainPred.copy();
                     currQ.setLevel(level);
                     DefaultMessage message=new DefaultMessage("pushTask",new ActorTask(id,currQ,false));
                     Actor actor=State.actors.get(name);
                     getManager().send(message, this, actor);
-//                    for(int i=0;i<State.actors.length;i++){
-//                        if(State.actors[i].getName().equals(name)){
-//                            getManager().send(message, this, State.actors[i]);
-//                            return;
-//                        }
-//                    }
                 }
             }
         }
@@ -405,15 +393,17 @@ public class MyStateActor extends AbstractActor {
     public void sendPredsResult(ActorTask actorTask){// 谓词检查成功，上传结果（id，true）给相应的 wt
         DefaultMessage message=new DefaultMessage("predResult",actorTask);
         if(actorTask.isInSelf()){
-            System.out.println(this.getName() + " sendPredResults  To 自己");
             this.peekNext("predResult");//优先处理谓词返回
             getManager().send(message, this, this);
-        } else {
-            System.out.println(this.getName() + " sendPredResults  To 上级");
+            System.out.println(this.getName() + " sendPredResults  To 自己");
+        }
+        else {
             MyStateActor  res = (MyStateActor)this.getResActor();
             res.peekNext("predResult");//优先处理谓词返回
             getManager().send(message, this, res);
+            System.out.println(this.getName() + " sendPredResults  To 上级");
         }
+//        this.popFunction();
     }
 
     public boolean sendPathResult(ActorTask actorTask){// path检查成功，上传结果（id，tag）给相应的 wt
@@ -471,7 +461,6 @@ public class MyStateActor extends AbstractActor {
     public void processSameADPred(){
         System.out.println(this.getName()+" processSameADPred");
         Stack currstack=this.getMyStack();
-
         while(!currstack.isEmpty()){
             ActorTask task=(ActorTask)currstack.peek();
             int id=task.getId(); // 当前栈顶 taskmodel 的 id

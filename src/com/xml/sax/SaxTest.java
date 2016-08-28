@@ -23,7 +23,7 @@ public class SaxTest {
         //MySaxParser dh = new MySaxParser("/a/c[/b][/d]");
         //MySaxParser dh = new MySaxParser("/a/c/d[/a]");
         File f = new File("test8.xml");
-        MySaxParser dh = new MySaxParser("//a[/c]");
+        MySaxParser dh = new MySaxParser("//a[/b]");
         //MySaxParser dh = new MySaxParser("//a[/b]//d");
         //MySaxParser dh = new MySaxParser("/a[/b[/c]]/e[/f]");
         //MySaxParser dh = new MySaxParser("//a[/d]/c[/b[//g]]");
@@ -45,17 +45,19 @@ public class SaxTest {
 //            }
 //        }
 
+        //State.actorManager.terminateAndWait();
 
-        for(int i=0;i<State.actorManager.getActors().length;i++){
-            Actor actor=State.actorManager.getActors()[i];
-            if(!actor.isShutdown()){
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
+        try {
+            Thread.sleep(100000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
+//        for(int i=0;i<State.actorManager.getActors().length;i++){
+//            Actor actor=State.actorManager.getActors()[i];
+//            if(!actor.isShutdown()){
+//
+//            }
+//        }
         System.out.println(Thread.currentThread().getName() + " 线程结束运行");
     }
 }
