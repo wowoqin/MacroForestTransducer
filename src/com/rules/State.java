@@ -12,12 +12,12 @@ import java.util.*;
  * Created by qin on 2015/10/10.
  */
 public  abstract class State  implements Cloneable {
-    protected int level=0;                                 //µ±Ç°Ó¦¸ÃÆ¥ÅäµÄ±êÇ©µÄ²ãÊı
-    public DefaultMessage dmessage;                       // ÖĞ¼äÉú³ÉµÄÏûÏ¢
+    protected int level=0;                                 //å½“å‰åº”è¯¥åŒ¹é…çš„æ ‡ç­¾çš„å±‚æ•°
+    public DefaultMessage dmessage;                       // ä¸­é—´ç”Ÿæˆçš„æ¶ˆæ¯
     public static DefaultActorManager actorManager=DefaultActorManager.getDefaultInstance();
     public static Map<String,Actor> actors=new HashMap<String, Actor>();
 
-    protected List list=new LinkedList();//Ã¿Ò»¸ö state ÓĞÒ»¸ö list£¬´æ·ÅÆä wt
+    protected List list=new LinkedList();//æ¯ä¸€ä¸ª state æœ‰ä¸€ä¸ª listï¼Œå­˜æ”¾å…¶ wt
 
     public  abstract void startElementDo(String tag,int layer,MyStateActor curactor) throws CloneNotSupportedException;
     public  abstract void endElementDo(String tag,int layer,MyStateActor curactor);
@@ -53,7 +53,7 @@ public  abstract class State  implements Cloneable {
     public abstract Object copy() throws CloneNotSupportedException;
 
     public void addWTask(WaitTask wtask){
-        System.out.println("ÔÚ "+this+" µÄµÈ´ı¶ÓÁĞÖĞÌí¼ÓµÈ´ıÈÎÎñ");
+        System.out.println("åœ¨ "+this+" çš„ç­‰å¾…é˜Ÿåˆ—ä¸­æ·»åŠ ç­‰å¾…ä»»åŠ¡");
         this.getList().add(wtask);
     }
 

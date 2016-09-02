@@ -22,7 +22,7 @@ public class MySaxParser<T> extends DefaultHandler {
     protected ASTPath path;
     protected int layer;
 
-    // SAX ½Ó¿Ú´¦µÄÒıÓÃ
+    // SAX æ¥å£å¤„çš„å¼•ç”¨
     protected DefaultActorManager manager= State.actorManager;
     protected DefaultMessage message;
     protected Actor stackActor;
@@ -30,10 +30,10 @@ public class MySaxParser<T> extends DefaultHandler {
         super();
         qp = new QueryParser();
         path = qp.parseXPath(path_str);
-        State currentQ = StateT1.TranslateStateT1(path);//½«XPath·­ÒëÎª¸÷¸ö×´Ì¬
+        State currentQ = StateT1.TranslateStateT1(path);//å°†XPathç¿»è¯‘ä¸ºå„ä¸ªçŠ¶æ€
         Stack stack = new Stack();
 
-        // ´´½¨ stack ¶ÔÓ¦µÄ actor--> stackActor
+        // åˆ›å»º stack å¯¹åº”çš„ actor--> stackActor
         stackActor = manager.createAndStartActor(MyStateActor.class, "stackActor");
         message=new DefaultMessage("resActor&&pushTask",new Object[]{stack,new ActorTask(currentQ.getLevel(),currentQ,true)});
         manager.send(message, null, stackActor);
@@ -55,7 +55,7 @@ public class MySaxParser<T> extends DefaultHandler {
         message=new DefaultMessage("startE",new ActorTask(layer,qName));
         manager.send(message,null,stackActor);
         //manager.broadcast(message, null);
-        layer++; //layer ÊÇ±íÊ¾ÔÚ XML Á÷ÖĞµÄ±êÇ©µÄ²ãÊı
+        layer++; //layer æ˜¯è¡¨ç¤ºåœ¨ XML æµä¸­çš„æ ‡ç­¾çš„å±‚æ•°
     }
 
     @Override

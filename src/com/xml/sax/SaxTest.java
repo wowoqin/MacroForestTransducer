@@ -15,7 +15,7 @@ import java.io.IOException;
  */
 public class SaxTest {
     public static void main(String[] args) throws ParserConfigurationException, SAXException, IOException {
-        System.out.println(Thread.currentThread().getName()+" Ïß³Ì¿ªÊ¼ÔËĞĞ");
+        System.out.println(Thread.currentThread().getName()+" çº¿ç¨‹å¼€å§‹è¿è¡Œ");
         SAXParserFactory factory = SAXParserFactory.newInstance();
         SAXParser parser = factory.newSAXParser();
         //File f = new File("test3.xml");
@@ -28,10 +28,10 @@ public class SaxTest {
         //MySaxParser dh = new MySaxParser("/a[/b[/c]]/e[/f]");
         //MySaxParser dh = new MySaxParser("//a[/d]/c[/b[//g]]");
         parser.parse(f, dh);
-        //Ö÷Ïß³ÌµÈ´ıËùÓĞ×ÓÏß³Ì½áÊø²Å½áÊø
+        //ä¸»çº¿ç¨‹ç­‰å¾…æ‰€æœ‰å­çº¿ç¨‹ç»“æŸæ‰ç»“æŸ
         //System.out.println(State.actorManager.getActiveRunnableCount());
         //if(State.actorManager.getActiveRunnableCount()>=1){
-            //°ÑËùÓĞ×ÓÏß³Ìjoinµ½mainÖĞ--¡·µÃµ½×ÓÏß³ÌµÄÃû³Æ
+        //æŠŠæ‰€æœ‰å­çº¿ç¨‹joinåˆ°mainä¸­--ã€‹å¾—åˆ°å­çº¿ç¨‹çš„åç§°
         //State.actorManager.terminateAndWait();
         //State.actors=State.actorManager.getActors();
 //        for(String key:State.actorManager.getActors().keySet()){
@@ -58,6 +58,6 @@ public class SaxTest {
 //
 //            }
 //        }
-        System.out.println(Thread.currentThread().getName() + " Ïß³Ì½áÊøÔËĞĞ");
+        System.out.println(Thread.currentThread().getName() + " çº¿ç¨‹ç»“æŸè¿è¡Œ");
     }
 }

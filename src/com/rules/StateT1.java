@@ -28,36 +28,36 @@ public class StateT1 extends State implements Cloneable {
 
 
     public static State TranslateStateT1(ASTPath path) {
-        //¸ù¾İÖáÀàĞÍ¡¢Ê£ÓàpathÑ¡ÔñĞÔµÄµ÷ÓÃÏàÓ¦µÄT1¹æÔò
-        if (path.getFirstStep().getAxisType() == AxisType.PC) {//PC Öá
-            if (path.getRemainderPath().toString().equals("")){ //ÎŞºóĞøÂ·¾¶
-                if (path.getFirstStep().getPreds().toString().equals("")){//ÎŞÎ½´Ê
+        //æ ¹æ®è½´ç±»å‹ã€å‰©ä½™pathé€‰æ‹©æ€§çš„è°ƒç”¨ç›¸åº”çš„T1è§„åˆ™
+        if (path.getFirstStep().getAxisType() == AxisType.PC) {//PC è½´
+            if (path.getRemainderPath().toString().equals("")){ //æ— åç»­è·¯å¾„
+                if (path.getFirstStep().getPreds().toString().equals("")){//æ— è°“è¯
                     return StateT1_1.TranslateState(path);     //T1_1
                 }
                 else{
-                    return StateT1_2.TranslateState(path);//ÓĞÎ½´Ê
+                    return StateT1_2.TranslateState(path);//æœ‰è°“è¯
                 }
             }
             else {
-                if (path.getFirstStep().getPreds().toString().equals("")){//ÓĞºóĞøÂ·¾¶£¬ÎŞÎ½´Ê
+                if (path.getFirstStep().getPreds().toString().equals("")){//æœ‰åç»­è·¯å¾„ï¼Œæ— è°“è¯
                     return StateT1_5.TranslateState(path);
                 }
                 else{
-                    return StateT1_6.TranslateState(path);//ÓĞÎ½´Ê
+                    return StateT1_6.TranslateState(path);//æœ‰è°“è¯
                 }
             }
         }
-        //AD Öá
+        //AD è½´
         else{
-            if (path.getRemainderPath().toString().equals("")){//ÎŞºóĞøÂ·¾¶
-                if (path.getFirstStep().getPreds().toString().equals("")) //ÎŞÎ½´Ê
+            if (path.getRemainderPath().toString().equals("")){//æ— åç»­è·¯å¾„
+                if (path.getFirstStep().getPreds().toString().equals("")) //æ— è°“è¯
                     return StateT1_3.TranslateState(path);
-                else return StateT1_4.TranslateState(path);//ÓĞÎ½´Ê
+                else return StateT1_4.TranslateState(path);//æœ‰è°“è¯
             }
             else {
-                if (path.getFirstStep().getPreds().toString().equals(""))//ÓĞºóĞøÂ·¾¶£¬ÎŞÎ½´Ê
+                if (path.getFirstStep().getPreds().toString().equals(""))//æœ‰åç»­è·¯å¾„ï¼Œæ— è°“è¯
                     return StateT1_7.TranslateState(path);
-                else return StateT1_8.TranslateState(path);//ÓĞÎ½´Ê
+                else return StateT1_8.TranslateState(path);//æœ‰è°“è¯
             }
         }
     }

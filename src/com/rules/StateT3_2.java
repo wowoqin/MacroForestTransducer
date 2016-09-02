@@ -13,8 +13,8 @@ import java.util.Stack;
  * Created by qin on 2015/10/10.
  */
 public class StateT3_2 extends StateT3{
-    protected  State _q2;//¼ì²é¡¾child::test preds¡¿
-    protected  State _q3;//¼ì²épreds'
+    protected  State _q2;//æ£€æŸ¥ã€child::test predsã€‘
+    protected  State _q3;//æ£€æŸ¥preds'
 
     protected StateT3_2(ASTPreds preds, State _q2, State _q3) {
         super(preds);
@@ -22,7 +22,7 @@ public class StateT3_2 extends StateT3{
         this._q3 = _q3;
     }
 
-    public static StateT3 TranslateState(ASTPreds preds){//ÖØĞÂ´´½¨T3-2
+    public static StateT3 TranslateState(ASTPreds preds){//é‡æ–°åˆ›å»ºT3-2
         State q2= StateT2.TranslateStateT2(StateT3.getSinglePred(preds));
         State q3= StateT3.TranslateStateT3(preds.getRemainderPreds());
         return new StateT3_2(preds,q2,q3);

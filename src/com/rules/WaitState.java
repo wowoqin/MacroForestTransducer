@@ -14,7 +14,7 @@ public class WaitState extends State {
 
     @Override
     public void endElementDo(String tag, int layer, MyStateActor curactor) {
-        // ×Ô¼ºÄÜÓöµ½ÉÏ²ã½áÊø±êÇ©£¬Î½´Ê¼ì²éÊ§°Ü£¬µ¯Õ» && remove µÈ´ıµ±Ç°Õ»¶¥ qw ½á¹ûµÄ wt
+        // è‡ªå·±èƒ½é‡åˆ°ä¸Šå±‚ç»“æŸæ ‡ç­¾ï¼Œè°“è¯æ£€æŸ¥å¤±è´¥ï¼Œå¼¹æ ˆ && remove ç­‰å¾…å½“å‰æ ˆé¡¶ qw ç»“æœçš„ wt
         if (layer == getLevel() - 1) {
             Stack ss=curactor.getMyStack();
             ActorTask atask=((ActorTask) ss.peek());//(id,qw,isInself)
@@ -22,17 +22,17 @@ public class WaitState extends State {
             boolean isInSelf=atask.isInSelf();
             //pop(qw)
             curactor.popFunction();
-            //·¢ÏûÏ¢£¨id,false,isInself£©
+            //å‘æ¶ˆæ¯ï¼ˆid,false,isInselfï¼‰
             curactor.sendPredsResult(new ActorTask(id, false, isInSelf));
-            //µ±Ç°Õ»²»Îª¿Õ£¬Õ»¶¥½øĞĞendElementDo ²Ù×÷£¨Êä³ö£¨T1-2»òÕßT1-6£©/µ¯Õ»£¨ÏàÍ¬½áÊø±êÇ©µÄwaitState£©µÈ£©
+            //å½“å‰æ ˆä¸ä¸ºç©ºï¼Œæ ˆé¡¶è¿›è¡ŒendElementDo æ“ä½œï¼ˆè¾“å‡ºï¼ˆT1-2æˆ–è€…T1-6ï¼‰/å¼¹æ ˆï¼ˆç›¸åŒç»“æŸæ ‡ç­¾çš„waitStateï¼‰ç­‰ï¼‰
             if (!ss.isEmpty()) {
                 atask=((ActorTask) ss.peek());
                 State state=((State) (atask.getObject()));
-                // T1-2 ¡¢T1-6µÄ½áÊø±êÇ©
+                // T1-2 ã€T1-6çš„ç»“æŸæ ‡ç­¾
                 if(state instanceof StateT1_2 || state instanceof StateT1_6){
                     state.endElementDo(tag, layer, curactor);
                 }else if(((state instanceof StateT2_3) || (state instanceof StateT2_4))
-                                                && (!atask.isInSelf())){// T2-3 /T2_4 ×÷Îª AD ÖátestµÄÎ½´Ê
+                        && (!atask.isInSelf())){// T2-3 /T2_4 ä½œä¸º AD è½´testçš„è°“è¯
                     curactor.processSameADPred();
                 }
             }else {

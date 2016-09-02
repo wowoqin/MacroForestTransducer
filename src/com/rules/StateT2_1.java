@@ -16,67 +16,67 @@ public class StateT2_1 extends StateT2 {
         super(preds);
     }
 
-    public static StateT2 TranslateState(ASTPreds preds) {//ÖØĞÂ´´½¨T2-1
+    public static StateT2 TranslateState(ASTPreds preds) {//é‡æ–°åˆ›å»ºT2-1
         return new StateT2_1(preds);
     }
 
-    public void startElementDo(String tag, int layer, MyStateActor curactor) throws CloneNotSupportedException { // layer ÊÇµ±Ç° tag µÄ²ãÊı
-        if ((getLevel() == layer) && (tag.equals(_test))) {// T2-1 ¼ì²é³É¹¦
-            System.out.println(curactor.getName() + "½øÈëstartElementDo£¬¿ªÊ¼´¦Àí " + tag + ",µ±Ç°Ê±¿Ì actorµÄÊıÁ¿£º" + actorManager.getActors().length);
+    public void startElementDo(String tag, int layer, MyStateActor curactor) throws CloneNotSupportedException { // layer æ˜¯å½“å‰ tag çš„å±‚æ•°
+        if ((getLevel() == layer) && (tag.equals(_test))) {// T2-1 æ£€æŸ¥æˆåŠŸ
+            System.out.println(curactor.getName() + "è¿›å…¥startElementDoï¼Œå¼€å§‹å¤„ç† " + tag + ",å½“å‰æ—¶åˆ» actorçš„æ•°é‡ï¼š" + actorManager.getActors().length);
             ActorTask atask=((ActorTask) curactor.getMyStack().peek());//(id,T2-1,inInSelf)
             int id=atask.getId();
             boolean isInSelf=atask.isInSelf();
 
             List list=getList();//T2-1.list
             if(!list.isEmpty()){  //T3-1
-                System.out.println("T3-1.q'''Æ¥Åä³É¹¦");
+                System.out.println("T3-1.q'''åŒ¹é…æˆåŠŸ");
                 WaitState waitState=new WaitState();
                 waitState.setLevel(((State) atask.getObject()).getLevel());
                 waitState.getList().add(list.get(0));
                 curactor.popFunction();
-                //(id,T2-1,isInself) »»Îª £¨id,qw,isInself£©
+                //(id,T2-1,isInself) æ¢ä¸º ï¼ˆid,qw,isInselfï¼‰
                 curactor.pushTaskDo(new ActorTask(id, waitState, isInSelf));
-                //ÉèÖÃ T3-1.q'''¼ì²é³É¹¦£¨·¢ÏûÏ¢ÊÇÒòÎªÍòÒ»q''ÒÑ¾­ÊÇ¼ì²é³É¹¦µÄÁËÄØ£©
-                curactor.sendPredsResult(new ActorTask(id, true, true));//È·¶¨ÊÇ¸ø×Ô¼ºµÄ
+                //è®¾ç½® T3-1.q'''æ£€æŸ¥æˆåŠŸï¼ˆå‘æ¶ˆæ¯æ˜¯å› ä¸ºä¸‡ä¸€q''å·²ç»æ˜¯æ£€æŸ¥æˆåŠŸçš„äº†å‘¢ï¼‰
+                curactor.sendPredsResult(new ActorTask(id, true, true));//ç¡®å®šæ˜¯ç»™è‡ªå·±çš„
             }else{  //T2-1
-                //·¢ËÍÎ½´Ê½á¹û && pop µ±Ç°Õ»¶¥
-                System.out.println("µ¥´¿µÄ T2-1 Æ¥Åä³É¹¦--·¢ËÍÎ½´Ê½á¹û && pop µ±Ç°Õ»¶¥");
+                //å‘é€è°“è¯ç»“æœ && pop å½“å‰æ ˆé¡¶
+                System.out.println("å•çº¯çš„ T2-1 åŒ¹é…æˆåŠŸ--å‘é€è°“è¯ç»“æœ && pop å½“å‰æ ˆé¡¶");
                 curactor.popFunction();
                 curactor.sendPredsResult(new ActorTask(id, true, isInSelf));
                 if(curactor.getMyStack().isEmpty()){
                     actors.remove(curactor.getName());
-//                    System.out.printf("actors ÖĞÉ¾³ıÁË¸Ãactor£º"+curactor.getName());
+//                    System.out.printf("actors ä¸­åˆ é™¤äº†è¯¥actorï¼š"+curactor.getName());
 //                    actorManager.detachActor(curactor);
 //                    actorManager.removeThread(Thread.currentThread().getName());
 //                    System.out.println(actorManager.getActiveRunnableCount()+" "+actorManager.getTrendValue());
-//                    System.out.println("µ±Ç°Ïß³Ì:"+Thread.currentThread().getName());
-//                    System.out.println("detach Ö®ºó£ºµ±Ç°actorµÄÊıÁ¿£º" + actorManager.getActors().length);
+//                    System.out.println("å½“å‰çº¿ç¨‹:"+Thread.currentThread().getName());
+//                    System.out.println("detach ä¹‹åï¼šå½“å‰actorçš„æ•°é‡ï¼š" + actorManager.getActors().length);
                 }
             }
         }
     }
 
     public void endElementDo(String tag, int layer, MyStateActor curactor) {
-        if (layer == getLevel() - 1) {//Óöµ½ÉÏ²ã½áÊø±êÇ©
+        if (layer == getLevel() - 1) {//é‡åˆ°ä¸Šå±‚ç»“æŸæ ‡ç­¾
             Stack ss=curactor.getMyStack();
-            ActorTask atask=((ActorTask) ss.peek());//Õ»¶¥(id,T2-1,isInself)
+            ActorTask atask=((ActorTask) ss.peek());//æ ˆé¡¶(id,T2-1,isInself)
             //pop(T2-1)
             curactor.popFunction();
-            //·¢ÏûÏ¢£¨id,false,isInself£©
+            //å‘æ¶ˆæ¯ï¼ˆid,false,isInselfï¼‰
             curactor.sendPredsResult(new ActorTask(atask.getId(),false, atask.isInSelf()));
-            //ÆäÊµÔÚ´Ë´¦»¹Ó¦¸Ã¿´T3-1.q''»¹ÔÚ×ö¼ì²é·ñ£¿ÊÇ-->terminate
+            //å…¶å®åœ¨æ­¤å¤„è¿˜åº”è¯¥çœ‹T3-1.q''è¿˜åœ¨åšæ£€æŸ¥å¦ï¼Ÿæ˜¯-->terminate
 
-            //µ±Ç°Õ»²»Îª¿Õ£¬Õ»¶¥Îª T1-2»òÕßT1-6-->½øĞĞendElementDo ²Ù×÷:Êä³ö/ÉÏ´«/remove/µÈ´ı
+            //å½“å‰æ ˆä¸ä¸ºç©ºï¼Œæ ˆé¡¶ä¸º T1-2æˆ–è€…T1-6-->è¿›è¡ŒendElementDo æ“ä½œ:è¾“å‡º/ä¸Šä¼ /remove/ç­‰å¾…
             if (!ss.isEmpty()) {
-                System.out.println(curactor.getName()+" µÄÕ»²»Îª¿Õ£¬¿´µ±Ç°actor µÄÕ»¶¥");
+                System.out.println(curactor.getName()+" çš„æ ˆä¸ä¸ºç©ºï¼Œçœ‹å½“å‰actor çš„æ ˆé¡¶");
                 State state=((State) (((ActorTask) ss.peek()).getObject()));
-                // T1-2 ¡¢T1-6µÄ½áÊø±êÇ©
+                // T1-2 ã€T1-6çš„ç»“æŸæ ‡ç­¾
                 if(state instanceof StateT1_2 || state instanceof StateT1_6){
-                    System.out.println(curactor.getName()+" µÄÕ»¶¥ÊÇ "+state);
+                    System.out.println(curactor.getName()+" çš„æ ˆé¡¶æ˜¯ "+state);
                     state.endElementDo(tag, layer, curactor);
                 }
             }else {
-                System.out.println(curactor.getName()+" µÄÕ»Îª¿Õ£¬µ±Ç° actor É¾³ı");
+                System.out.println(curactor.getName()+" çš„æ ˆä¸ºç©ºï¼Œå½“å‰ actor åˆ é™¤");
                 actorManager.detachActor(curactor);
             }
         }

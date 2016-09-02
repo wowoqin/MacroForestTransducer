@@ -12,7 +12,7 @@ import java.util.*;
  * Created by qin on 2015/10/10.
  */
 public class StateT1_7 extends StateT1 implements Cloneable{
-    protected State _q1;//¼ì²éºóĞø path
+    protected State _q1;//æ£€æŸ¥åç»­ path
 
     protected StateT1_7(ASTPath path, State q1) {
         super(path);
@@ -20,32 +20,32 @@ public class StateT1_7 extends StateT1 implements Cloneable{
         this._pathstack=new Stack();
     }
 
-    public static State TranslateState(ASTPath path) {//ÖØĞÂ´´½¨T1-7
+    public static State TranslateState(ASTPath path) {//é‡æ–°åˆ›å»ºT1-7
         State q1 = StateT1.TranslateStateT1(path.getRemainderPath());
         return new StateT1_7(path, q1);
     }
 
     public void startElementDo(String tag, int layer,MyStateActor curactor) throws CloneNotSupportedException{
         if ((layer >= getLevel()) && (tag.equals(_test))) {
-           // System.out.println("T1-7.startElementDoÖĞ£¬µ±Ç°actorµÄÊıÁ¿£º" + actors.size());
-            // ÔÚ tlist ÖĞÌí¼ÓĞèÒªµÈ´ıÆ¥ÅäµÄÈÎÎñÄ£ĞÍ
+            // System.out.println("T1-7.startElementDoä¸­ï¼Œå½“å‰actorçš„æ•°é‡ï¼š" + actors.size());
+            // åœ¨ tlist ä¸­æ·»åŠ éœ€è¦ç­‰å¾…åŒ¹é…çš„ä»»åŠ¡æ¨¡å‹
             addWTask(new WaitTask(layer,true,null));
 
             String name=((Integer)this._pathstack.hashCode()).toString().concat("T1-7.paActor");
             //Actor actor=actors.get(name);
-            if(this._pathstack.isEmpty()){  // ÈôpathActor »¹Ã»ÓĞ´´½¨ --> _pathstack Ò»¶¨Îª¿Õ
-                System.out.println("T1-7.testÆ¥Åä && pathactor == null");
+            if(this._pathstack.isEmpty()){  // è‹¥pathActor è¿˜æ²¡æœ‰åˆ›å»º --> _pathstack ä¸€å®šä¸ºç©º
+                System.out.println("T1-7.teståŒ¹é… && pathactor == null");
                 _q1.setLevel(layer + 1);
                 curactor.createAnotherActor(name, this._pathstack, new ActorTask(layer, _q1, false));
 //                actor =actorManager.createAndStartActor(MyStateActor.class, name);
 //                actors.put(actor.getName(), actor);
 //
 //                actorManager.send(new DefaultMessage("resActor", null), curactor, actor);
-//                //·¢ËÍ q'' ¸ø paActor
+//                //å‘é€ q'' ç»™ paActor
 //                _q1.setLevel(layer + 1);
 //                actorManager.send(new DefaultMessage("pushTask", new ActorTask(layer,_q1,false)),curactor,actor);
-            } else{  // Èôpath  actor ÒÑ¾­´´½¨ÁË,Ôò·¢ËÍ q'' ¸ø paActor¼´¿É
-                //System.out.println("T1-7.testÆ¥Åä && pathactor != null£¬µ±Ç°actorµÄÊıÁ¿£º" + actors.length);
+            } else{  // è‹¥path  actor å·²ç»åˆ›å»ºäº†,åˆ™å‘é€ q'' ç»™ paActorå³å¯
+                //System.out.println("T1-7.teståŒ¹é… && pathactor != nullï¼Œå½“å‰actorçš„æ•°é‡ï¼š" + actors.length);
                 State currQ=(State)_q1.copy();
                 currQ.setLevel(layer + 1);
                 dmessage=new DefaultMessage("pushTask",new ActorTask(layer,currQ,false));
@@ -60,27 +60,27 @@ public class StateT1_7 extends StateT1 implements Cloneable{
     }
 
     public void endElementDo(String tag,int layer,MyStateActor curactor){
-        if (tag.equals(_test)) {  // Óöµ½×Ô¼ºµÄ½áÊø±êÇ©£¬¼ì²é
+        if (tag.equals(_test)) {  // é‡åˆ°è‡ªå·±çš„ç»“æŸæ ‡ç­¾ï¼Œæ£€æŸ¥
             for(int i=0;i<getList().size();i++){
                 WaitTask wtask=(WaitTask) getList().get(i);
                 if(wtask.hasReturned()){
                     curactor.doNext(wtask);
-                }else{//µÈ´ı--ºóĞøpathµÄ½á¹û»¹Î´´«»ØÀ´£¬
-                    //µ±Ç°½áÊø±êÇ©ÏÈ²»´¦Àí
+                }else{//ç­‰å¾…--åç»­pathçš„ç»“æœè¿˜æœªä¼ å›æ¥ï¼Œ
+                    //å½“å‰ç»“æŸæ ‡ç­¾å…ˆä¸å¤„ç†
                     curactor.addMessage(new DefaultMessage("endE", new ActorTask(layer, tag)));
-                    curactor.peekNext("pathResult");//ÓÅÏÈ´¦Àípath·µ»Ø½á¹ûµÄÏûÏ¢
+                    curactor.peekNext("pathResult");//ä¼˜å…ˆå¤„ç†pathè¿”å›ç»“æœçš„æ¶ˆæ¯
                     actorManager.awaitMessage(curactor);
                 }
             }
-        }else if (layer == getLevel() - 1) { // Óöµ½ÉÏ²ã½áÊø±êÇ©(T1-7×÷ÎªÒ»¸öºóĞøµÄpath)
-            // (ÄÜÓöµ½ÉÏ²ã½áÊø±êÇ©£¬¼´T1-7×÷ÎªÒ»¸öºóĞøµÄpath
-            // £¨T1-5 µÄÊ±ºòÒ²»á·ÅÔÚstackActorÖĞ£©£¬T1-6~T1-8»á±»·ÅÔÚpaActorÖĞ)
-            // T1-5 µÄºóĞøµÄpathÊ±£¬ÓëT1-5 ·ÅÔÚÍ¬Ò»¸öÕ»£¬T1-6~T1-8 ·ÅÔÚpathstackÖĞ
-            curactor.popFunction();   // T1-7µ¯Õ»
+        }else if (layer == getLevel() - 1) { // é‡åˆ°ä¸Šå±‚ç»“æŸæ ‡ç­¾(T1-7ä½œä¸ºä¸€ä¸ªåç»­çš„path)
+            // (èƒ½é‡åˆ°ä¸Šå±‚ç»“æŸæ ‡ç­¾ï¼Œå³T1-7ä½œä¸ºä¸€ä¸ªåç»­çš„path
+            // ï¼ˆT1-5 çš„æ—¶å€™ä¹Ÿä¼šæ”¾åœ¨stackActorä¸­ï¼‰ï¼ŒT1-6~T1-8ä¼šè¢«æ”¾åœ¨paActorä¸­)
+            // T1-5 çš„åç»­çš„pathæ—¶ï¼Œä¸T1-5 æ”¾åœ¨åŒä¸€ä¸ªæ ˆï¼ŒT1-6~T1-8 æ”¾åœ¨pathstackä¸­
+            curactor.popFunction();   // T1-7å¼¹æ ˆ
             Stack ss=curactor.getMyStack();
-            if(ss.isEmpty()) {   // µ¯ÍêÖ®ºóµ±Ç°actor ËùÔÚµÄstack Îª¿ÕÁË£¬ÔòÉ¾³ıµ±Ç° actor
+            if(ss.isEmpty()) {   // å¼¹å®Œä¹‹åå½“å‰actor æ‰€åœ¨çš„stack ä¸ºç©ºäº†ï¼Œåˆ™åˆ é™¤å½“å‰ actor
                 actorManager.detachActor(curactor);
-            }else{                      // T1-7 ×÷Îª T1-5 µÄºóĞø path
+            }else{                      // T1-7 ä½œä¸º T1-5 çš„åç»­ path
                 State state =(State)((ActorTask)(ss.peek())).getObject();
                 if(state instanceof StateT1_5){
                     state.endElementDo(tag,layer,curactor);

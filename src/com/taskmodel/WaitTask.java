@@ -5,18 +5,18 @@ import com.ibm.actor.DefaultMessage;
 /**
  * Created by qin on 2016/3/28.
  */
-public class WaitTask {   // ÔÚ actor µÄlist ÖĞÌí¼ÓµÄÈÎÎñ
+public class WaitTask {   // åœ¨ actor çš„list ä¸­æ·»åŠ çš„ä»»åŠ¡
     protected  int id;          // id
-    protected  Boolean predR;   // Î½´ÊµÄ·µ»Ø½á¹û
-    protected  String  pathR;   // ºóĞø path µÄ·µ»Ø½á¹û»òÕßÊÇpreds'µÄ·µ»Ø½á¹û
+    protected  Boolean predR;   // è°“è¯çš„è¿”å›ç»“æœ
+    protected  String  pathR;   // åç»­ path çš„è¿”å›ç»“æœæˆ–è€…æ˜¯preds'çš„è¿”å›ç»“æœ
 
     /*
-    * ÔÚ´Ë£ºT1-1 ~ T1-4 : pathR ÖĞ´æ·ÅµÚÒ»²½µÄÆ¥Åä½á¹û --> test
-    *      T1-5 ~ T1-8 : pathR ÖĞ´æ·ÅºóĞø path µÄ¼ì²é½á¹û
-    *      T2-1 ~ T2-4 : pathR ÖĞÖ±½Ó´æ·Å¡°True¡±
-    *      T3-1 ~ T3-4 : pathR ÖĞ´æ·Å preds'µÄ¼ì²é½á¹û
+    * åœ¨æ­¤ï¼šT1-1 ~ T1-4 : pathR ä¸­å­˜æ”¾ç¬¬ä¸€æ­¥çš„åŒ¹é…ç»“æœ --> test
+    *      T1-5 ~ T1-8 : pathR ä¸­å­˜æ”¾åç»­ path çš„æ£€æŸ¥ç»“æœ
+    *      T2-1 ~ T2-4 : pathR ä¸­ç›´æ¥å­˜æ”¾â€œTrueâ€
+    *      T3-1 ~ T3-4 : pathR ä¸­å­˜æ”¾ preds'çš„æ£€æŸ¥ç»“æœ
     *
-    *      ·µ»ØµÄ¼ì²é½á¹û£¨ActorTask£©µÄ id Óë tlist ÖĞµÄµÈ´ıÈÎÎñÄ£ĞÍ£¨WaitTask£©µÄid ÏàÆ¥Åä
+    *      è¿”å›çš„æ£€æŸ¥ç»“æœï¼ˆActorTaskï¼‰çš„ id ä¸ tlist ä¸­çš„ç­‰å¾…ä»»åŠ¡æ¨¡å‹ï¼ˆWaitTaskï¼‰çš„id ç›¸åŒ¹é…
     * */
 
     public WaitTask(int id, Boolean predR, String pathR) {
@@ -55,7 +55,7 @@ public class WaitTask {   // ÔÚ actor µÄlist ÖĞÌí¼ÓµÄÈÎÎñ
         return false;
     }
 
-    public boolean pathRIsT1(){//tag »òÕß¡°NF¡±
+    public boolean pathRIsT1(){//tag æˆ–è€…â€œNFâ€
         return (getPathR()!=null && getPathR()!="true");
     }
 
@@ -67,26 +67,26 @@ public class WaitTask {   // ÔÚ actor µÄlist ÖĞÌí¼ÓµÄÈÎÎñ
         return ((getPredR()!=null) && (getPathR()!=null));
     }
 
-    public boolean isSatisfiedOut() { // ¼ì²éµ±Ç° waitTask ÊÇ²»ÊÇÒÑ¾­Âú×ãÊä³öÌõ¼ş£¨¿ÉÒÔ½øĞĞÊä³ö²Ù×÷ÁË£©
+    public boolean isSatisfiedOut() { // æ£€æŸ¥å½“å‰ waitTask æ˜¯ä¸æ˜¯å·²ç»æ»¡è¶³è¾“å‡ºæ¡ä»¶ï¼ˆå¯ä»¥è¿›è¡Œè¾“å‡ºæ“ä½œäº†ï¼‰
         return (isPredRTrue() && (pathRIsT1()) && (!getPathR().equals("NF")));
     }
 
     public boolean isPathNotNull(){
         return (getPathR()!=null);
     }
-    public  boolean isPredsSatisified(){ //wt×÷ÎªÒ»¸öÎ½´Ê£¬¼ì²é³É¹¦ (id,true,"true")
+    public  boolean isPredsSatisified(){ //wtä½œä¸ºä¸€ä¸ªè°“è¯ï¼Œæ£€æŸ¥æˆåŠŸ (id,true,"true")
         return (isPredRTrue() && (isPathNotNull() && getPathR().equals("true")));
     }
 
-    public  boolean isWaitT3FirstPreds(){ //wt×÷ÎªÒ»¸öÎ½´ÊT3£¬q''³É¹¦£¬q'''»¹Ã»¼ì²é³É¹¦ //(id,false,"true")
+    public  boolean isWaitT3FirstPreds(){ //wtä½œä¸ºä¸€ä¸ªè°“è¯T3ï¼Œq''æˆåŠŸï¼Œq'''è¿˜æ²¡æ£€æŸ¥æˆåŠŸ //(id,false,"true")
         return (getPredR()==null && getPathR().equals("true"));
     }
 
-    public  boolean isWaitT3ParallPreds(){ //wt×÷ÎªÒ»¸öÎ½´ÊT3£¬q'''³É¹¦£¬q''»¹Ã»¼ì²é³É¹¦ //(id,true,"false")
+    public  boolean isWaitT3ParallPreds(){ //wtä½œä¸ºä¸€ä¸ªè°“è¯T3ï¼Œq'''æˆåŠŸï¼Œq''è¿˜æ²¡æ£€æŸ¥æˆåŠŸ //(id,true,"false")
         return (isPredRTrue() && getPathR()==null);
     }
 
-    public void output(){ //Êä³ö×îÖÕµÄ¼ì²é½á¹û
+    public void output(){ //è¾“å‡ºæœ€ç»ˆçš„æ£€æŸ¥ç»“æœ
         System.out.println(this.getPathR());
     }
 }

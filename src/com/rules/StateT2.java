@@ -27,16 +27,16 @@ public class StateT2 extends  State implements Cloneable{
 
 
     public static StateT2 TranslateStateT2(ASTPreds preds){
-        //¸ù¾İÖáÀàĞÍÑ¡ÔñĞÔµÄµ÷ÓÃT2¹æÔò
+        //æ ¹æ®è½´ç±»å‹é€‰æ‹©æ€§çš„è°ƒç”¨T2è§„åˆ™
         if(preds.getFirstStep().getAxisType()== AxisType.PC)
         {
             if (preds.getFirstStep().getPreds().toString().equals(""))
-                return StateT2_1.TranslateState(preds);//ÎŞºóĞøÎ½´Ê
-            return StateT2_2.TranslateState(preds);//ÓĞºóĞøÎ½´Ê
+                return StateT2_1.TranslateState(preds);//æ— åç»­è°“è¯
+            return StateT2_2.TranslateState(preds);//æœ‰åç»­è°“è¯
         }else{
             if (preds.getFirstStep().getPreds().toString().equals("")) //AD
-                return StateT2_3.TranslateState(preds);//ÎŞºóĞøÎ½´Ê
-            return StateT2_4.TranslateState(preds);//ÓĞºóĞøÎ½´Ê
+                return StateT2_3.TranslateState(preds);//æ— åç»­è°“è¯
+            return StateT2_4.TranslateState(preds);//æœ‰åç»­è°“è¯
         }
     }
 

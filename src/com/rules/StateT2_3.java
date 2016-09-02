@@ -15,11 +15,11 @@ public class StateT2_3 extends StateT2{
         super(preds);
     }
 
-    public static StateT2 TranslateState(ASTPreds preds){//ÖØĞÂ´´½¨T2-3
+    public static StateT2 TranslateState(ASTPreds preds){//é‡æ–°åˆ›å»ºT2-3
         return new StateT2_3(preds);
     }
 
-    public void startElementDo(String tag,int layer,MyStateActor curactor) throws CloneNotSupportedException {// layer ÊÇµ±Ç° tag µÄ²ãÊı
+    public void startElementDo(String tag,int layer,MyStateActor curactor) throws CloneNotSupportedException {// layer æ˜¯å½“å‰ tag çš„å±‚æ•°
         if((layer >= getLevel()) && (tag.equals(_test))){
             Stack ss=curactor.getMyStack();
             ActorTask atask=((ActorTask) ss.peek());
@@ -27,41 +27,41 @@ public class StateT2_3 extends StateT2{
             boolean isInSelf=atask.isInSelf();
 
             List list=this.getList();
-            if(!list.isEmpty()){  //T3-3 && T3-3.q'''¼ì²é³É¹¦
+            if(!list.isEmpty()){  //T3-3 && T3-3.q'''æ£€æŸ¥æˆåŠŸ
                 WaitState waitState=new WaitState();
                 waitState.setLevel(((State) atask.getObject()).getLevel());
                 waitState.getList().add(list.get(0));
                 curactor.popFunction();
-                //(id,T2-3,isInself) »»Îª £¨id,qw,isInself£©
+                //(id,T2-3,isInself) æ¢ä¸º ï¼ˆid,qw,isInselfï¼‰
                 curactor.pushTaskDo(new ActorTask(id, waitState, isInSelf));
-                //ÉèÖÃ T3-3.q'''¼ì²é³É¹¦-->
-                curactor.sendPredsResult(new ActorTask(id, true, true));//È·¶¨ÊÇ¸ø×Ô¼ºµÄ
-                /*ÔÚÎ½´ÊÈ«²¿Âú×ã»òÕßq''²»Âú×ãµ¯Õ»µÄÊ±ºò--> Õ»¶¥Îª(id,qw,isInSelf)£º
-                 *  1. Âú×ã£ºwt£¨layer,true,"true"£©
-                *   2. ²»Âú×ã£ºwt£¨layer,true,"false"£©
-                *                          µ¯ qw ÁËÖ®ºó£º£º£º-->Õ»¶¥(id,T2-3,false)
+                //è®¾ç½® T3-3.q'''æ£€æŸ¥æˆåŠŸ-->
+                curactor.sendPredsResult(new ActorTask(id, true, true));//ç¡®å®šæ˜¯ç»™è‡ªå·±çš„
+                /*åœ¨è°“è¯å…¨éƒ¨æ»¡è¶³æˆ–è€…q''ä¸æ»¡è¶³å¼¹æ ˆçš„æ—¶å€™--> æ ˆé¡¶ä¸º(id,qw,isInSelf)ï¼š
+                 *  1. æ»¡è¶³ï¼šwtï¼ˆlayer,true,"true"ï¼‰
+                *   2. ä¸æ»¡è¶³ï¼šwtï¼ˆlayer,true,"false"ï¼‰
+                *                          å¼¹ qw äº†ä¹‹åï¼šï¼šï¼š-->æ ˆé¡¶(id,T2-3,false)
                 * */
             }else{  //T2-3
-                //·¢ËÍÎ½´Ê½á¹û && pop µ±Ç°Õ»¶¥
+                //å‘é€è°“è¯ç»“æœ && pop å½“å‰æ ˆé¡¶
                 curactor.popFunction();
                 curactor.sendPredsResult(new ActorTask(id, true, isInSelf));
                 if(ss.isEmpty()){
                     actorManager.detachActor(curactor);
                 }else{
-                    //pop ÍêÁËÖ®ºó»¹ÊÇT2-3 && T2-3 ÊÇÒª´«¸øÉÏ¼¶actorµÄ
+                    //pop å®Œäº†ä¹‹åè¿˜æ˜¯T2-3 && T2-3 æ˜¯è¦ä¼ ç»™ä¸Šçº§actorçš„
                     atask=((ActorTask) ss.peek());
                     State state=(State)atask.getObject();
-                    if((state instanceof StateT2_3) && !isInSelf){// T2-3 ×÷Îª AD ÖátestµÄÎ½´Ê
-                       curactor.processSameADPred();
+                    if((state instanceof StateT2_3) && !isInSelf){// T2-3 ä½œä¸º AD è½´testçš„è°“è¯
+                        curactor.processSameADPred();
                     }
                 }
             }
         }
     }
 
-    //Î½´ÊÒªÊÇÄÜ×Ô¼ºÓö¼ûÉÏ²ã½áÊø±êÇ©£¬Ôò±íÃ÷×Ô¼ºÊÇ¼ì²éÊ§°ÜµÄ
+    //è°“è¯è¦æ˜¯èƒ½è‡ªå·±é‡è§ä¸Šå±‚ç»“æŸæ ‡ç­¾ï¼Œåˆ™è¡¨æ˜è‡ªå·±æ˜¯æ£€æŸ¥å¤±è´¥çš„
     public void endElementDo(String tag,int layer,MyStateActor curactor){
-        // ×Ô¼ºÄÜÓöµ½ÉÏ²ã½áÊø±êÇ©£¬Î½´Ê¼ì²éÊ§°Ü£¬µ¯Õ» && remove µÈ´ıµ±Ç°Õ»¶¥T2-3½á¹ûµÄ wt
+        // è‡ªå·±èƒ½é‡åˆ°ä¸Šå±‚ç»“æŸæ ‡ç­¾ï¼Œè°“è¯æ£€æŸ¥å¤±è´¥ï¼Œå¼¹æ ˆ && remove ç­‰å¾…å½“å‰æ ˆé¡¶T2-3ç»“æœçš„ wt
         if (layer == getLevel() - 1) {
             Stack ss=curactor.getMyStack();
             ActorTask atask=((ActorTask) ss.peek());//(id,T2-3,isInself)
@@ -69,12 +69,12 @@ public class StateT2_3 extends StateT2{
             boolean isInSelf=atask.isInSelf();
             //pop(id,T2-3,isInself)
             curactor.popFunction();
-            //·¢ÏûÏ¢£¨id,false,isInself£©
+            //å‘æ¶ˆæ¯ï¼ˆid,false,isInselfï¼‰
             curactor.sendPredsResult(new ActorTask(id, false, isInSelf));
-            //µ±Ç°Õ»²»Îª¿Õ£¬Õ»¶¥½øĞĞendElementDo ²Ù×÷£¨Êä³ö£¨T1-2»òÕßT1-6£©
+            //å½“å‰æ ˆä¸ä¸ºç©ºï¼Œæ ˆé¡¶è¿›è¡ŒendElementDo æ“ä½œï¼ˆè¾“å‡ºï¼ˆT1-2æˆ–è€…T1-6ï¼‰
             if (!ss.isEmpty()) {
                 State state=((State) (((ActorTask) ss.peek()).getObject()));
-                // T1-2 ¡¢T1-6µÄ½áÊø±êÇ©
+                // T1-2 ã€T1-6çš„ç»“æŸæ ‡ç­¾
                 if(state instanceof StateT1_2 || state instanceof StateT1_6){
                     state.endElementDo(tag, layer, curactor);
                 }

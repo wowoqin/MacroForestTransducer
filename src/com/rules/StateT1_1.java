@@ -18,44 +18,44 @@ public class StateT1_1 extends StateT1 {
 
     }
 
-    public static State TranslateState(ASTPath path) {//ÖØĞÂ´´½¨T1-1
+    public static State TranslateState(ASTPath path) {//é‡æ–°åˆ›å»ºT1-1
         return new StateT1_1(path);
     }
 
     public void startElementDo(String tag, int layer, MyStateActor curactor) {
-        if ((getLevel() == layer) && (tag.equals(_test))) {//Ó¦¸ÃÆ¥ÅäµÄ²ãÊı-->getLayer£¨£©ºÍ µ±Ç°±êÇ©-->tag µÄ²ãÊıÏàµÈ
-            // ÔÚ list ÖĞÌí¼ÓĞèÒª¼ì²é³É¹¦µÄÈÎÎñÄ£ĞÍ
+        if ((getLevel() == layer) && (tag.equals(_test))) {//åº”è¯¥åŒ¹é…çš„å±‚æ•°-->getLayerï¼ˆï¼‰å’Œ å½“å‰æ ‡ç­¾-->tag çš„å±‚æ•°ç›¸ç­‰
+            // åœ¨ list ä¸­æ·»åŠ éœ€è¦æ£€æŸ¥æˆåŠŸçš„ä»»åŠ¡æ¨¡å‹
             addWTask(new WaitTask(layer, true, tag));
         }
     }
 
     public void endElementDo(String tag,int layer,MyStateActor curactor){
-        // T1-1 ²»ĞèÒªµÈ´ı
-        if(tag.equals(_test)){//Óöµ½×Ô¼ºµÄ½áÊø±êÇ©£¬¼ì²é×Ô¼ºµÄlistÖĞµÄ wt -->Êä³ö/remove
-            System.out.println("T1-1Óöµ½×Ô¼º½áÊø±êÇ©-->doNext");
+        // T1-1 ä¸éœ€è¦ç­‰å¾…
+        if(tag.equals(_test)){//é‡åˆ°è‡ªå·±çš„ç»“æŸæ ‡ç­¾ï¼Œæ£€æŸ¥è‡ªå·±çš„listä¸­çš„ wt -->è¾“å‡º/remove
+            System.out.println("T1-1é‡åˆ°è‡ªå·±ç»“æŸæ ‡ç­¾-->doNext");
             List list=getList();
             curactor.doNext((WaitTask) list.get(0));
-        }else if (layer == getLevel() - 1) { // Óöµ½ÉÏ²ã½áÊø±êÇ©
-            // (ÄÜÓöµ½ÉÏ²ã½áÊø±êÇ©£¬¼´T1-1×÷ÎªÒ»¸öºóĞøµÄpath£¨T1-5 µÄÊ±ºòÒ²»á·ÅÔÚstackActorÖĞ£©£¬T1-6~T1-8»á±»·ÅÔÚpaActorÖĞ)
-            // T1-5 Ê±£¬ÓëT1-5 ·ÅÔÚÍ¬Ò»¸öÕ»£¬T1-6~T1-8 ·ÅÔÚpathstack
+        }else if (layer == getLevel() - 1) { // é‡åˆ°ä¸Šå±‚ç»“æŸæ ‡ç­¾
+            // (èƒ½é‡åˆ°ä¸Šå±‚ç»“æŸæ ‡ç­¾ï¼Œå³T1-1ä½œä¸ºä¸€ä¸ªåç»­çš„pathï¼ˆT1-5 çš„æ—¶å€™ä¹Ÿä¼šæ”¾åœ¨stackActorä¸­ï¼‰ï¼ŒT1-6~T1-8ä¼šè¢«æ”¾åœ¨paActorä¸­)
+            // T1-5 æ—¶ï¼Œä¸T1-5 æ”¾åœ¨åŒä¸€ä¸ªæ ˆï¼ŒT1-6~T1-8 æ”¾åœ¨pathstack
             Stack ss=curactor.getMyStack();
             ActorTask task=(ActorTask)ss.peek();//(id,T1-1,isInSelf)
             List list=getList();
-            if(!list.isEmpty()){  //ÉÏ´«T1-1.test
-                System.out.println("T1-1Óöµ½ÉÏ²ã½áÊø±êÇ©-->´«µİ½á¹û");
+            if(!list.isEmpty()){  //ä¸Šä¼ T1-1.test
+                System.out.println("T1-1é‡åˆ°ä¸Šå±‚ç»“æŸæ ‡ç­¾-->ä¼ é€’ç»“æœ");
                 WaitTask wt=(WaitTask)list.get(0);
-                for(int i=0;i<list.size();i++){//Ò²Ğí»áÓĞ¶à¸öÂú×ãµÄ±êÇ©, /a/b  »òÕß //a/b-->¶¼´ú±íaµÄËùÓĞbº¢×Ó
-                    //¶¼ÉÏ´«
+                for(int i=0;i<list.size();i++){//ä¹Ÿè®¸ä¼šæœ‰å¤šä¸ªæ»¡è¶³çš„æ ‡ç­¾, /a/b  æˆ–è€… //a/b-->éƒ½ä»£è¡¨açš„æ‰€æœ‰bå­©å­
+                    //éƒ½ä¸Šä¼ 
                     boolean isInself=task.isInSelf();
-                    if(isInself){//T1-5µÄºóĞøpath£¬ÔòÓÅÏÈ´¦ÀípathµÄ·µ»Ø½á¹û£¬¶ø²»ÊÇT1-5 µÄ½áÊø±êÇ©
-                        System.out.println("T1-1×÷Îª T1-5 µÄ path-->T1-5Ó¦¸ÃÏÈ´¦Àí pathR");
+                    if(isInself){//T1-5çš„åç»­pathï¼Œåˆ™ä¼˜å…ˆå¤„ç†pathçš„è¿”å›ç»“æœï¼Œè€Œä¸æ˜¯T1-5 çš„ç»“æŸæ ‡ç­¾
+                        System.out.println("T1-1ä½œä¸º T1-5 çš„ path-->T1-5åº”è¯¥å…ˆå¤„ç† pathR");
                         curactor.peekNext("pathResult");
                     }
                     else{
                         State state =(State)((ActorTask)
                                 (((MyStateActor)(curactor.getResActor())).getMyStack().peek())).getObject();
                         if (state instanceof StateT1_7){
-                            System.out.println("T1-1×÷Îª T1-7 µÄ path--> T1-7Ó¦¸ÃÏÈ´¦Àí pathR");
+                            System.out.println("T1-1ä½œä¸º T1-7 çš„ path--> T1-7åº”è¯¥å…ˆå¤„ç† pathR");
                             curactor.peekNext("pathResult");
                         }
                     }
@@ -63,10 +63,10 @@ public class StateT1_1 extends StateT1 {
                 }
             }
             //pop(T1-1)
-            curactor.popFunction();   // T1-1µ¯Õ»
-            if(ss.isEmpty()) {   // µ¯ÍêÖ®ºóµ±Ç°actor ËùÔÚµÄstack Îª¿ÕÁË£¬ÔòÉ¾³ıµ±Ç° actor
+            curactor.popFunction();   // T1-1å¼¹æ ˆ
+            if(ss.isEmpty()) {   // å¼¹å®Œä¹‹åå½“å‰actor æ‰€åœ¨çš„stack ä¸ºç©ºäº†ï¼Œåˆ™åˆ é™¤å½“å‰ actor
                 actorManager.detachActor(curactor);
-            }else{                      // T1-1 ×÷Îª T1-5 µÄºóĞø path
+            }else{                      // T1-1 ä½œä¸º T1-5 çš„åç»­ path
                 State state =(State)((ActorTask)(ss.peek())).getObject();
                 if(state instanceof StateT1_5){
                     state.endElementDo(tag,layer,curactor);

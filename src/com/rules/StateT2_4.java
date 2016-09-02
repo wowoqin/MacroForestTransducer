@@ -13,7 +13,7 @@ import java.util.Stack;
  * Created by qin on 2015/10/10.
  */
 public class StateT2_4 extends StateT2 implements Cloneable{
-    protected  State _q3;//¼ì²é preds
+    protected  State _q3;//æ£€æŸ¥ preds
 
     protected  StateT2_4(ASTPreds preds,State q3){
         super(preds);
@@ -22,24 +22,24 @@ public class StateT2_4 extends StateT2 implements Cloneable{
         _predstack=new Stack();
     }
 
-    public static StateT2 TranslateState(ASTPreds preds){//ÖØĞÂ´´½¨T2-4
+    public static StateT2 TranslateState(ASTPreds preds){//é‡æ–°åˆ›å»ºT2-4
         State q3=StateT3.TranslateStateT3(preds.getFirstStep().getPreds());
         return new StateT2_4(preds,q3);
     }
     public void startElementDo(String tag,int layer,MyStateActor curactor) throws CloneNotSupportedException{
         if ((layer >= getLevel()) && (tag.equals(_test))) {
-            // µÈ q' µÄ½á¹û
+            // ç­‰ q' çš„ç»“æœ
             addWTask(new WaitTask(layer, null, "true"));
 
             String name=((Integer)this._predstack.hashCode()).toString().concat("T2-4.prActor");
-            if(this._predstack.isEmpty()){// Èô prActor»¹Ã»ÓĞ´´½¨ £¬predstack Ò»¶¨Îª¿Õ
+            if(this._predstack.isEmpty()){// è‹¥ prActorè¿˜æ²¡æœ‰åˆ›å»º ï¼Œpredstack ä¸€å®šä¸ºç©º
                 curactor.createAnotherActor(name,this._predstack, new ActorTask(layer,_q3,false));
 //                actor =actorManager.createAndStartActor(MyStateActor.class, name);
 //                actors.put(actor.getName(),actor);
 //
 //                dmessage=new DefaultMessage("resActor", null);
 //                actorManager.send(dmessage, curactor, actor);
-//                //·¢ËÍ q'¸ø prActor
+//                //å‘é€ q'ç»™ prActor
 //                _q3.setLevel(layer + 1);
 //                actorManager.send(new DefaultMessage("pushTask", new ActorTask(layer,_q3,false)),
 //                                                                                    curactor,actor);
@@ -65,12 +65,12 @@ public class StateT2_4 extends StateT2 implements Cloneable{
             boolean isInSelf=atask.isInSelf();
             //pop(T2-4)
             curactor.popFunction();
-            //·¢ÏûÏ¢£¨id,false,isInself£©
+            //å‘æ¶ˆæ¯ï¼ˆid,false,isInselfï¼‰
             curactor.sendPredsResult(new ActorTask(id,false, isInSelf));
-            //µ±Ç°Õ»²»Îª¿Õ£¬Õ»¶¥½øĞĞendElementDo ²Ù×÷£¨Êä³ö£¨T1-2»òÕßT1-6£©/µ¯Õ»£¨ÏàÍ¬½áÊø±êÇ©µÄwaitState£©µÈ£©
+            //å½“å‰æ ˆä¸ä¸ºç©ºï¼Œæ ˆé¡¶è¿›è¡ŒendElementDo æ“ä½œï¼ˆè¾“å‡ºï¼ˆT1-2æˆ–è€…T1-6ï¼‰/å¼¹æ ˆï¼ˆç›¸åŒç»“æŸæ ‡ç­¾çš„waitStateï¼‰ç­‰ï¼‰
             if (!ss.isEmpty()) {
                 State state=((State) (((ActorTask) ss.peek()).getObject()));
-                // T1-2 ¡¢T1-6µÄ½áÊø±êÇ©
+                // T1-2 ã€T1-6çš„ç»“æŸæ ‡ç­¾
                 if(state instanceof StateT1_2 || state instanceof StateT1_6){
                     state.endElementDo(tag, layer, curactor);
                 }

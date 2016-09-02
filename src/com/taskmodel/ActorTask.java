@@ -7,30 +7,30 @@ import java.util.List;
  * Created by qin on 2016/3/28.
  *
  */
-public class ActorTask {// actor Ö®¼ä½»»¥µÄÊı¾İ
+public class ActorTask {// actor ä¹‹é—´äº¤äº’çš„æ•°æ®
     /*
-    * ·µ»ØµÄ¼ì²é½á¹û£¨ActorTask£©µÄ id Óë tlist ÖĞµÄµÈ´ıÈÎÎñÄ£ĞÍ£¨WaitTask£©µÄid ÏàÆ¥Åä
+    * è¿”å›çš„æ£€æŸ¥ç»“æœï¼ˆActorTaskï¼‰çš„ id ä¸ tlist ä¸­çš„ç­‰å¾…ä»»åŠ¡æ¨¡å‹ï¼ˆWaitTaskï¼‰çš„id ç›¸åŒ¹é…
     * */
     protected int id;//id
-    // ·¢ËÍ¸ø actorµÄÊı¾İ£¬
-    // Èç£ºq£¨State£©¡¢qName£¨String£©¡¢q'µÄ·µ»Ø½á¹û£¨True/False£©¡¢q''µÄ·µ»Ø½á¹û£¨String£©
+    // å‘é€ç»™ actorçš„æ•°æ®ï¼Œ
+    // å¦‚ï¼šqï¼ˆStateï¼‰ã€qNameï¼ˆStringï¼‰ã€q'çš„è¿”å›ç»“æœï¼ˆTrue/Falseï¼‰ã€q''çš„è¿”å›ç»“æœï¼ˆStringï¼‰
     protected Object object;
-    protected Object[] objects;//Ö»ÓĞĞÂ´´½¨µÄactor½øĞĞres&&pushµÄÊ±ºòÓÃµ½
-    protected boolean isInSelf;//±êÊ¶¼ì²é½á¹û´«¸ø×Ô¼º»¹ÊÇ´«¸øÉÏ¼¶actor
+    protected Object[] objects;//åªæœ‰æ–°åˆ›å»ºçš„actorè¿›è¡Œres&&pushçš„æ—¶å€™ç”¨åˆ°
+    protected boolean isInSelf;//æ ‡è¯†æ£€æŸ¥ç»“æœä¼ ç»™è‡ªå·±è¿˜æ˜¯ä¼ ç»™ä¸Šçº§actor
 
     //protected List list;
 
-    public ActorTask(int id, Object object) {//actorÖ®¼ä´«µÄÏûÏ¢(id,qName)
+    public ActorTask(int id, Object object) {//actorä¹‹é—´ä¼ çš„æ¶ˆæ¯(id,qName)
         this.id = id;
         this.object = object;
     }
 
-    public ActorTask(int id, Object[] objects) {//actorÖ®¼ä´«µÄÏûÏ¢(id,{stack,task)
+    public ActorTask(int id, Object[] objects) {//actorä¹‹é—´ä¼ çš„æ¶ˆæ¯(id,{stack,task)
         this.id = id;
         this.objects = objects;
     }
 
-    public ActorTask(int id, Object object, boolean flg) {//Õ»ÄÚÔªËØ(id,q,isInSelf)¡¢£¨id,true/tag,isInself)
+    public ActorTask(int id, Object object, boolean flg) {//æ ˆå†…å…ƒç´ (id,q,isInSelf)ã€ï¼ˆid,true/tag,isInself)
         this.id = id;
         this.object = object;
         this.isInSelf = flg;

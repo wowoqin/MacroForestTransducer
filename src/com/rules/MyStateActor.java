@@ -15,8 +15,8 @@ import java.util.Stack;
  */
 public class MyStateActor extends AbstractActor {
 
-    protected Stack myStack;    //Ã¿¸öactor ÖĞÓ¦¸ÃÓĞÒ»¸ö stack £¬Ò²¾ÍÊÇÒ»¸ö stack ¶ÔÓ¦ÓÚÒ»¸ö actor
-    protected Actor resActor;  //ÉÏ¼¶ Actor
+    protected Stack myStack;    //æ¯ä¸ªactor ä¸­åº”è¯¥æœ‰ä¸€ä¸ª stack ï¼Œä¹Ÿå°±æ˜¯ä¸€ä¸ª stack å¯¹åº”äºä¸€ä¸ª actor
+    protected Actor resActor;  //ä¸Šçº§ Actor
 
 
     public MyStateActor(){}
@@ -68,13 +68,13 @@ public class MyStateActor extends AbstractActor {
     @Override
     protected void runBody() {}
 
-    /* stateActor ÄÜ¹»½ÓÊÕµ½µÄÏûÏ¢£º
-        * stateActor Ö®¼ä£ºresActor:    ÉèÖÃÉÏ¼¶ actor
-        *                 pushTask£º    q'/ q''
+    /* stateActor èƒ½å¤Ÿæ¥æ”¶åˆ°çš„æ¶ˆæ¯ï¼š
+        * stateActor ä¹‹é—´ï¼šresActor:    è®¾ç½®ä¸Šçº§ actor
+        *                 pushTaskï¼š    q'/ q''
         *                 predResult:   True/false
-        *                 pathResult:   Ò»¿Å×ÓÊ÷ / null
-        *                 setCategory£º  T3Î½´ÊÖĞ preds' Ëù¶ÔÓ¦µÄ actorµÄÀàĞÍ£¨String£©
-        *                 qName£º        startE¡¢endE
+        *                 pathResult:   ä¸€é¢—å­æ ‘ / null
+        *                 setCategoryï¼š  T3è°“è¯ä¸­ preds' æ‰€å¯¹åº”çš„ actorçš„ç±»å‹ï¼ˆStringï¼‰
+        *                 qNameï¼š        startEã€endE
         *  */
     @Override
     protected void loopBody(Message message) {
@@ -82,7 +82,7 @@ public class MyStateActor extends AbstractActor {
         String subject = message.getSubject();
         Object data=message.getData();
         if("resActor&&pushTask".equals(subject)){ //  data = {stack,task}
-            System.out.println("´´½¨ÁËĞÂµÄactor£º" + this.getName() + " £¬È»ºóÉèÖÃÆä resActor && ÓëÕ»Ïà¹ØÁª&& Ñ¹Õ»");
+            System.out.println("åˆ›å»ºäº†æ–°çš„actorï¼š" + this.getName() + " ï¼Œç„¶åè®¾ç½®å…¶ resActor && ä¸æ ˆç›¸å…³è”&& å‹æ ˆ");
             Object[] data2=(Object[])data;
             this.setResActor(message.getSource());
             this.setMyStack((Stack) data2[0]);
@@ -92,65 +92,65 @@ public class MyStateActor extends AbstractActor {
                 e.printStackTrace();
             }
             //this.peekNext("pushTask");
-        }else if("setCategory".equals(subject)){    // actorTask,²¢ÇÒ data ÊÇÒ»¸ö string
+        }else if("setCategory".equals(subject)){    // actorTask,å¹¶ä¸” data æ˜¯ä¸€ä¸ª string
             this.setCategory((String) data);
         }else{
             ActorTask task=(ActorTask)data;// task
-            // ÊÇÒ»¸öactorTask
+            // æ˜¯ä¸€ä¸ªactorTask
             if(task!=null){
-                // object ÊÇ q£¨State£©¡¢qName£¨String£©¡¢q'µÄ·µ»Ø½á¹û£¨True/False£©¡¢q''µÄ·µ»Ø½á¹û£¨String£©
+                // object æ˜¯ qï¼ˆStateï¼‰ã€qNameï¼ˆStringï¼‰ã€q'çš„è¿”å›ç»“æœï¼ˆTrue/Falseï¼‰ã€q''çš„è¿”å›ç»“æœï¼ˆStringï¼‰
                 Object object = task.getObject();
                 Stack  ss = this.getMyStack();
                 State  currQ;
 
-                if("pushTask".equals(subject)){       // actorTask,²¢ÇÒ data ÊÇÒ»¸ö q3
+                if("pushTask".equals(subject)){       // actorTask,å¹¶ä¸” data æ˜¯ä¸€ä¸ª q3
                     try {
                         this.pushTaskDo(task);
                     } catch (CloneNotSupportedException e) {
                         e.printStackTrace();
                     }
                 }
-                else if("predResult".equals(subject)){     // actorTask,²¢ÇÒ data ÊÇÒ»¸öq'µÄ·µ»Ø½á¹û£¨True£©
-                    // ÊÕµ½Î½´Ê·µ»Ø½á¹ûºó£¬ÔÚµ±Ç°Õ»¶¥µÄstate.listÖĞÕÒµ½ÏàÓ¦µÄwtµÄID£¬È»ºó½«Î½´Ê¼ì²éµÄ½á¹ûÖØĞÂ¸³Öµ
-                    System.out.println(this.getName()+" ¿ªÊ¼´¦Àí½ÓÊÕµ½µÄ predResult");
-                    ActorTask atask = (ActorTask) ss.peek();//Õ»¶¥task
+                else if("predResult".equals(subject)){     // actorTask,å¹¶ä¸” data æ˜¯ä¸€ä¸ªq'çš„è¿”å›ç»“æœï¼ˆTrueï¼‰
+                    // æ”¶åˆ°è°“è¯è¿”å›ç»“æœåï¼Œåœ¨å½“å‰æ ˆé¡¶çš„state.listä¸­æ‰¾åˆ°ç›¸åº”çš„wtçš„IDï¼Œç„¶åå°†è°“è¯æ£€æŸ¥çš„ç»“æœé‡æ–°èµ‹å€¼
+                    System.out.println(this.getName()+" å¼€å§‹å¤„ç†æ¥æ”¶åˆ°çš„ predResult");
+                    ActorTask atask = (ActorTask) ss.peek();//æ ˆé¡¶task
                     int id = atask.getId();
-                    State state = (State) atask.getObject();//Õ»¶¥ state
+                    State state = (State) atask.getObject();//æ ˆé¡¶ state
                     List list=state.getList();
 
-                    for(int i=list.size()-1;i>=0;i--){//ÒªÊÇÓĞ¶à¸öµÈ´ıÍ¬Ò»Î½´Ê¼ì²é½á¹ûµÄwt(T1-6¡¢T1-8)£¬ĞèÒª°ÑÃ¿Ò»¸öµÄ½á¹û¶¼ÉèÖÃÁË
+                    for(int i=list.size()-1;i>=0;i--){//è¦æ˜¯æœ‰å¤šä¸ªç­‰å¾…åŒä¸€è°“è¯æ£€æŸ¥ç»“æœçš„wt(T1-6ã€T1-8)ï¼Œéœ€è¦æŠŠæ¯ä¸€ä¸ªçš„ç»“æœéƒ½è®¾ç½®äº†
                         WaitTask wt = (WaitTask) (list.get(i));
-                        if(message.getSource()==this){   //ÏûÏ¢À´×Ô×Ô¼º
+                        if(message.getSource()==this){   //æ¶ˆæ¯æ¥è‡ªè‡ªå·±
                             wt.setPredR((Boolean)(task.getObject()));
-                        }else {//ÏûÏ¢À´×ÔÏÂ¼¶ actor
-                            if(message.getSource().getCategory().equals("T3PredsActor")){//T3µÄÎ½´ÊÕ»
-                                System.out.println(this.getName()+" loopBody ´¦ÀíT3²¢ÁĞÎ½´Ê·µ»Ø½á¹û");
+                        }else {//æ¶ˆæ¯æ¥è‡ªä¸‹çº§ actor
+                            if(message.getSource().getCategory().equals("T3PredsActor")){//T3çš„è°“è¯æ ˆ
+                                System.out.println(this.getName()+" loopBody å¤„ç†T3å¹¶åˆ—è°“è¯è¿”å›ç»“æœ");
                                 wt.setPathR((String) (task.getObject()));
                             }else{  // T2
-                                System.out.println(this.getName()+" loopBody ´¦ÀíT2Î½´ÊµÄ·µ»Ø½á¹û");
+                                System.out.println(this.getName()+" loopBody å¤„ç†T2è°“è¯çš„è¿”å›ç»“æœ");
                                 wt.setPredR((Boolean)(task.getObject()));
                             }
                         }
                         if(((MyStateActor)message.getSource()).getMyStack().isEmpty()){
                             getManager().detachActor(message.getSource());
-                            System.out.println("detach Ö®ºó£ºµ±Ç°actorµÄÊıÁ¿£º" + State.actorManager.getActors().length);
+                            System.out.println("detach ä¹‹åï¼šå½“å‰actorçš„æ•°é‡ï¼š" + State.actorManager.getActors().length);
                         }
-                        //ÖØĞÂÉèÖÃÍê³ÉÖ®ºó¿´µ±Ç°ÉèÖÃÍêµÄwtÊÇ²»ÊÇÎ½´ÊÂú×ãµÄ-->ËµÃ÷Ö®Ç°·µ»ØµÄÎ½´Ê½á¹ûÖ»ÊÇ×÷ÎªÎ½´ÊµÄÎ½´Ê
-                        if (wt.isPredsSatisified()){//Î½´Ê³É¹¦
-                            if(state instanceof StateT2_1){       //Ô­À´ÊÇT3-1
-                                //popÕ»¶¥£»·¢ËÍ true
+                        //é‡æ–°è®¾ç½®å®Œæˆä¹‹åçœ‹å½“å‰è®¾ç½®å®Œçš„wtæ˜¯ä¸æ˜¯è°“è¯æ»¡è¶³çš„-->è¯´æ˜ä¹‹å‰è¿”å›çš„è°“è¯ç»“æœåªæ˜¯ä½œä¸ºè°“è¯çš„è°“è¯
+                        if (wt.isPredsSatisified()){//è°“è¯æˆåŠŸ
+                            if(state instanceof StateT2_1){       //åŸæ¥æ˜¯T3-1
+                                //popæ ˆé¡¶ï¼›å‘é€ true
                                 this.popFunction();
                                 this.sendPredsResult(new ActorTask(id,true,atask.isInSelf()));
                             }else if(state instanceof StateT2_2){
                                 if(list.size()==1){ //T2-2
-                                    //popÕ»¶¥£»·¢ËÍ true
+                                    //popæ ˆé¡¶ï¼›å‘é€ true
                                     this.popFunction();
                                     this.sendPredsResult(new ActorTask(id,true,atask.isInSelf()));
-                                }else{//Ô­À´ÊÇT3-2,ÏÖÔÚÖ»ÊÇT2-2¼ì²é³É¹¦
+                                }else{//åŸæ¥æ˜¯T3-2,ç°åœ¨åªæ˜¯T2-2æ£€æŸ¥æˆåŠŸ
                                     list.remove(wt);
-                                    if(i==0){//T3-2¼ì²é³É¹¦(q''Ö®Ç°¾Í¼ì²é³É¹¦ÁË)
+                                    if(i==0){//T3-2æ£€æŸ¥æˆåŠŸ(q''ä¹‹å‰å°±æ£€æŸ¥æˆåŠŸäº†)
                                         this.sendPredsResult(new ActorTask(id,true,atask.isInSelf()));
-                                    }else{//i==1£¬T2-2¼ì²é³É¹¦(ÎŞÂÛÖ®Ç°q''ÊÇ·ñ¼ì²é³É¹¦£¬¶¼ÏÈ¸ø×Ô¼ºsetPredR=true)
+                                    }else{//i==1ï¼ŒT2-2æ£€æŸ¥æˆåŠŸ(æ— è®ºä¹‹å‰q''æ˜¯å¦æ£€æŸ¥æˆåŠŸï¼Œéƒ½å…ˆç»™è‡ªå·±setPredR=true)
                                         WaitState qw=new WaitState();
                                         qw.setLevel(state.getLevel());
                                         qw.getList().add(state.getList().get(0));
@@ -163,62 +163,62 @@ public class MyStateActor extends AbstractActor {
                                         this.sendPredsResult(new ActorTask(id,true,true));
                                     }
                                 }
-                            }else if(state instanceof StateT2_3){ //Ô­À´ÊÇT3-3 && q''ÏÈ¼ì²é³É¹¦--(id,null,"true")
-                                //popÕ»¶¥£»·¢ËÍ true
+                            }else if(state instanceof StateT2_3){ //åŸæ¥æ˜¯T3-3 && q''å…ˆæ£€æŸ¥æˆåŠŸ--(id,null,"true")
+                                //popæ ˆé¡¶ï¼›å‘é€ true
                                 this.popFunction();
                                 this.sendPredsResult(new ActorTask(id, true, atask.isInSelf()));
-                                atask = (ActorTask) ss.peek();//Õ»¶¥task
-                                state = (State) atask.getObject();//Õ»¶¥ state
+                                atask = (ActorTask) ss.peek();//æ ˆé¡¶task
+                                state = (State) atask.getObject();//æ ˆé¡¶ state
                                 if(!ss.isEmpty()){
-                                    if((state instanceof StateT2_3) && (!atask.isInSelf())){// T2-3 ×÷Îª AD ÖátestµÄÎ½´Ê
+                                    if((state instanceof StateT2_3) && (!atask.isInSelf())){// T2-3 ä½œä¸º AD è½´testçš„è°“è¯
                                         this.processSameADPred();
                                     }
                                 }
                             }else if(state instanceof StateT2_4){
                                 WaitTask wts=(WaitTask)list.get(0);
-                                if(wts.isWaitT3ParallPreds()){ //(id,true,null)--Ô­À´ÊÇT3-4 && q''»¹Î´¼ì²é³É¹¦
-                                    //T2-4 »»Îª qw
+                                if(wts.isWaitT3ParallPreds()){ //(id,true,null)--åŸæ¥æ˜¯T3-4 && q''è¿˜æœªæ£€æŸ¥æˆåŠŸ
+                                    //T2-4 æ¢ä¸º qw
                                     WaitState wq=new WaitState();
                                     wq.setLevel(state.getLevel());
                                     wq.getList().add(wts);
-                                    this.popFunction();//pop µÄÊ±ºòË³´øÒ² clear ÁË list
+                                    this.popFunction();//pop çš„æ—¶å€™é¡ºå¸¦ä¹Ÿ clear äº† list
                                     try {
                                         this.pushTaskDo(new ActorTask(id,wq,atask.isInSelf()));
                                     } catch (CloneNotSupportedException e) {
                                         e.printStackTrace();
                                     }
-                                }else{//(id,null,"true")---¡·Ô­À´ÊÇT2-4£»
-                                    // »òÕß £¨Ô­À´ÊÇT3-4 && q''ÏÈ¼ì²é³É¹¦-->ÏÖÔÚÕû¸öT3-4¶¼¼ì²é³É¹¦£©
-                                    //popÕ»¶¥£»·¢ËÍ true
+                                }else{//(id,null,"true")---ã€‹åŸæ¥æ˜¯T2-4ï¼›
+                                    // æˆ–è€… ï¼ˆåŸæ¥æ˜¯T3-4 && q''å…ˆæ£€æŸ¥æˆåŠŸ-->ç°åœ¨æ•´ä¸ªT3-4éƒ½æ£€æŸ¥æˆåŠŸï¼‰
+                                    //popæ ˆé¡¶ï¼›å‘é€ true
                                     this.popFunction();
                                     this.sendPredsResult(new ActorTask(id,true,atask.isInSelf()));
                                     if(!ss.isEmpty()){
-                                        atask = (ActorTask) ss.peek();//Õ»¶¥task
-                                        state = (State) atask.getObject();//Õ»¶¥ state
-                                        if((state instanceof StateT2_4) && (!atask.isInSelf())){// T2-4 ×÷Îª AD ÖátestµÄÎ½´Ê
+                                        atask = (ActorTask) ss.peek();//æ ˆé¡¶task
+                                        state = (State) atask.getObject();//æ ˆé¡¶ state
+                                        if((state instanceof StateT2_4) && (!atask.isInSelf())){// T2-4 ä½œä¸º AD è½´testçš„è°“è¯
                                             this.processSameADPred();
                                         }
                                     }
                                 }
-                            }else if(state instanceof WaitState){//q'''ÒÑ¾­ÏÈ¼ì²é³É¹¦£¬ÏÖÔÚq''Ò²¼ì²é³É¹¦ÁË
-                                //popÕ»¶¥£»·¢ËÍ true
+                            }else if(state instanceof WaitState){//q'''å·²ç»å…ˆæ£€æŸ¥æˆåŠŸï¼Œç°åœ¨q''ä¹Ÿæ£€æŸ¥æˆåŠŸäº†
+                                //popæ ˆé¡¶ï¼›å‘é€ true
                                 this.popFunction();
                                 this.sendPredsResult(new ActorTask(id,true,atask.isInSelf()));
                                 if(!ss.isEmpty()){
-                                    atask = (ActorTask) ss.peek();//Õ»¶¥task
-                                    state = (State) atask.getObject();//Õ»¶¥ state
-                                    if(((state instanceof StateT2_3) || (state instanceof StateT2_4)) && (!atask.isInSelf())){// T2-3/T2-4 ×÷Îª AD ÖátestµÄÎ½´Ê
+                                    atask = (ActorTask) ss.peek();//æ ˆé¡¶task
+                                    state = (State) atask.getObject();//æ ˆé¡¶ state
+                                    if(((state instanceof StateT2_3) || (state instanceof StateT2_4)) && (!atask.isInSelf())){// T2-3/T2-4 ä½œä¸º AD è½´testçš„è°“è¯
                                         this.processSameADPred();
                                     }
                                 }
                             }
                         }
                         else if(wt.isWaitT3ParallPreds()){ // (id,true,null)
-                            //q'''¼ì²é³É¹¦£¬q''»¹Ã»¼ì²é³É¹¦
+                            //q'''æ£€æŸ¥æˆåŠŸï¼Œq''è¿˜æ²¡æ£€æŸ¥æˆåŠŸ
                             WaitState wq=new WaitState();
                             wq.setLevel(state.getLevel());
                             wq.getList().add(wt);
-                            this.popFunction();//pop µÄÊ±ºòË³´øÒ² clear ÁË list
+                            this.popFunction();//pop çš„æ—¶å€™é¡ºå¸¦ä¹Ÿ clear äº† list
                             try {
                                 this.pushTaskDo(new ActorTask(id,wq,task.isInSelf()));
                             } catch (CloneNotSupportedException e) {
@@ -226,30 +226,30 @@ public class MyStateActor extends AbstractActor {
                             }
                         }
                     }
-                }else if("pathResult".equals(subject)){ // actorTask,²¢ÇÒ data ÊÇÒ»¸öq''µÄ·µ»Ø½á¹û£¨String£©
-                    // ÔÚ waitTask ÖĞÕÒµ½ÏàÓ¦µÄID£¬È»ºó½«ºóĞø path ¼ì²éµÄ½á¹û ÖØĞÂ¸³Öµ
-                    ActorTask atask = (ActorTask) ss.peek();//Õ»¶¥task
-                    State state = (State) atask.getObject();//Õ»¶¥ state
-                    //¸øÕ»¶¥q.listÖĞµÄ wt ¸³Öµ
+                }else if("pathResult".equals(subject)){ // actorTask,å¹¶ä¸” data æ˜¯ä¸€ä¸ªq''çš„è¿”å›ç»“æœï¼ˆStringï¼‰
+                    // åœ¨ waitTask ä¸­æ‰¾åˆ°ç›¸åº”çš„IDï¼Œç„¶åå°†åç»­ path æ£€æŸ¥çš„ç»“æœ é‡æ–°èµ‹å€¼
+                    ActorTask atask = (ActorTask) ss.peek();//æ ˆé¡¶task
+                    State state = (State) atask.getObject();//æ ˆé¡¶ state
+                    //ç»™æ ˆé¡¶q.listä¸­çš„ wt èµ‹å€¼
                     List list=state.getList();
                     WaitTask wt = (WaitTask) (list.get(list.size()-1));
-                    System.out.println(state+" ÔÚ loopbody ÖĞ´¦Àí´«»ØµÄ pathResult");
-                    if(wt.getPathR()!=null){// ÒÑ¾­ÓĞºóĞøpath¼ì²é³É¹¦µÄÏàÍ¬²ã¼¶µÄ½á¹û
-                        System.out.println(state+" µÄlist ÖĞÒÑ¾­ÓĞ´«»ØµÄ pathResults");
+                    System.out.println(state+" åœ¨ loopbody ä¸­å¤„ç†ä¼ å›çš„ pathResult");
+                    if(wt.getPathR()!=null){// å·²ç»æœ‰åç»­pathæ£€æŸ¥æˆåŠŸçš„ç›¸åŒå±‚çº§çš„ç»“æœ
+                        System.out.println(state+" çš„list ä¸­å·²ç»æœ‰ä¼ å›çš„ pathResults");
                         list.add(wt);
-                        System.out.println(state+" µÄ list ÖĞÒÑÓĞµÄwt µÄÊıÁ¿ÊÇ£º"+list.size());
+                        System.out.println(state+" çš„ list ä¸­å·²æœ‰çš„wt çš„æ•°é‡æ˜¯ï¼š"+list.size());
                     }else{
-                        System.out.println(state+" µÄlist ÖĞ»¹Ã»ÓĞ´«»ØµÄ pathResults");
+                        System.out.println(state+" çš„list ä¸­è¿˜æ²¡æœ‰ä¼ å›çš„ pathResults");
                         wt.setPathR((String) (task.getObject()));
                     }
-                }else{   // actorTask,²¢ÇÒ data ÊÇÒ»¸öqName£¨String£©
+                }else{   // actorTask,å¹¶ä¸” data æ˜¯ä¸€ä¸ªqNameï¼ˆStringï¼‰
                     if (!ss.isEmpty()) {
-                        // ÕÒµ½µ±Ç° actor µÄµ±Ç°Õ»¶¥µÄµ±Ç° state
+                        // æ‰¾åˆ°å½“å‰ actor çš„å½“å‰æ ˆé¡¶çš„å½“å‰ state
                         currQ = (State) (((ActorTask) (ss.peek())).getObject());
                         String tag = (String)object;
                         int layer = task.getId();
                         if((!State.actors.isEmpty()) && (this.getName().equals("stackActor"))){
-                            System.out.println("ÓÉ "+this.getName()+" ÏòÆäËüactor·¢ËÍ±êÇ© "+tag);
+                            System.out.println("ç”± "+this.getName()+" å‘å…¶å®ƒactorå‘é€æ ‡ç­¾ "+tag);
                             for(String key:State.actors.keySet()){
                                 Actor to=State.actors.get(key);
                                 getManager().send(message,null,to);
@@ -257,14 +257,14 @@ public class MyStateActor extends AbstractActor {
                         }
 
                         if("startE".equals(subject)){
-                            System.out.println(this.getName()+" ÔÚ loopBody ÖĞ¿ªÊ¼´¦Àí½ÓÊÕµ½ startE£º"+tag);
+                            System.out.println(this.getName()+" åœ¨ loopBody ä¸­å¼€å§‹å¤„ç†æ¥æ”¶åˆ° startEï¼š"+tag);
                             try {
                                 currQ.startElementDo(tag, layer, this);
                             } catch (CloneNotSupportedException e) {
                                 e.printStackTrace();
                             }
                         }else if("endE".equals(subject)){
-                            System.out.println(this.getName() + " ÔÚ loopBody ÖĞ¿ªÊ¼´¦Àí½ÓÊÕµ½ endE£º" + tag);
+                            System.out.println(this.getName() + " åœ¨ loopBody ä¸­å¼€å§‹å¤„ç†æ¥æ”¶åˆ° endEï¼š" + tag);
                             currQ.endElementDo(tag, layer, this);
                         }
                     }
@@ -273,23 +273,23 @@ public class MyStateActor extends AbstractActor {
         }
 
 
-        //É¾³ı·¢ËÍµÄÏûÏ¢-->Ã¿¸öActor½ÓÊÕµÄ×î´óÏûÏ¢ÊıÁ¿=100
+        //åˆ é™¤å‘é€çš„æ¶ˆæ¯-->æ¯ä¸ªActoræ¥æ”¶çš„æœ€å¤§æ¶ˆæ¯æ•°é‡=100
         //this.remove(message);
     }
 
     public void pushTaskDo(ActorTask actorTask) throws CloneNotSupportedException {
         Stack curstack=this.getMyStack();
-        State state=(State)(actorTask.getObject());     // ÒªÑ¹Õ»µÄ state
+        State state=(State)(actorTask.getObject());     // è¦å‹æ ˆçš„ state
 
         if(state instanceof StateT1||state instanceof StateT2||state instanceof WaitState){
             if(curstack!=null){
                 curstack.push(actorTask);
-                System.out.println(this.getName()+" µÄÕ»ÖĞÑ¹ÈëÁË"+ state);
+                System.out.println(this.getName()+" çš„æ ˆä¸­å‹å…¥äº†"+ state);
             }
         }else {
             int id=actorTask.getId();
             boolean isInSelf=actorTask.isInSelf();
-            int level=((State)(actorTask.getObject())).getLevel();// T3 ÒªÆ¥ÅäµÄ²ãÊı
+            int level=((State)(actorTask.getObject())).getLevel();// T3 è¦åŒ¹é…çš„å±‚æ•°
 
             if(state instanceof StateT3_1){
                 State firstPred=((StateT3_1) state)._q2; // T2-1
@@ -298,12 +298,12 @@ public class MyStateActor extends AbstractActor {
                 remainPred.setLevel(level);
                 //push(q''')
                 curstack.push(new ActorTask(id, firstPred, isInSelf));
-                //ÔÚ T3-1.q'''.list ÖĞÌí¼ÓÒªµÈ´ıµÄ wt
+                //åœ¨ T3-1.q'''.list ä¸­æ·»åŠ è¦ç­‰å¾…çš„ wt
                 firstPred.getList().add(new WaitTask(id, null, null));
 
                 Stack stack=((StateT3_1) state)._predstack;
                 String name=((Integer)(stack).hashCode()).toString().concat("T3-1.prActor");
-                //push(q'')-->¼ÌĞøµ÷ÓÃ´Ëº¯ÊıÅĞ¶ÏÑ¹Õ»
+                //push(q'')-->ç»§ç»­è°ƒç”¨æ­¤å‡½æ•°åˆ¤æ–­å‹æ ˆ
                 if(stack.isEmpty()){
                     Actor actor=getManager().createAndStartActor(this.getClass(), name);
                     DefaultMessage message=new DefaultMessage("resActor&&pushTask",new Object[]{stack,new ActorTask(id,remainPred,false)});
@@ -321,7 +321,7 @@ public class MyStateActor extends AbstractActor {
                 firPred.setLevel(level);
                 remainPred.setLevel(level);
                 curstack.push(new ActorTask(id, firPred, isInSelf));
-                //ÔÚ T3-2.q'''.list ÖĞÌí¼ÓÒªµÈ´ıµÄ wt
+                //åœ¨ T3-2.q'''.list ä¸­æ·»åŠ è¦ç­‰å¾…çš„ wt
                 firPred.getList().add(new WaitTask(id, null, null));
                 Stack stack=((StateT3_2) state)._predstack;
                 String name=((Integer)(stack).hashCode()).toString().concat("T3-2.prActor");
@@ -342,7 +342,7 @@ public class MyStateActor extends AbstractActor {
                 firstPred.setLevel(level);
                 remainPred.setLevel(level);
                 curstack.push(new ActorTask(id, firstPred, isInSelf));
-                //ÔÚ T3-3.q'''.list ÖĞÌí¼ÓÒªµÈ´ıµÄ wt
+                //åœ¨ T3-3.q'''.list ä¸­æ·»åŠ è¦ç­‰å¾…çš„ wt
                 firstPred.getList().add(new WaitTask(id, null, null));
                 Stack stack=((StateT3_3) state)._predstack;
                 String name=((Integer)(stack).hashCode()).toString().concat("T3-3.prActor");
@@ -356,14 +356,14 @@ public class MyStateActor extends AbstractActor {
                     DefaultMessage message=new DefaultMessage("pushTask",new ActorTask(id,currQ,false));
                     Actor actor=State.actors.get(name);
                     getManager().send(message, this, actor);
-               }
+                }
             }else if(state instanceof StateT3_4){
                 State firstPred=((StateT3_4) state)._q2;  //T2-4
                 State remainPred=((StateT3_4) state)._q3;  // q''
                 firstPred.setLevel(level);
                 remainPred.setLevel(level);
                 curstack.push(new ActorTask(id, firstPred, isInSelf));
-                //ÔÚ T3-4.q'''.list ÖĞÌí¼ÓÒªµÈ´ıµÄ wt
+                //åœ¨ T3-4.q'''.list ä¸­æ·»åŠ è¦ç­‰å¾…çš„ wt
                 firstPred.getList().add(new WaitTask(id, null, null));
                 Stack stack=((StateT3_4) state)._predstack;
                 String name=((Integer)(stack).hashCode()).toString().concat("T3-4.prActor");
@@ -385,38 +385,38 @@ public class MyStateActor extends AbstractActor {
     public void popFunction(){
         Stack currStack = this.getMyStack();
         if(!currStack.isEmpty()){
-            System.out.println(this.getName() + " Ö´ĞĞ popFunction");
+            System.out.println(this.getName() + " æ‰§è¡Œ popFunction");
             currStack.pop();
         }
     }
 
-    public void sendPredsResult(ActorTask actorTask){// Î½´Ê¼ì²é³É¹¦£¬ÉÏ´«½á¹û£¨id£¬true£©¸øÏàÓ¦µÄ wt
+    public void sendPredsResult(ActorTask actorTask){// è°“è¯æ£€æŸ¥æˆåŠŸï¼Œä¸Šä¼ ç»“æœï¼ˆidï¼Œtrueï¼‰ç»™ç›¸åº”çš„ wt
         DefaultMessage message=new DefaultMessage("predResult",actorTask);
         if(actorTask.isInSelf()){
-            this.peekNext("predResult");//ÓÅÏÈ´¦ÀíÎ½´Ê·µ»Ø
+            this.peekNext("predResult");//ä¼˜å…ˆå¤„ç†è°“è¯è¿”å›
             getManager().send(message, this, this);
-            System.out.println(this.getName() + " sendPredResults  To ×Ô¼º");
+            System.out.println(this.getName() + " sendPredResults  To è‡ªå·±");
         }
         else {
             MyStateActor  res = (MyStateActor)this.getResActor();
-            res.peekNext("predResult");//ÓÅÏÈ´¦ÀíÎ½´Ê·µ»Ø
+            res.peekNext("predResult");//ä¼˜å…ˆå¤„ç†è°“è¯è¿”å›
             getManager().send(message, this, res);
-            System.out.println(this.getName() + " sendPredResults  To ÉÏ¼¶");
+            System.out.println(this.getName() + " sendPredResults  To ä¸Šçº§");
         }
 //        this.popFunction();
     }
 
-    public boolean sendPathResult(ActorTask actorTask){// path¼ì²é³É¹¦£¬ÉÏ´«½á¹û£¨id£¬tag£©¸øÏàÓ¦µÄ wt
+    public boolean sendPathResult(ActorTask actorTask){// pathæ£€æŸ¥æˆåŠŸï¼Œä¸Šä¼ ç»“æœï¼ˆidï¼Œtagï¼‰ç»™ç›¸åº”çš„ wt
         if(actorTask.isInSelf()){
             System.out.println(this.getName()+" sendPathResults  To self");
             DefaultMessage message=new DefaultMessage("pathResult", actorTask);
             getManager().send(message, this, this);
         }else{
-            MyStateActor actor=(MyStateActor)this.getResActor();//ÉÏ¼¶actor
-            State state = (State)((ActorTask)(actor.getMyStack()).peek()).getObject();//ÉÏ¼¶actorµÄÕ»¶¥ state
+            MyStateActor actor=(MyStateActor)this.getResActor();//ä¸Šçº§actor
+            State state = (State)((ActorTask)(actor.getMyStack()).peek()).getObject();//ä¸Šçº§actorçš„æ ˆé¡¶ state
             if(state instanceof StateT1){
                 getManager().send(new DefaultMessage("pathResult", actorTask), this, actor);
-            }else return false;//Õ»¶¥ÒªÊÇÎ½´Ê(T1-6.preds)£¬Ôò±êÇ©ÊÇ´«²»¹ıÈ¥µÄ-->´ËÊ±Ñ¡Ôñ²»´«£¬µÈµ½ÏÂÒ»½áÊø±êÇ©»òÕßÊÇÉÏ¼¶½áÊø±êÇ©Ê±ÔÙ´«
+            }else return false;//æ ˆé¡¶è¦æ˜¯è°“è¯(T1-6.preds)ï¼Œåˆ™æ ‡ç­¾æ˜¯ä¼ ä¸è¿‡å»çš„-->æ­¤æ—¶é€‰æ‹©ä¸ä¼ ï¼Œç­‰åˆ°ä¸‹ä¸€ç»“æŸæ ‡ç­¾æˆ–è€…æ˜¯ä¸Šçº§ç»“æŸæ ‡ç­¾æ—¶å†ä¼ 
 
         }
         return true;
@@ -430,30 +430,30 @@ public class MyStateActor extends AbstractActor {
         }else{
             System.out.println(this.getName()+" sendPathResults  To res");
             getManager().send(message, this, this.getResActor());
-            }
+        }
     }
 
-    public void doNext(WaitTask wtask){   //Êä³ö/remove
+    public void doNext(WaitTask wtask){   //è¾“å‡º/remove
         Stack currstack=this.getMyStack();
         ActorTask task=(ActorTask)currstack.peek();
 
-        if (wtask.isSatisfiedOut()) {//µ±Ç° wt Âú×ãÊä³öÌõ¼ş
-            if(this.getName().equals("stackActor") && (currstack.size()==1)){//ÔÚstackÖĞ
-                System.out.println( this.getName()+" doNext && ³É¹¦Êä³ö");
+        if (wtask.isSatisfiedOut()) {//å½“å‰ wt æ»¡è¶³è¾“å‡ºæ¡ä»¶
+            if(this.getName().equals("stackActor") && (currstack.size()==1)){//åœ¨stackä¸­
+                System.out.println( this.getName()+" doNext && æˆåŠŸè¾“å‡º");
                 this.output(wtask);
                 ((State)task.getObject()).removeWTask(wtask);
                 System.out.println(((State)task.getObject()).getList().size());
             }
-//            else { //£¨ÔÚstackÖĞ && ×÷ÎªT1-5µÄºóĞøpath £© »òÕß  £¨×÷ÎªºóĞø path µÄÒ»²¿·ÖÔÚpathÕ»£©
+//            else { //ï¼ˆåœ¨stackä¸­ && ä½œä¸ºT1-5çš„åç»­path ï¼‰ æˆ–è€…  ï¼ˆä½œä¸ºåç»­ path çš„ä¸€éƒ¨åˆ†åœ¨pathæ ˆï¼‰
 //                ((State)task.getObject()).removeWTask(wtask);
 //                boolean isSent=this.sendPathResult(new ActorTask(id, wtask.getPathR(),isInSelf));
-//                //×÷ÎªT1-6µÄºóĞøpathµÄ·µ»Ø½á¹û£¬Èôµ±Ç°Ê±¿ÌÆäpreds»¹Î´¼ì²éÍê³É£¬ÔòĞèÒªÏÈ¼Ä´æÔÚµ±Ç°state.listÖĞ£¬
-//                //Ö±µ½Óöµ½T1-6µÄ½áÊø±êÇ©,½«µ±Ç°listÖĞËùÓĞµÄÂú×ãµÄwt¶¼ÉÏ´«
+//                //ä½œä¸ºT1-6çš„åç»­pathçš„è¿”å›ç»“æœï¼Œè‹¥å½“å‰æ—¶åˆ»å…¶predsè¿˜æœªæ£€æŸ¥å®Œæˆï¼Œåˆ™éœ€è¦å…ˆå¯„å­˜åœ¨å½“å‰state.listä¸­ï¼Œ
+//                //ç›´åˆ°é‡åˆ°T1-6çš„ç»“æŸæ ‡ç­¾,å°†å½“å‰listä¸­æ‰€æœ‰çš„æ»¡è¶³çš„wtéƒ½ä¸Šä¼ 
 //                if(!isSent)
 //                    ((State)task.getObject()).addWTask(wtask);
 //            }
-        }else{//µ½×Ô¼ºµÄ½áÊø±êÇ©£¬µ±Ç°wt²»Âú×ãÊä³öÌõ¼ş
-            System.out.println( this.getName()+" doNext && Ê§°ÜÒÆ³ı");
+        }else{//åˆ°è‡ªå·±çš„ç»“æŸæ ‡ç­¾ï¼Œå½“å‰wtä¸æ»¡è¶³è¾“å‡ºæ¡ä»¶
+            System.out.println( this.getName()+" doNext && å¤±è´¥ç§»é™¤");
             ((State)task.getObject()).removeWTask(wtask);
         }
     }
@@ -463,12 +463,12 @@ public class MyStateActor extends AbstractActor {
         Stack currstack=this.getMyStack();
         while(!currstack.isEmpty()){
             ActorTask task=(ActorTask)currstack.peek();
-            int id=task.getId(); // µ±Ç°Õ»¶¥ taskmodel µÄ id
+            int id=task.getId(); // å½“å‰æ ˆé¡¶ taskmodel çš„ id
             boolean isInSelf=task.isInSelf();
             this.popFunction();
             sendPredsResult(new ActorTask(id,true,isInSelf));
         }
-        //Õ»Îª¿Õ
+        //æ ˆä¸ºç©º
         getManager().detachActor(this);
     }
 
@@ -480,11 +480,11 @@ public class MyStateActor extends AbstractActor {
 
     public void  createAnotherActor(String name,Stack stack,ActorTask task){
         System.out.println(Thread.currentThread().getName());
-        System.out.println(this.getName() + " ´´½¨ÏÂ¼¶ Actor");
+        System.out.println(this.getName() + " åˆ›å»ºä¸‹çº§ Actor");
         Actor actor=getManager().createAndStartActor(this.getClass(), name);
-        System.out.println(actor.getName()+" ÓëÕ»Ïà¹ØÁª");
+        System.out.println(actor.getName()+" ä¸æ ˆç›¸å…³è”");
         ((MyStateActor) actor).setMyStack(stack);
-        System.out.println("ÉèÖÃ "+this.getName()+" µÄÉÏ¼¶ Actor");
+        System.out.println("è®¾ç½® "+this.getName()+" çš„ä¸Šçº§ Actor");
         ((MyStateActor)actor).setResActor(this);
         try {
             ((MyStateActor)actor).pushTaskDo(task);

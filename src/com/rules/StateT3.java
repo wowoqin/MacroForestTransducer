@@ -27,7 +27,7 @@ public class StateT3 extends  State implements Cloneable{
 
 
     public static ASTPreds getSinglePred(ASTPreds preds){
-    //µÃµ½µ±Ç°Î½´ÊµÄµÄµÚÒ»¸öÎ½´Ê£¬Ò²¾ÍÊÇ¡¾child::test preds¡¿»òÕß¡¾desc_or_self::test preds¡¿
+        //å¾—åˆ°å½“å‰è°“è¯çš„çš„ç¬¬ä¸€ä¸ªè°“è¯ï¼Œä¹Ÿå°±æ˜¯ã€child::test predsã€‘æˆ–è€…ã€desc_or_self::test predsã€‘
         ASTPreds single = new ASTPreds();
         single.setFirstStep(preds.getFirstStep());
         single.setRemainderPreds(ASTPreds.nil);
@@ -35,7 +35,7 @@ public class StateT3 extends  State implements Cloneable{
     }
 
     public static State TranslateStateT3(ASTPreds preds){
-    //¸ù¾İÖáÀàĞÍÑ¡ÔñĞÔµÄµ÷ÓÃT3¹æÔò
+        //æ ¹æ®è½´ç±»å‹é€‰æ‹©æ€§çš„è°ƒç”¨T3è§„åˆ™
         if(preds.getRemainderPreds().toString().equals("")){
             return StateT2.TranslateStateT2(preds);
         }else{
