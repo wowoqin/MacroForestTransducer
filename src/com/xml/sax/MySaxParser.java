@@ -35,11 +35,9 @@ public class MySaxParser<T> extends DefaultHandler {
 
         // 创建 stack 对应的 actor--> stackActor
         stackActor = manager.createAndStartActor(MyStateActor.class, "stackActor");
+//        (MyStateActor)stackActor.getThread().join();
         message=new DefaultMessage("resActor&&pushTask",new Object[]{stack,new ActorTask(currentQ.getLevel(),currentQ,true)});
         manager.send(message, null, stackActor);
-//        message=new DefaultMessage("pushTask",new ActorTask(currentQ.getLevel(),currentQ,true));
-//        manager.send(message, null, stackActor);
-
     }
 
 
@@ -54,7 +52,6 @@ public class MySaxParser<T> extends DefaultHandler {
     public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
         message=new DefaultMessage("startE",new ActorTask(layer,qName));
         manager.send(message,null,stackActor);
-        //manager.broadcast(message, null);
         layer++; //layer 是表示在 XML 流中的标签的层数
     }
 
@@ -63,7 +60,6 @@ public class MySaxParser<T> extends DefaultHandler {
         layer--;
         message=new DefaultMessage("endE", new ActorTask(layer, qName));
         manager.send(message,null,stackActor);
-        //manager.broadcast(message, null);
     }
 
 

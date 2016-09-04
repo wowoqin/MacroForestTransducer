@@ -28,13 +28,11 @@ public class StateT1_4 extends StateT1 implements Cloneable {
 
     public  void startElementDo(String tag,int layer,MyStateActor curactor) throws CloneNotSupportedException{
         if ((layer >= getLevel()) && (tag.equals(_test))) {
-            System.out.println("进入了 T1-4 的 startElementDo 方法");
             // 在 list 中添加需要等待匹配的任务模型
             addWTask(new WaitTask(layer, null, tag));
             String name = ((Integer) this._predstack.hashCode()).toString().concat("T1-4.prActor");
 
             if(this._predstack.isEmpty()) {// 若predstack 为空
-                System.out.println("T1-4.test匹配 && 谓词actor == null，则创建 predActor：");
                 Actor actor=actorManager.createAndStartActor(MyStateActor.class, name);
                 actors.put(name,actor);
                 _q3.setLevel(layer + 1);
@@ -42,7 +40,6 @@ public class StateT1_4 extends StateT1 implements Cloneable {
                         new Object[]{this._predstack,new ActorTask(layer, _q3, false)});
                 actorManager.send(dmessage, curactor, actor);
             }else{  // 若谓词 actor 已经创建了,则发送 q' 给 prActor即可
-                System.out.println("T1-4.test匹配 && 谓词actor != null" + "当前actor的数量：" + actors.size());
                 Actor actor=actors.get(name);
                 actor.peekNext("pushTask");
                 State currQ=(State) _q3.copy();
@@ -59,9 +56,7 @@ public class StateT1_4 extends StateT1 implements Cloneable {
             //T1-6.path时，谓词未检查成功就传不过去，T1-4.list.size>=1;
             List list=getList();
             WaitTask wtask = (WaitTask) getList().get(list.size()-1);
-            System.out.println("T1-4遇到自己结束标签;当前线程："+Thread.currentThread().getName()+",当前actor："+curactor.getName());
             if(wtask.hasReturned()){
-                System.out.println("T1-4 的谓词结果已处理完毕");
                 curactor.doNext(wtask);
             }else{//等待--谓词检查的消息已经发出去了，但是或许还没接收到，或许接收到了还没设置完成
                 do{

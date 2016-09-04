@@ -16,6 +16,7 @@ public  abstract class State  implements Cloneable {
     public DefaultMessage dmessage;                       // 中间生成的消息
     public static DefaultActorManager actorManager=DefaultActorManager.getDefaultInstance();
     public static Map<String,Actor> actors=new HashMap<String, Actor>();
+//    public static Set<Actor> actors=new HashSet<Actor>();
 
     protected List list=new LinkedList();//每一个 state 有一个 list，存放其 wt
 
@@ -53,7 +54,6 @@ public  abstract class State  implements Cloneable {
     public abstract Object copy() throws CloneNotSupportedException;
 
     public void addWTask(WaitTask wtask){
-        System.out.println("在 "+this+" 的等待队列中添加等待任务");
         this.getList().add(wtask);
     }
 

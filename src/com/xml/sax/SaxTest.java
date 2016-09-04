@@ -48,7 +48,7 @@ public class SaxTest {
         //State.actorManager.terminateAndWait();
 
         try {
-            Thread.sleep(100000);
+            Thread.sleep(1000000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
