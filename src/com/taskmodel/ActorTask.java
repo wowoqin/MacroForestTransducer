@@ -18,8 +18,6 @@ public class ActorTask {// actor 之间交互的数据
     protected Object[] objects;//只有新创建的actor进行res&&push的时候用到
     protected boolean isInSelf;//标识检查结果传给自己还是传给上级actor
 
-    //protected List list;
-
     public ActorTask(int id, Object object) {//actor之间传的消息(id,qName)
         this.id = id;
         this.object = object;
@@ -53,10 +51,6 @@ public class ActorTask {// actor 之间交互的数据
         this.id = id;
     }
 
-//    public List getList() {
-//        return list;
-//    }
-
     public void setObject(Object[] object) {
         this.object = object;
     }
@@ -69,11 +63,4 @@ public class ActorTask {// actor 之间交互的数据
         this.isInSelf = inSelf;
     }
 
-//    public void addWTask(WaitTask wtask){
-//        if(list==null){
-//            list=new LinkedList();
-//            getList().add(wtask);
-//        }else
-//            getList().add(wtask);
-//    }
 }

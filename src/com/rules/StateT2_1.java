@@ -39,11 +39,10 @@ public class StateT2_1 extends StateT2 {
             }else{  //T2-1
                 //发送谓词结果 && pop 当前栈顶
                 curactor.popFunction();
-                if(curactor.getMyStack().isEmpty()){
-                    actors.remove(curactor.getName());
+                if(curactor.getMyStack().size()==0){
+                        actors.remove(curactor);
                 }
                 curactor.sendPredsResult(new ActorTask(id, true, isInSelf));
-
             }
         }
     }

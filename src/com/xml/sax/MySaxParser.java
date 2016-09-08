@@ -32,12 +32,14 @@ public class MySaxParser<T> extends DefaultHandler {
         path = qp.parseXPath(path_str);
         State currentQ = StateT1.TranslateStateT1(path);//将XPath翻译为各个状态
         Stack stack = new Stack();
+//        stack.push(1);
 
         // 创建 stack 对应的 actor--> stackActor
         stackActor = manager.createAndStartActor(MyStateActor.class, "stackActor");
 //        (MyStateActor)stackActor.getThread().join();
         message=new DefaultMessage("resActor&&pushTask",new Object[]{stack,new ActorTask(currentQ.getLevel(),currentQ,true)});
         manager.send(message, null, stackActor);
+//        Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
     }
 
 

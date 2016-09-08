@@ -16,6 +16,7 @@ public  abstract class State  implements Cloneable {
     public DefaultMessage dmessage;                       // 中间生成的消息
     public static DefaultActorManager actorManager=DefaultActorManager.getDefaultInstance();
     public static Map<String,Actor> actors=new HashMap<String, Actor>();
+//    public static Map<String,Actor> anotheractors=new HashMap<String, Actor>();
 //    public static Set<Actor> actors=new HashSet<Actor>();
 
     protected List list=new LinkedList();//每一个 state 有一个 list，存放其 wt

@@ -1,9 +1,6 @@
 package com.rules;
 
-import com.ibm.actor.AbstractActor;
-import com.ibm.actor.Actor;
-import com.ibm.actor.DefaultMessage;
-import com.ibm.actor.Message;
+import com.ibm.actor.*;
 import com.taskmodel.ActorTask;
 import com.taskmodel.WaitTask;
 
@@ -37,10 +34,6 @@ public class MyStateActor extends AbstractActor {
         return resActor;
     }
 
-    public Thread getThread(){
-        return  Thread.currentThread();
-    }
-
     @Override
     public void activate() {
         super.activate();
@@ -57,17 +50,6 @@ public class MyStateActor extends AbstractActor {
     public int getMaxMessageCount() {
         return super.getMaxMessageCount();
     }
-
-    //@Override
-//    public void addMessage(DefaultMessage message){
-//        DefaultMessage[] messages=getMessages();
-//        synchronized (messages){
-//            for(int i=0;i<messages.length;i++){
-//                messages[i+1]=messages[i];
-//            }
-//            messages[0]=message;
-//        }
-//    }
 
     @Override
     protected void runBody() {}
@@ -104,7 +86,6 @@ public class MyStateActor extends AbstractActor {
                 Object object = task.getObject();
                 Stack  ss = this.getMyStack();
                 State  currQ;
-
                 if("pushTask".equals(subject)){       // actorTask,并且 data 是一个 q3
                     try {
                         this.pushTaskDo(task);
@@ -219,9 +200,13 @@ public class MyStateActor extends AbstractActor {
                             }
                         }
                     }
+                    //
+                    if((this.peekNext(message.getSubject()).getData()).hashCode()==task.hashCode()){
+                        this.remove(message);
+                    }
                     //消息处理完成，detach 栈为空的 actor
                     if(((MyStateActor)message.getSource()).getMyStack().isEmpty()){
-                        getManager().detachActor(message.getSource());
+                        this.getManager().detachActor(message.getSource());
                     }
                 }else if("pathResult".equals(subject)){ // actorTask,并且 data 是一个q''的返回结果（String）
                     // 在 waitTask 中找到相应的ID，然后将后续 path 检查的结果 重新赋值
@@ -261,8 +246,6 @@ public class MyStateActor extends AbstractActor {
                 }
             }
         }
-
-
         //删除发送的消息-->每个Actor接收的最大消息数量=100
         //this.remove(message);
     }
@@ -381,14 +364,14 @@ public class MyStateActor extends AbstractActor {
     public void sendPredsResult(ActorTask actorTask){// 谓词检查成功，上传结果（id，true）给相应的 wt
         DefaultMessage message=new DefaultMessage("predResult",actorTask);
         if(actorTask.isInSelf()){
-            getManager().send(message, this, this);
-            this.loopBody(this.peekNext("predResult"));
+            this.getManager().send(message, this, this);
+            this.loopBody(this.peekNext("predResult"));//优先处理谓词返回结果
             this.remove(this.peekNext("predResult"));
         } else {
             MyStateActor  res = (MyStateActor)this.getResActor();
-            getManager().send(message, this, res);
+            this.getManager().send(message, this, res);
             res.loopBody(res.peekNext("predResult"));
-            res.remove(res.peekNext("predResult"));
+//            res.remove(res.peekNext("predResult"));
         }
     }
 
@@ -440,7 +423,6 @@ public class MyStateActor extends AbstractActor {
     }
 
     public void processSameADPred(){
-        System.out.println(this.getName()+" processSameADPred");
         Stack currstack=this.getMyStack();
         while(!currstack.isEmpty()){
             ActorTask task=(ActorTask)currstack.peek();
@@ -450,22 +432,17 @@ public class MyStateActor extends AbstractActor {
             sendPredsResult(new ActorTask(id,true,isInSelf));
         }
         //栈为空
-        getManager().detachActor(this);
+        this.getManager().detachActor(this);
     }
 
     public void processSameADPath(State state,List list) {
-        System.out.println(this.getName() + " processSameADPath");
         for(int i=0;i<list.size();i++)
             state.getList().add(list.get(i));
     }
 
     public void  createAnotherActor(String name,Stack stack,ActorTask task){
-        System.out.println(Thread.currentThread().getName());
-        System.out.println(this.getName() + " 创建下级 Actor");
         Actor actor=getManager().createAndStartActor(this.getClass(), name);
-        System.out.println(actor.getName()+" 与栈相关联");
         ((MyStateActor) actor).setMyStack(stack);
-        System.out.println("设置 "+this.getName()+" 的上级 Actor");
         ((MyStateActor)actor).setResActor(this);
         try {
             ((MyStateActor)actor).pushTaskDo(task);

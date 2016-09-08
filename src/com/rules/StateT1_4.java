@@ -33,19 +33,35 @@ public class StateT1_4 extends StateT1 implements Cloneable {
             String name = ((Integer) this._predstack.hashCode()).toString().concat("T1-4.prActor");
 
             if(this._predstack.isEmpty()) {// 若predstack 为空
+//                this._predstack.push(1);
                 Actor actor=actorManager.createAndStartActor(MyStateActor.class, name);
                 actors.put(name,actor);
+//                anotheractors.put(name,actor);
+//                synchronized (actors){
+//                    actors.put(name,actor);
+//                }
                 _q3.setLevel(layer + 1);
                 dmessage=new DefaultMessage("resActor&&pushTask",
                         new Object[]{this._predstack,new ActorTask(layer, _q3, false)});
                 actorManager.send(dmessage, curactor, actor);
             }else{  // 若谓词 actor 已经创建了,则发送 q' 给 prActor即可
                 Actor actor=actors.get(name);
-                actor.peekNext("pushTask");
                 State currQ=(State) _q3.copy();
                 currQ.setLevel(layer + 1);
                 dmessage=new DefaultMessage("pushTask",new ActorTask(layer,currQ,false));
                 actorManager.send(dmessage,curactor,actor);
+
+//                synchronized (actors){
+//                    if(actors.get(name)!=null){
+//                        Actor actor=actors.get(name);
+//                        actorManager.send(dmessage,curactor,actor);
+//                    }else{
+//                        Actor actor=anotheractors.get(name);
+//                        actors.put(name,actor);
+//                        actorManager.send(dmessage,curactor,actor);
+//                    }
+//                }
+
             }
         }
     }
