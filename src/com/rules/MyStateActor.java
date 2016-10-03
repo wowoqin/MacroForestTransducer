@@ -67,7 +67,7 @@ public class MyStateActor extends AbstractActor {
         sleep(1);
         String subject = message.getSubject();
         Object data=message.getData();
-        if("resActor&&pushTask".equals(subject)){ //  data = {stack,task}
+        if("resActor&&0pushTask".equals(subject)){ //  data = {stack,task}
             Object[] data2=(Object[])data;
             this.setResActor(message.getSource());
             this.setMyStack((Stack) data2[0]);
@@ -205,9 +205,9 @@ public class MyStateActor extends AbstractActor {
                         this.remove(message);
                     }
                     //消息处理完成，detach 栈为空的 actor
-                    if(((MyStateActor)message.getSource()).getMyStack().isEmpty()){
-                        this.getManager().detachActor(message.getSource());
-                    }
+//                    if(((MyStateActor)message.getSource()).getMyStack().isEmpty()){
+//                        this.getManager().detachActor(message.getSource());
+//                    }
                 }else if("pathResult".equals(subject)){ // actorTask,并且 data 是一个q''的返回结果（String）
                     // 在 waitTask 中找到相应的ID，然后将后续 path 检查的结果 重新赋值
                     ActorTask atask = (ActorTask) ss.peek();//栈顶task
@@ -226,13 +226,14 @@ public class MyStateActor extends AbstractActor {
                         currQ = (State) (((ActorTask) (ss.peek())).getObject());
                         String tag = (String)object;
                         int layer = task.getId();
-                        if((!State.actors.isEmpty()) && (this.getName().equals("stackActor"))){
-                            for(String key:State.actors.keySet()){
-                                Actor to=State.actors.get(key);
-                                getManager().send(message,null,to);
+                        synchronized (State.actors){
+                            if((!State.actors.isEmpty()) && (this.getName().equals("stackActor"))){
+                                for(String key:State.actors.keySet()){
+                                    Actor to=State.actors.get(key);
+                                    getManager().send(message,null,to);
+                                }
                             }
                         }
-
                         if("startE".equals(subject)){
                             try {
                                 currQ.startElementDo(tag, layer, this);
@@ -247,7 +248,7 @@ public class MyStateActor extends AbstractActor {
             }
         }
         //删除发送的消息-->每个Actor接收的最大消息数量=100
-        //this.remove(message);
+//        this.remove(message);
     }
 
     public void pushTaskDo(ActorTask actorTask) throws CloneNotSupportedException {
